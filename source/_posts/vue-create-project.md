@@ -2,7 +2,7 @@
 title: 教你新建一个vue项目
 date: 2019-11-27 14:10:40
 tags:
-  - vue
+  - vuejs
   - vue-cli
   - webpack
 categories:

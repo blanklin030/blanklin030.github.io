@@ -8,9 +8,7 @@ tags:
 categories:
   - tools
 ---
-![cgi](/images/vscode.jpg)
-![cgi](/images/vuejs.jpg)
-![cgi](/images/eslint.jpg)
+
 ## eslint安装
 eslint：Find and fix problems in your JavaScript code
 + 打开Teminal，进入到你的项目根目录后，输入下面命令
@@ -75,7 +73,7 @@ module.exports = {
 "error" or 2 - turn the rule on as an error (exit code will be 1)
 + 安装eslint-plugin-vue
 Official ESLint plugin for Vue.js.
-This plugin allows us to check the <template> and <script> of .vue files with ESLint.
+This plugin allows us to check the template and script of .vue files with ESLint.
 Finds syntax errors.
 Finds the wrong use of Vue.js Directives.
 Finds the violation for Vue.js Style Guide.
