@@ -117,7 +117,7 @@ sudo docker pull nginx
 + 运行nginx容器
 ```
 // --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称
-docker run --name my-custom-nginx-container -v /host/path/nginx.conf:/etc/nginx/nginx.conf:ro -d nginx
+docker run --name nginx --network spring-net -p 80:80 -d -v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro -v /etc/nginx/conf.d:/etc/nginx/conf.d -v /opt/nginx/dist:/opt/nginx/dist -v /etc/localtime:/etc/localtime:ro -v /var/log/nginx:/var/log/nginx nginx
 ```
 + 拷贝宿主机的nginx配置到容器内，指定目录
 ```
