@@ -116,3 +116,8 @@ go install
   + 配置golint快捷键
   ![go-lint-shortcut](/images/golint-shortcut.png)
   > 现在可以在GoLang中使用option+command+l 进行lint了
+
++ 错误提示
+[go-error](/images/gotip.png)
+错误参考：
+https://github.com/golang/lint/tree/master/testdata
