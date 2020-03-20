@@ -20,8 +20,8 @@ brew install go
 // 将go的配置加入到系统环境
 vim ~/.bask_profile
 // 复制下面的内容
-export GOROOT=/usr/local/go
-export GOPATH=/Users/didi/Documents/go
+export GOPATH="${HOME}/.go"
+export GOROOT="$(brew --prefix golang)/libexec"
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export GOPROXY=https://goproxy.io
 export GO111MODULE=on
@@ -94,3 +94,25 @@ go.mod 文件正常情况会包含 module 和 require 模块，除此之外还�
 File->New->Project
 如下图：
 ![go-mod](/images/go-mod.png)
+
+## golint使用
+> 目录cd到$GOPATH/src/github.com
++ clone golint
+```
+git clone https://github.com/golang/lint.git
+```
++ clone gotool
+```
+git clone https://github.com/golang/tools.git
+```
++ go install
+```
+cd lint/golint
+go install
+```
++ 调教GoLang
+  + 配置golint扩展
+  ![go-lint](/images/golint.png)
+  + 配置golint快捷键
+  ![go-lint-shortcut](/images/golint-shortcut.png)
+  > 现在可以在GoLang中使用option+command+l 进行lint了
