@@ -96,7 +96,8 @@ File->New->Project
 ![go-mod](/images/go-mod.png)
 
 ## golint使用
-> 目录cd到$GOPATH/src/github.com
+> 目录cd到$GOPATH/src/github.com  
+
 + clone golint
 ```
 git clone https://github.com/golang/lint.git
