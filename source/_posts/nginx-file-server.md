@@ -1,6 +1,6 @@
 ---
 title: 使用nginx搭建加密的文件服务器
-date: 2020-02-17 20:51:10
+date: 2020-05-07 20:51:10
 tags:
   - nginx
 categories:
