@@ -71,7 +71,7 @@ sudo docker start $(sudo docker ps -a | grep grafana-662-1 | awk '{print $1}')
 + 验证
 
 + slite3转mysql的脚本
-'''
+```
 sqlite3存在系统表sqlite_master,结构如下：
 sqlite_master(
     type TEXT,      #类型:table-表,index-索引,view-视图
@@ -80,10 +80,9 @@ sqlite_master(
     rootpage INTEGER,
     sql TEXT
     )
-'''
-
 ```
 
+```
 import sqlite3
 import json
 import re
