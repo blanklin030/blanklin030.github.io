@@ -26,8 +26,8 @@ rm -fr /etc/my.cnf
 //为空
 ```
 + 下载rpm包
-地址1：http://repo.mysql.com/
-地址2:https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html
+[地址1](http://repo.mysql.com/)
+[地址2](https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html)
 ```
 wget http://repo.mysql.com/mysql57-community-release-fc27.rpm
 ```
