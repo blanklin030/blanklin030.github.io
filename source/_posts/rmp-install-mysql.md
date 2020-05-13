@@ -54,7 +54,10 @@ mysql-community-devel-5.7.27-2.el7.x86_64
 mysql-community-client-5.7.27-2.el7.x86_64
 + 初始化mysql
 ```
+//version <5.7
 mysql_install_db
+//version >=5.7
+mysqld --initialize
 ```
 + 修改my.cnf
 ```
