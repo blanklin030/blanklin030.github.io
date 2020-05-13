@@ -25,7 +25,7 @@ grafana/grafana:6.6.2
 
 > -e GF_xx，这个xx对应的是conf/grafana.ini(默认是default.ini)的[xx]
 
-![nginx-file-server](/images/nginx-file-server.png)
+![grafana-mysql](/images/grafana-mysql.png)
 
 > 以上是用docker方式配置mysql启动grafana
 

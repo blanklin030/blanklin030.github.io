@@ -45,19 +45,22 @@ go run build.go build
 ```
 > 编译完成后，会看到多了个bin文件夹
 + 运行
+
 ```
 bin/grafana-server start
 ``` 
+
 + 打包
 ```
 go run build.go build package
 ```
+
 + 安装
+
 ```
 sudo dpkg -i grafana_xxxx.deb 
-# 安装后的文件位置：
 # 项目文件
 /usr/share/grafana
-#配置文件
+# 配置文件
 /etc/grafana/grafana.ini
 ```
