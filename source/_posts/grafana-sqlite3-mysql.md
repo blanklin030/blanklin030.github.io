@@ -60,16 +60,20 @@ done | sqlite3 $DB
 cd /data1/docker/grafana
 sh sqlitedump.sh grafana.db > insert.sql
 ```
+
 + 生产环境导入insert.sql
 ```
 mysql -uroot -p -D grafana < 生产环境导入insert.sql
-``` 
+```
+
 + 启动grafana的docker
 ```
 sudo docker start $(sudo docker ps -a | grep grafana-662-1 | awk '{print $1}')
 ```
+
 + 验证
-> 打开web进行验证
+打开web进行验证  
+
 + sqlite_master表
 ```
 sqlite3存在系统表sqlite_master,结构如下：
@@ -81,6 +85,7 @@ sqlite_master(
     sql TEXT
     )
 ```
+
 + slite3转mysql的python3脚本
 ```
 import sqlite3
