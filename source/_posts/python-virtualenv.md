@@ -6,7 +6,8 @@ tags:
 categories:
   - tools
 ---
-> 为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。
+> 为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。  
+
 + 安装virtualenv
 ```
 pip install virtualenv
