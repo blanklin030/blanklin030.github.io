@@ -33,3 +33,27 @@ ln -s /usr/local/python3/bin/pip3.7 /usr/bin/pip3
 ```
 python3 --version
 ```
+
++ 卸载python
+```
+sudo rm -fr /usr/local/python3
+sudo rm -fr /usr/bin/python3
+sudo rm -fr /usr/bin/pip3
+```
+
++ ssl错误
+> Could not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+
+
+1. 安装openssl
+```
+yum -y install openssl
+```
+2. 卸载python和pip
+
+3. 重新安装python
+
++ 升级pip
+```
+curl https://bootstrap.pypa.io/get-pip.py | python
+```
