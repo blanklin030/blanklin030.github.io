@@ -1,5 +1,5 @@
 ---
-title: 在linux下安装python3
+title: 在centos7下安装python3
 date: 2020-05-19 18:33:10
 tags:
   - python
