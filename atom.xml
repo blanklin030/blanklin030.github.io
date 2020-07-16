@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-16T10:20:24.354Z</updated>
+  <updated>2020-07-16T12:45:38.386Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>macbook多版本使用nodejs</title>
+    <link href="http://yoursite.com/2020/07/16/nvm/"/>
+    <id>http://yoursite.com/2020/07/16/nvm/</id>
+    <published>2020-07-16T12:00:15.000Z</published>
+    <updated>2020-07-16T12:45:38.386Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>nvm:node version manager</p><ul><li>安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install nvm</span><br></pre></td></tr></table></figure></li><li>把nvm加入系统环境<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;source $(brew --prefix nvm)&#x2F;nvm.sh&quot; &gt;&gt; ~&#x2F;.bash_profile</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></li><li>查看远程版本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm ls-remote</span><br></pre></td></tr></table></figure></li><li>安装指定的版本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm install &lt;version&gt;</span><br></pre></td></tr></table></figure></li><li>安装稳定版本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm install stable</span><br></pre></td></tr></table></figure></li><li>查看本地安装的版本列表<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm ls</span><br></pre></td></tr></table></figure></li><li>使用某版本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm use &lt;version&gt;</span><br></pre></td></tr></table></figure></li><li>删除某版本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm uninstall &lt;version&gt;</span><br></pre></td></tr></table></figure></li></ul></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;nvm:node version manager&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;安装&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line
+      
+    
+    </summary>
+    
+    
+      <category term="tool" scheme="http://yoursite.com/categories/tool/"/>
+    
+    
+      <category term="nodejs" scheme="http://yoursite.com/tags/nodejs/"/>
+    
+  </entry>
   
   <entry>
     <title>mysql5.7忘记root密码</title>
@@ -544,32 +573,6 @@
     
     
       <category term="hexo" scheme="http://yoursite.com/tags/hexo/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>怎样使用hexo编写文章</title>
-    <link href="http://yoursite.com/2019/10/29/write-article/"/>
-    <id>http://yoursite.com/2019/10/29/write-article/</id>
-    <published>2019-10-28T17:47:21.000Z</published>
-    <updated>2020-07-16T10:10:46.982Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="创建-MD-文章"><a href="#创建-MD-文章" class="headerlink" title="创建 MD 文章"></a>创建 MD 文章</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure><p>创建的文章会出现在 source/_posts 文件夹下，是 MarkDown 格式。<br>在文章开头通过如下格式添加必要信息：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: 标题 # 自动创建，如 hello-world</span><br><span class="line">date: 日期 # 自动创建，如 2019-09-22 01:47:21</span><br><span class="line">tags:</span><br><span class="line">- 标签1</span><br><span class="line">- 标签2</span><br><span class="line">- 标签3</span><br><span class="line">categories:</span><br><span class="line">- 分类1</span><br><span class="line">- 分类2</span><br><span class="line">---</span><br></pre></td></tr></table></figure><p>这样在下次编译的时候就会自动识别标题、时间、类别等等，另外还有其他的一些参数设置，可以<a href="https://hexo.io/zh-cn/docs/writing.html" target="_blank" rel="noopener">参考文档</a></p><h2 id="标签页"><a href="#标签页" class="headerlink" title="标签页"></a>标签页</h2><p>我们的博客只有首页、文章页，如果我们想要增加标签页，可以自行添加，这里 Hexo 也给我们提供了这个功能，在根目录执行命令如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page tags</span><br></pre></td></tr></table></figure><p>执行这个命令之后会自动帮我们生成一个 source/tags/index.md 文件，内容就只有这样子的：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2019-09-26 16:44:17</span><br><span class="line">---</span><br></pre></td></tr></table></figure><p>我们可以自行添加一个 type 字段来指定页面的类型：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type: tags</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure><p>然后再在主题的 _config.yml 文件将这个页面的链接添加到主菜单里面，修改 menu 字段如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: &#x2F; || home</span><br><span class="line">  #about: &#x2F;about&#x2F; || user</span><br><span class="line">  tags: &#x2F;tags&#x2F; || tags</span><br><span class="line">  #categories: &#x2F;categories&#x2F; || th</span><br><span class="line">  archives: &#x2F;archives&#x2F; || archive</span><br><span class="line">  #schedule: &#x2F;schedule&#x2F; || calendar</span><br><span class="line">  #sitemap: &#x2F;sitemap.xml || sitemap</span><br><span class="line">  #commonweal: &#x2F;404&#x2F; || heartbeat</span><br></pre></td></tr></table></figure><h2 id="分类页"><a href="#分类页" class="headerlink" title="分类页"></a>分类页</h2><p>分类功能和标签类似，一个文章可以对应某个分类，如果要增加分类页面可以使用如下命令创建：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page categories</span><br></pre></td></tr></table></figure><p>然后同样地，会生成一个 source/categories/index.md 文件。</p><p>我们可以自行添加一个 type 字段来指定页面的类型：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type: categories</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure><p>然后再在主题的 _config.yml 文件将这个页面的链接添加到主菜单里面，修改 menu 字段如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: &#x2F; || home</span><br><span class="line">  #about: &#x2F;about&#x2F; || user</span><br><span class="line">  tags: &#x2F;tags&#x2F; || tags</span><br><span class="line">  categories: &#x2F;categories&#x2F; || th</span><br><span class="line">  archives: &#x2F;archives&#x2F; || archive</span><br><span class="line">  #schedule: &#x2F;schedule&#x2F; || calendar</span><br><span class="line">  #sitemap: &#x2F;sitemap.xml || sitemap</span><br><span class="line">  #commonweal: &#x2F;404&#x2F; || heartbeat</span><br></pre></td></tr></table></figure><h2 id="搜索页"><a href="#搜索页" class="headerlink" title="搜索页"></a>搜索页</h2><p>很多情况下我们需要搜索全站的内容，所以一个搜索功能的支持也是很有必要的。</p><p>如果要添加搜索的支持，需要先安装一个插件，叫做 hexo-generator-searchdb，命令如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure><p>然后在项目的 _config.yml 里面添加搜索设置如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># Local search</span><br><span class="line"># Dependencies: https:&#x2F;&#x2F;github.com&#x2F;wzpan&#x2F;hexo-generator-search</span><br><span class="line">local_search:</span><br><span class="line">  enable: true</span><br><span class="line">  # If auto, trigger search by changing input.</span><br><span class="line">  # If manual, trigger search by pressing enter key or search button.</span><br><span class="line">  trigger: auto</span><br><span class="line">  # Show top n results per article, show all results by setting to -1</span><br><span class="line">  top_n_per_article: 5</span><br><span class="line">  # Unescape html strings to the readable one.</span><br><span class="line">  unescape: false</span><br><span class="line">  # Preload the search data when the page loads.</span><br><span class="line">  preload: false</span><br></pre></td></tr></table></figure><p>这里用的是 Local Search，如果想启用其他是 Search Service 的话可以参考官方文档：<a href="https://theme-next.org/docs/third-party-services/search-services。" target="_blank" rel="noopener">https://theme-next.org/docs/third-party-services/search-services。</a></p><h2 id="404-页面"><a href="#404-页面" class="headerlink" title="404 页面"></a>404 页面</h2><p>另外还需要添加一个 404 页面，直接在根目录 source 文件夹新建一个 404.md 文件即可，内容可以仿照如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line">title: 404 Not Found</span><br><span class="line">date: 2019-09-22 10:41:27</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">&lt;center&gt;</span><br><span class="line">对不起，您所访问的页面不存在或者已删除。</span><br><span class="line">您可以&lt;a href&#x3D;&quot;https:&#x2F;&#x2F;blog.nightteam.cn&gt;&quot;&gt;点击此处&lt;&#x2F;a&gt;返回首页。</span><br><span class="line">&lt;&#x2F;center&gt;</span><br><span class="line"></span><br><span class="line">&lt;blockquote class&#x3D;&quot;blockquote-center&quot;&gt;</span><br><span class="line">    NightTeam</span><br><span class="line">&lt;&#x2F;blockquote&gt;</span><br></pre></td></tr></table></figure><p>这里面的一些相关信息和链接可以替换成自己的。</p><p>增加了这个 404 页面之后就可以</p><p>完成了上面的配置基本就完成了大半了，其实 Hexo 还有很多很多功能，这里就介绍不过来了，大家可以直接参考官方文档：<a href="https://hexo.io/zh-cn/docs/" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/</a> 查看更多的配置。</p><h2 id="部署脚本"><a href="#部署脚本" class="headerlink" title="部署脚本"></a>部署脚本</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h2 id=&quot;创建-MD-文章&quot;&gt;&lt;a href=&quot;#创建-MD-文章&quot; class=&quot;headerlink&quot; title=&quot;创建 MD 文章&quot;&gt;&lt;/a&gt;创建 MD 文章&lt;/h2&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td cla
-      
-    
-    </summary>
-    
-    
-      <category term="tools" scheme="http://yoursite.com/categories/tools/"/>
-    
-    
-      <category term="HowToWriteMarkDownArticle" scheme="http://yoursite.com/tags/HowToWriteMarkDownArticle/"/>
     
   </entry>
   
