@@ -234,13 +234,13 @@
 <p>部署命令如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
 <p>在部署之前，我们需要先知道博客的部署地址，它需要对应 GitHub 的一个 Repository 的地址，这个信息需要我们来配置一下。</p>
-<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 master 分支，最终修改为如下内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 oligarch 分支，最终修改为如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: oligarch</span><br></pre></td></tr></table></figure>
 <p>另外我们还需要额外安装一个支持 Git 的部署插件，名字叫做 hexo-deployer-git，有了它我们才可以顺利将其部署到 GitHub 上面</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
 <p>安装成功之后，执行部署命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 master 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
+<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 oligarch 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
 <p>这时候可能就有人有疑问了，那我博客的源码也想放到 GitHub 上面怎么办呢？其实很简单，新建一个其他的分支就好了，比如我这边就新建了一个 source 分支，代表博客源码的意思。</p>
 <p>具体的添加过程就很简单了，就是增加一个 source 分支，记录的博客的源码，参加如下命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">git init</span><br><span class="line">git checkout -b source</span><br><span class="line">git add -A</span><br><span class="line">git commit -m &quot;init blog&quot;</span><br><span class="line">git remote add origin git@github.com:&#123;username&#125;&#x2F;&#123;username&#125;.github.io.git</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure>
@@ -253,7 +253,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
 <h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>目前 Hexo 里面应用最多的主题基本就是 Next 主题了，个人感觉这个主题还是挺好看的，另外它支持的插件和功能也极为丰富，配置了这个主题，我们的博客可以支持更多的扩展功能，比如阅览进度条、中英文空格排版、图片懒加载等等。</p>
 <p>那么首先就让我们来安装下 Next 这个主题吧，目前 Next 主题已经更新到 7.x 版本了，我们可以直接到 Next 主题的 GitHub Repository 上把这个主题下载下来。</p>
-<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> master 分支 Clone 下来。</p>
+<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> oligarch 分支 Clone 下来。</p>
 <p>首先命令行进入到项目的根目录，执行如下命令即可：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next themes&#x2F;next</span><br></pre></td></tr></table></figure>
 <p>执行完毕之后 Next 主题的源码就会出现在项目的 themes/next 文件夹下。</p>

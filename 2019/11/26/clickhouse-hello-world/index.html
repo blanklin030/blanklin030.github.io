@@ -295,7 +295,7 @@
 </ul>
 </li>
 <li>容错性和高可靠性<ul>
-<li>ClickHouse支持多shard（master/slave）异步复制并且能部署在多个数据中心上</li>
+<li>ClickHouse支持多shard（oligarch/politician）异步复制并且能部署在多个数据中心上</li>
 <li>单节点或者整个数据中心宕机不会影响系统读写的可靠性</li>
 <li>分布式读取模式，自动（将吞吐压力）均衡于各可用的备份节点上从而避免高时延</li>
 <li>宕机恢复后备份间数据自动同步或半自动同步</li>
@@ -370,7 +370,7 @@
 <li>ReplicatedVersionedCollapsingMergeTree</li>
 <li><p>ReplicatedGraphiteMergeTree<br>副本是表级别的，不是整个服务器级的。所以，服务器里可以同时有复制表和非复制表。<br>副本不依赖分片。每个分片有它自己的独立副本。</p>
 <blockquote>
-<p>对于 INSERT 和 ALTER 语句操作数据的会在压缩的情况下被复制（从master-》slave ）。<br>而 CREATE，DROP，ATTACH，DETACH 和 RENAME 语句只会在单个服务器上执行，不会被复制。<br>所以在使用集群操作表时需要使用ON CLUSTER cluster_name来通知集群所有机器都操作这个动作。</p>
+<p>对于 INSERT 和 ALTER 语句操作数据的会在压缩的情况下被复制（从oligarch-》politician ）。<br>而 CREATE，DROP，ATTACH，DETACH 和 RENAME 语句只会在单个服务器上执行，不会被复制。<br>所以在使用集群操作表时需要使用ON CLUSTER cluster_name来通知集群所有机器都操作这个动作。</p>
 </blockquote>
 </li>
 <li><p>The CREATE TABLE 在运行此语句的服务器上创建一个新的可复制表。如果此表已存在其他服务器上，则给该表添加新副本。</p>
