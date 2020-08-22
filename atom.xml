@@ -77,33 +77,6 @@
   </entry>
   
   <entry>
-    <title>centos7源码安装nginx</title>
-    <link href="http://yoursite.com/2020/08/11/nginx-install/"/>
-    <id>http://yoursite.com/2020/08/11/nginx-install/</id>
-    <published>2020-08-11T06:10:40.000Z</published>
-    <updated>2020-08-20T09:47:56.909Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul><li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li><li>安装nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li><li>启动nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li><li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li><li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure><ul><li>结果示例：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure></li></ul></li><li><p>路径整理</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h3 id=&quot;yum安装过程&quot;&gt;&lt;a href=&quot;#yum安装过程&quot; class=&quot;headerlink&quot; title=&quot;yum安装过程&quot;&gt;&lt;/a&gt;yum安装过程&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;安装nginx最新源&lt;figure class=&quot;highlight plain&quot;&gt;&lt;t
-      
-    
-    </summary>
-    
-    
-      <category term="web server" scheme="http://yoursite.com/categories/web-server/"/>
-    
-    
-      <category term="nginx" scheme="http://yoursite.com/tags/nginx/"/>
-    
-  </entry>
-  
-  <entry>
     <title>centos7源码安装php7.2</title>
     <link href="http://yoursite.com/2020/08/11/php7.2-install/"/>
     <id>http://yoursite.com/2020/08/11/php7.2-install/</id>
@@ -127,6 +100,33 @@
     
     
       <category term="php7.2" scheme="http://yoursite.com/tags/php7-2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>centos7源码安装nginx</title>
+    <link href="http://yoursite.com/2020/08/11/nginx-install/"/>
+    <id>http://yoursite.com/2020/08/11/nginx-install/</id>
+    <published>2020-08-11T06:10:40.000Z</published>
+    <updated>2020-08-20T09:47:56.909Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul><li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li><li>安装nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li><li>启动nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li><li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li><li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure><ul><li>结果示例：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure></li></ul></li><li><p>路径整理</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;yum安装过程&quot;&gt;&lt;a href=&quot;#yum安装过程&quot; class=&quot;headerlink&quot; title=&quot;yum安装过程&quot;&gt;&lt;/a&gt;yum安装过程&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;安装nginx最新源&lt;figure class=&quot;highlight plain&quot;&gt;&lt;t
+      
+    
+    </summary>
+    
+    
+      <category term="web server" scheme="http://yoursite.com/categories/web-server/"/>
+    
+    
+      <category term="nginx" scheme="http://yoursite.com/tags/nginx/"/>
     
   </entry>
   

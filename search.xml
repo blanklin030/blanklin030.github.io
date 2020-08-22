@@ -408,6 +408,78 @@
       </tags>
   </entry>
   <entry>
+    <title>前端基于docker的生产环境部署方案</title>
+    <url>/2020/07/20/frontend-docker-product/</url>
+    <content><![CDATA[<ul>
+<li>docker安装<ul>
+<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
+<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
+</ul>
+</li>
+<li>Dockerfile  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
+<p>server {</p>
+<p>  listen 8082;</p>
+<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
+<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
+<p>SHELL := /bin/bash</p>
+<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
+<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
+<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
+<pre><code>    # 注意docker run的参数,具体参数定义自行查找
+    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
+http://ip:8082
+```
+</code></pre><ul>
+<li>问题与思考<ul>
+<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
+<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+</blockquote>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>按日切割使用docker安装的nginx容器</title>
     <url>/2020/02/17/docke-nginx-logrotate/</url>
     <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
@@ -630,35 +702,30 @@
       </tags>
   </entry>
   <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
+</blockquote>
 <ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
 </blockquote>
 </li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
 </ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
 ]]></content>
       <categories>
         <category>tools</category>
       </categories>
       <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
+        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -691,33 +758,6 @@
 </li>
 <li><p>安装</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i grafana_xxxx.deb</span><br><span class="line">&#x2F;&#x2F; 项目文件</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;grafana</span><br><span class="line">&#x2F;&#x2F; 配置文件</span><br><span class="line">&#x2F;etc&#x2F;grafana&#x2F;grafana.ini</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
 </li>
 </ul>
 ]]></content>
@@ -773,46 +813,6 @@
       </categories>
       <tags>
         <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端基于docker的生产环境部署方案</title>
-    <url>/2020/07/20/frontend-docker-product/</url>
-    <content><![CDATA[<ul>
-<li>docker安装<ul>
-<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
-<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
-</ul>
-</li>
-<li>Dockerfile  </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
-<p>server {</p>
-<p>  listen 8082;</p>
-<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
-<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
-<p>SHELL := /bin/bash</p>
-<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
-<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
-<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
-<pre><code>    # 注意docker run的参数,具体参数定义自行查找
-    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
-http://ip:8082
-```
-</code></pre><ul>
-<li>问题与思考<ul>
-<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
-<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tool</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
       </tags>
   </entry>
   <entry>
@@ -873,22 +873,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>next模板页面空白解决方法</title>
-    <url>/2019/11/27/next-package-blank/</url>
-    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
-<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
-<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-        <tag>next</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>使用nginx搭建加密的文件服务器</title>
     <url>/2020/05/07/nginx-file-server/</url>
     <content><![CDATA[<ul>
@@ -913,6 +897,59 @@ http://ip:8082
       </categories>
       <tags>
         <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>next模板页面空白解决方法</title>
+    <url>/2019/11/27/next-package-blank/</url>
+    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
+<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
+<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>next</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos7源码安装php7.2</title>
+    <url>/2020/08/11/php7.2-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
+<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
+<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
+<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
+<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure></li>
+<li>修改执行 php-fpm 的权限<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
+<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
+</blockquote>
+<ul>
+<li><p>使用信号控制</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看php-fpm的master进程</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
+<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
+<ul>
+<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web server</category>
+      </categories>
+      <tags>
+        <tag>php7.2</tag>
       </tags>
   </entry>
   <entry>
@@ -963,43 +1000,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>nodejs</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos7源码安装php7.2</title>
-    <url>/2020/08/11/php7.2-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
-<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
-<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
-<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
-<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure></li>
-<li>修改执行 php-fpm 的权限<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
-<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
-</blockquote>
-<ul>
-<li><p>使用信号控制</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看php-fpm的master进程</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
-<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
-<ul>
-<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>php7.2</tag>
       </tags>
   </entry>
   <entry>
