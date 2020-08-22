@@ -1,6 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>beego安装和使用</title>
+    <url>/2020/08/17/beego-install/</url>
+    <content><![CDATA[<ul>
+<li><p>beego是什么</p>
+<blockquote>
+<p>beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra 和 flask 这三个框架，但是结合了 Go 本身的一些特性（interface、struct 嵌入等）而设计的一个框架。<a href="https://beego.me" target="_blank" rel="noopener">beego</a></p>
+</blockquote>
+</li>
+<li><p>查看go的安装环境</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env || grep GO111MODULE</span><br></pre></td></tr></table></figure>
+<p><img src="/images/go-env.png" alt="go-env"></p>
+</li>
+<li><p>打开GO111MODULE</p>
+<blockquote>
+<p>go在1.11之后推出了自己的官方版本管理工具mod，需要使用mod必须将go的配置参数GO111MODULE打开，用以支持使用模块，注意在打开GO111MODULE后下载的依赖还是存在$GOPATH/pkg/mod中，而go install的结果放在$GOPATH/bin下，但是项目不再局限放在$GOPATH/src下，在任何位置我们都可以使用到$GOPATH/pkg/mod下的依赖</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env -w GO111MODULE&#x3D;on</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>修改go proxy</p>
+<blockquote>
+<p>由于wall的存在，我们无法使用官方的go proxy，所以需要修改proxy地址</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env -w GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn,direct</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>安装beego和bee</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;astaxie&#x2F;beego</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装bee工具</p>
+<blockquote>
+<p>bee 工具是一个为了协助快速开发 beego 项目而创建的项目，您可以通过 bee 快速创建项目、实现热编译、开发测试以及开发完之后打包发布的一整套从创建、开发到部署的方案。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;beego&#x2F;bee</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>把bee添加为系统命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;blanklin&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOPATH&#x2F;bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建helloworld项目</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee new helloworld</span><br></pre></td></tr></table></figure></li>
+<li><p>helloworld项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── default.go<br>├── main.go<br>├── models<br>├── routers<br>│   └── router.go<br>├── static<br>│   ├── css<br>│   ├── img<br>│   └── js<br>├── tests<br>│   └── default_test.go<br>└── views<br>  └── index.tpl</p>
+</li>
+<li><p>新建api项目</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee api helloworld</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>api项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── object.go<br>│   └── user.go<br>├── docs<br>│   └── doc.go<br>├── main.go<br>├── models<br>│   └── object.go<br>│   └── user.go<br>├── routers<br>│   └── router.go<br>└── tests<br>  └── default_test.go</p>
+</li>
+</ul>
+<blockquote>
+<p>和web项目对比，少了 static 和 views 目录，多了一个 test 模块，用来做单元测试的<br>可直接通过参数创建orm：bee api [appname] [-tables=””] [-driver=mysql] [-conn=root:@tcp(127.0.0.1:3306)/test]</p>
+</blockquote>
+<ul>
+<li><p>使用go mod</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go mod init helloworld</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行beego项目</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee run</span><br><span class="line"># 配合conf&#x2F;app.conf[EnableDocs &#x3D; true]开启swagger</span><br><span class="line">bee run -downdoc&#x3D;true -gendoc&#x3D;true</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>打开浏览器访问beego开启的本地端口，一般是8080，所以地址是：<a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a></p>
+</blockquote>
+</li>
+<li><p>使用pack命令部署生产环境</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee pack -be GOOS&#x3D;linux</span><br><span class="line"># 生成一个压缩文件helloworld.tar.gz</span><br><span class="line"># 在生成环境解压后运行</span><br><span class="line">nohup .&#x2F;helloworld &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用docker部署生产环境</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM golang:1.14.2-buster</span><br><span class="line"></span><br><span class="line">ENV TZ Asia&#x2F;Shanghai</span><br><span class="line">ENV GOKU_LOGLEVEL info</span><br><span class="line"></span><br><span class="line">ENV GOKU_RUNMODE prod</span><br><span class="line">ENV GOKU_PORT 8080</span><br><span class="line"></span><br><span class="line">RUN go build -v -o .&#x2F;build&#x2F;goku .&#x2F;main.go</span><br><span class="line"></span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line">COPY ..&#x2F;conf &#x2F;app&#x2F;conf</span><br><span class="line">COPY .&#x2F;build&#x2F;goku &#x2F;app&#x2F;goku</span><br><span class="line"></span><br><span class="line">ENTRYPOINT [&quot;.&#x2F;goku&quot;]</span><br></pre></td></tr></table></figure></li>
+<li>本项目GitHub<br><a href="https://github.com/blanklin030/beego-docker" target="_blank" rel="noopener">https://github.com/blanklin030/beego-docker</a><blockquote>
+<p>提供初始化后支持mysql的基础crud和相关配置</p>
+</blockquote>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>golang</category>
+      </categories>
+      <tags>
+        <tag>golang</tag>
+        <tag>beego</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>聊聊cgi的二三事</title>
     <url>/2019/11/07/cgi/</url>
     <content><![CDATA[<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p><strong>通用网关接口</strong>（Common Gateway Interface/CGI）描述了客户端和服务器程序之间传输数据的一种标准，可以让一个客户端，从网页浏览器向执行在网络服务器上的程序请求数据。CGI 独立于任何语言的，CGI 程序可以用任何脚本语言或者是完全独立编程语言实现，只要这个语言可以在这个系统上运行。</p>
@@ -63,80 +141,6 @@
         <tag>nginx</tag>
         <tag>cgi</tag>
         <tag>fastcgi</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何创建GitHub Page</title>
-    <url>/2019/10/29/create-github-page/</url>
-    <content><![CDATA[<h2 id="新建项目"><a href="#新建项目" class="headerlink" title="新建项目"></a>新建项目</h2><p>首先在 GitHub 新建一个仓库（Repository），名称为 {username}.github.io，注意这个名比较特殊，必须要是 github.io 为后缀结尾的。比如 我 的 GitHub 用户名就叫 blanklin030，那我就新建一个 blanklin030.github.io，新建完成之后就可以进行后续操作了。</p>
-<blockquote>
-<blockquote>
-<p>另外如果 GitHub 没有配置 SSH 连接的建议配置一下，这样后面在部署博客的时候会更方便。</p>
-</blockquote>
-</blockquote>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>首先在自己的电脑上安装 Node.js，下载地址：<a href="https://nodejs.org/zh-cn/download/，可以安装" target="_blank" rel="noopener">https://nodejs.org/zh-cn/download/，可以安装</a> Stable 版本。</p>
-<p>安装完毕之后，确保环境变量配置好，能正常使用 npm 命令。</p>
-<h2 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h2><p>接下来就需要安装 Hexo 了，这是一个博客框架，Hexo 官方还提供了一个命令行工具，用于快速创建项目、页面、编译、部署 Hexo 博客，所以在这之前我们需要先安装 Hexo 的命令行工具。</p>
-<p>命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
-<p>安装完毕之后，确保环境变量配置好，能正常使用 hexo 命令。</p>
-<h2 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h2><p>接下来我们使用 Hexo 的命令行创建一个项目，并将其在本地跑起来，整体跑通看看。<br>首先使用如下命令创建项目：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init &#123;name&#125;</span><br></pre></td></tr></table></figure>
-<p>这里的 name 就是项目名，我这里要创建 blanklin 的博客，我就把项目取名为 blanklin 了，用了纯小写，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init blinklin</span><br></pre></td></tr></table></figure>
-<p>这样 nightteam 文件夹下就会出现 Hexo 的初始化文件，包括 themes、scaffolds、source 等文件夹，这些内容暂且先不用管是做什么的，我们先知道有什么，然后一步步走下去看看都发生了什么变化。</p>
-<p>接下来我们首先进入新生成的文件夹里面，然后调用 Hexo 的 generate 命令，将 Hexo 编译生成 HTML 代码，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo generate</span><br></pre></td></tr></table></figure>
-<p>可以看到输出结果里面包含了 js、css、font 等内容，并发现他们都处在了项目根目录下的 public 文件夹下面了。</p>
-<p>然后我们利用 Hexo 提供的 serve 命令把博客在本地运行起来，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo serve</span><br></pre></td></tr></table></figure>
-<p>运行之后命令行输出如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http:&#x2F;&#x2F;localhost:4000 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>接下来我们来将这个初始化的博客进行一下部署，放到 GitHub Pages 上面验证一下其可用性。成功之后我们可以再进行后续的修改，比如修改主题、修改页面配置等等。</p>
-<p>那么怎么把这个页面部署到 GitHub Pages 上面呢，其实 Hexo 已经给我们提供一个命令，利用它我们可以直接将博客一键部署，不需要手动去配置服务器或进行其他的各项配置。</p>
-<p>部署命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>在部署之前，我们需要先知道博客的部署地址，它需要对应 GitHub 的一个 Repository 的地址，这个信息需要我们来配置一下。</p>
-<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 master 分支，最终修改为如下内容：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
-<p>另外我们还需要额外安装一个支持 Git 的部署插件，名字叫做 hexo-deployer-git，有了它我们才可以顺利将其部署到 GitHub 上面</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<p>安装成功之后，执行部署命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 master 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
-<p>这时候可能就有人有疑问了，那我博客的源码也想放到 GitHub 上面怎么办呢？其实很简单，新建一个其他的分支就好了，比如我这边就新建了一个 source 分支，代表博客源码的意思。</p>
-<p>具体的添加过程就很简单了，就是增加一个 source 分支，记录的博客的源码，参加如下命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">git init</span><br><span class="line">git checkout -b source</span><br><span class="line">git add -A</span><br><span class="line">git commit -m &quot;init blog&quot;</span><br><span class="line">git remote add origin git@github.com:&#123;username&#125;&#x2F;&#123;username&#125;.github.io.git</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure>
-<p>成功之后，可以到 GitHub 上再切换下默认分支，比如我就把默认的分支设置为了 source，当然不换也可以。</p>
-<h2 id="配置站点信息"><a href="#配置站点信息" class="headerlink" title="配置站点信息"></a>配置站点信息</h2><p>下面我就以自己的站点 NightTeam 为例，修改一些基本的配置，比如站点名、站点描述等等。</p>
-<p>修改根目录下的 _config.yml 文件，找到 Site 区域，这里面可以配置站点标题 title、副标题 subtitle 等内容、关键字 keywords 等内容，比如我的就修改为如下内容：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Site</span><br><span class="line">title: NightTeam</span><br><span class="line">subtitle: 一个专注技术的组织</span><br><span class="line">description: 涉猎的主要编程语言为 Python、Rust、C++、Go，领域涵盖爬虫、深度学习、服务研发和对象存储等。</span><br><span class="line">keywords: &quot;Python, Rust, C++, Go, 爬虫, 深度学习, 服务研发, 对象存储&quot;</span><br><span class="line">author: NightTeam</span><br></pre></td></tr></table></figure>
-<p>这里大家可以参照格式把内容改成自己的。</p>
-<p>另外还可以设置一下语言，如果要设置为汉语的话可以将 language 的字段设置为 zh-CN，修改如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
-<h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>目前 Hexo 里面应用最多的主题基本就是 Next 主题了，个人感觉这个主题还是挺好看的，另外它支持的插件和功能也极为丰富，配置了这个主题，我们的博客可以支持更多的扩展功能，比如阅览进度条、中英文空格排版、图片懒加载等等。</p>
-<p>那么首先就让我们来安装下 Next 这个主题吧，目前 Next 主题已经更新到 7.x 版本了，我们可以直接到 Next 主题的 GitHub Repository 上把这个主题下载下来。</p>
-<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> master 分支 Clone 下来。</p>
-<p>首先命令行进入到项目的根目录，执行如下命令即可：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next themes&#x2F;next</span><br></pre></td></tr></table></figure>
-<p>执行完毕之后 Next 主题的源码就会出现在项目的 themes/next 文件夹下。</p>
-<p>然后我们需要修改下博客所用的主题名称，修改项目根目录下的 _config.yml 文件，找到 theme 字段，修改为 next 即可，修改如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure>
-<p>然后本地重新开启服务，访问刷新下页面，就可以看到 next 主题就切换成功了</p>
-<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><p>现在我们已经成功切换到 next 主题上面了，接下来我们就对主题进行进一步地详细配置吧，比如修改样式、增加其他各项功能的支持，下面逐项道来。</p>
-<p>Next 主题内部也提供了一个配置文件，名字同样叫做 _config.yml，只不过位置不一样，它在 themes/next 文件夹下，Next 主题里面所有的功能都可以通过这个配置文件来控制，下文所述的内容都是修改的 themes/next/_config.yml 文件。</p>
-<h4 id="样式"><a href="#样式" class="headerlink" title="样式"></a>样式</h4><p>Next 主题还提供了多种样式，风格都是类似黑白的搭配，但整个布局位置不太一样，通过修改配置文件的 scheme 字段即可，我选了 Pisces 样式，修改 _config.yml （注意是 themes/next/_config.yml 文件）如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheme: Pisces</span><br><span class="line"># 大家可以自行根据喜好选择。</span><br><span class="line"># scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">#scheme: Gemini</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>还有很多其他的配置项，可自己参考修改，在这里就不一一概述了</p>
-</blockquote>
-<p>最后大家修改完配置后请<a href="https://blanklin030.github.io/2019/10/29/write-article/" target="_blank" rel="noopener">参考文档</a>继续学习如何创建文章。</p>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -330,35 +334,77 @@
       </tags>
   </entry>
   <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
-<ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>如何创建GitHub Page</title>
+    <url>/2019/10/29/create-github-page/</url>
+    <content><![CDATA[<h2 id="新建项目"><a href="#新建项目" class="headerlink" title="新建项目"></a>新建项目</h2><p>首先在 GitHub 新建一个仓库（Repository），名称为 {username}.github.io，注意这个名比较特殊，必须要是 github.io 为后缀结尾的。比如 我 的 GitHub 用户名就叫 blanklin030，那我就新建一个 blanklin030.github.io，新建完成之后就可以进行后续操作了。</p>
 <blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+<blockquote>
+<p>另外如果 GitHub 没有配置 SSH 连接的建议配置一下，这样后面在部署博客的时候会更方便。</p>
 </blockquote>
-</li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+</blockquote>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>首先在自己的电脑上安装 Node.js，下载地址：<a href="https://nodejs.org/zh-cn/download/，可以安装" target="_blank" rel="noopener">https://nodejs.org/zh-cn/download/，可以安装</a> Stable 版本。</p>
+<p>安装完毕之后，确保环境变量配置好，能正常使用 npm 命令。</p>
+<h2 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h2><p>接下来就需要安装 Hexo 了，这是一个博客框架，Hexo 官方还提供了一个命令行工具，用于快速创建项目、页面、编译、部署 Hexo 博客，所以在这之前我们需要先安装 Hexo 的命令行工具。</p>
+<p>命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<p>安装完毕之后，确保环境变量配置好，能正常使用 hexo 命令。</p>
+<h2 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h2><p>接下来我们使用 Hexo 的命令行创建一个项目，并将其在本地跑起来，整体跑通看看。<br>首先使用如下命令创建项目：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init &#123;name&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 name 就是项目名，我这里要创建 blanklin 的博客，我就把项目取名为 blanklin 了，用了纯小写，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init blinklin</span><br></pre></td></tr></table></figure>
+<p>这样 nightteam 文件夹下就会出现 Hexo 的初始化文件，包括 themes、scaffolds、source 等文件夹，这些内容暂且先不用管是做什么的，我们先知道有什么，然后一步步走下去看看都发生了什么变化。</p>
+<p>接下来我们首先进入新生成的文件夹里面，然后调用 Hexo 的 generate 命令，将 Hexo 编译生成 HTML 代码，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo generate</span><br></pre></td></tr></table></figure>
+<p>可以看到输出结果里面包含了 js、css、font 等内容，并发现他们都处在了项目根目录下的 public 文件夹下面了。</p>
+<p>然后我们利用 Hexo 提供的 serve 命令把博客在本地运行起来，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo serve</span><br></pre></td></tr></table></figure>
+<p>运行之后命令行输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http:&#x2F;&#x2F;localhost:4000 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>接下来我们来将这个初始化的博客进行一下部署，放到 GitHub Pages 上面验证一下其可用性。成功之后我们可以再进行后续的修改，比如修改主题、修改页面配置等等。</p>
+<p>那么怎么把这个页面部署到 GitHub Pages 上面呢，其实 Hexo 已经给我们提供一个命令，利用它我们可以直接将博客一键部署，不需要手动去配置服务器或进行其他的各项配置。</p>
+<p>部署命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+<p>在部署之前，我们需要先知道博客的部署地址，它需要对应 GitHub 的一个 Repository 的地址，这个信息需要我们来配置一下。</p>
+<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 master 分支，最终修改为如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+<p>另外我们还需要额外安装一个支持 Git 的部署插件，名字叫做 hexo-deployer-git，有了它我们才可以顺利将其部署到 GitHub 上面</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>安装成功之后，执行部署命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 master 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
+<p>这时候可能就有人有疑问了，那我博客的源码也想放到 GitHub 上面怎么办呢？其实很简单，新建一个其他的分支就好了，比如我这边就新建了一个 source 分支，代表博客源码的意思。</p>
+<p>具体的添加过程就很简单了，就是增加一个 source 分支，记录的博客的源码，参加如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">git init</span><br><span class="line">git checkout -b source</span><br><span class="line">git add -A</span><br><span class="line">git commit -m &quot;init blog&quot;</span><br><span class="line">git remote add origin git@github.com:&#123;username&#125;&#x2F;&#123;username&#125;.github.io.git</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure>
+<p>成功之后，可以到 GitHub 上再切换下默认分支，比如我就把默认的分支设置为了 source，当然不换也可以。</p>
+<h2 id="配置站点信息"><a href="#配置站点信息" class="headerlink" title="配置站点信息"></a>配置站点信息</h2><p>下面我就以自己的站点 NightTeam 为例，修改一些基本的配置，比如站点名、站点描述等等。</p>
+<p>修改根目录下的 _config.yml 文件，找到 Site 区域，这里面可以配置站点标题 title、副标题 subtitle 等内容、关键字 keywords 等内容，比如我的就修改为如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Site</span><br><span class="line">title: NightTeam</span><br><span class="line">subtitle: 一个专注技术的组织</span><br><span class="line">description: 涉猎的主要编程语言为 Python、Rust、C++、Go，领域涵盖爬虫、深度学习、服务研发和对象存储等。</span><br><span class="line">keywords: &quot;Python, Rust, C++, Go, 爬虫, 深度学习, 服务研发, 对象存储&quot;</span><br><span class="line">author: NightTeam</span><br></pre></td></tr></table></figure>
+<p>这里大家可以参照格式把内容改成自己的。</p>
+<p>另外还可以设置一下语言，如果要设置为汉语的话可以将 language 的字段设置为 zh-CN，修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
+<h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>目前 Hexo 里面应用最多的主题基本就是 Next 主题了，个人感觉这个主题还是挺好看的，另外它支持的插件和功能也极为丰富，配置了这个主题，我们的博客可以支持更多的扩展功能，比如阅览进度条、中英文空格排版、图片懒加载等等。</p>
+<p>那么首先就让我们来安装下 Next 这个主题吧，目前 Next 主题已经更新到 7.x 版本了，我们可以直接到 Next 主题的 GitHub Repository 上把这个主题下载下来。</p>
+<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> master 分支 Clone 下来。</p>
+<p>首先命令行进入到项目的根目录，执行如下命令即可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next themes&#x2F;next</span><br></pre></td></tr></table></figure>
+<p>执行完毕之后 Next 主题的源码就会出现在项目的 themes/next 文件夹下。</p>
+<p>然后我们需要修改下博客所用的主题名称，修改项目根目录下的 _config.yml 文件，找到 theme 字段，修改为 next 即可，修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure>
+<p>然后本地重新开启服务，访问刷新下页面，就可以看到 next 主题就切换成功了</p>
+<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><p>现在我们已经成功切换到 next 主题上面了，接下来我们就对主题进行进一步地详细配置吧，比如修改样式、增加其他各项功能的支持，下面逐项道来。</p>
+<p>Next 主题内部也提供了一个配置文件，名字同样叫做 _config.yml，只不过位置不一样，它在 themes/next 文件夹下，Next 主题里面所有的功能都可以通过这个配置文件来控制，下文所述的内容都是修改的 themes/next/_config.yml 文件。</p>
+<h4 id="样式"><a href="#样式" class="headerlink" title="样式"></a>样式</h4><p>Next 主题还提供了多种样式，风格都是类似黑白的搭配，但整个布局位置不太一样，通过修改配置文件的 scheme 字段即可，我选了 Pisces 样式，修改 _config.yml （注意是 themes/next/_config.yml 文件）如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheme: Pisces</span><br><span class="line"># 大家可以自行根据喜好选择。</span><br><span class="line"># scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">#scheme: Gemini</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>还有很多其他的配置项，可自己参考修改，在这里就不一一概述了</p>
+</blockquote>
+<p>最后大家修改完配置后请<a href="https://blanklin030.github.io/2019/10/29/write-article/" target="_blank" rel="noopener">参考文档</a>继续学习如何创建文章。</p>
 ]]></content>
       <categories>
         <category>tools</category>
       </categories>
       <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
+        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -540,46 +586,6 @@
       </tags>
   </entry>
   <entry>
-    <title>前端基于docker的生产环境部署方案</title>
-    <url>/2020/07/20/frontend-docker-product/</url>
-    <content><![CDATA[<ul>
-<li>docker安装<ul>
-<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
-<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
-</ul>
-</li>
-<li>Dockerfile  </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
-<p>server {</p>
-<p>  listen 8082;</p>
-<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
-<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
-<p>SHELL := /bin/bash</p>
-<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
-<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
-<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
-<pre><code>    # 注意docker run的参数,具体参数定义自行查找
-    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
-http://ip:8082
-```
-</code></pre><ul>
-<li>问题与思考<ul>
-<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
-<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tool</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>聊聊go环境安装及go.mod的使用</title>
     <url>/2019/12/05/go-mod-hello/</url>
     <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
@@ -624,6 +630,38 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+</blockquote>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>grafana开发环境搭建（MacBook）</title>
     <url>/2020/05/12/grafana-develop-environment/</url>
     <content><![CDATA[<ul>
@@ -661,84 +699,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>beego安装和使用</title>
-    <url>/2020/08/17/beego-install/</url>
-    <content><![CDATA[<ul>
-<li><p>beego是什么</p>
-<blockquote>
-<p>beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra 和 flask 这三个框架，但是结合了 Go 本身的一些特性（interface、struct 嵌入等）而设计的一个框架。<a href="https://beego.me" target="_blank" rel="noopener">beego</a></p>
-</blockquote>
-</li>
-<li><p>查看go的安装环境</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env || grep GO111MODULE</span><br></pre></td></tr></table></figure>
-<p><img src="/images/go-env.png" alt="go-env"></p>
-</li>
-<li><p>打开GO111MODULE</p>
-<blockquote>
-<p>go在1.11之后推出了自己的官方版本管理工具mod，需要使用mod必须将go的配置参数GO111MODULE打开，用以支持使用模块，注意在打开GO111MODULE后下载的依赖还是存在$GOPATH/pkg/mod中，而go install的结果放在$GOPATH/bin下，但是项目不再局限放在$GOPATH/src下，在任何位置我们都可以使用到$GOPATH/pkg/mod下的依赖</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env -w GO111MODULE&#x3D;on</span><br></pre></td></tr></table></figure></blockquote>
-</li>
-<li><p>修改go proxy</p>
-<blockquote>
-<p>由于wall的存在，我们无法使用官方的go proxy，所以需要修改proxy地址</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go env -w GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn,direct</span><br></pre></td></tr></table></figure>
-</blockquote>
-</li>
-<li><p>安装beego和bee</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;astaxie&#x2F;beego</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装bee工具</p>
-<blockquote>
-<p>bee 工具是一个为了协助快速开发 beego 项目而创建的项目，您可以通过 bee 快速创建项目、实现热编译、开发测试以及开发完之后打包发布的一整套从创建、开发到部署的方案。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;beego&#x2F;bee</span><br></pre></td></tr></table></figure>
-</blockquote>
-</li>
-<li><p>把bee添加为系统命令</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;blanklin&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOPATH&#x2F;bin</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>新建helloworld项目</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee new helloworld</span><br></pre></td></tr></table></figure></li>
-<li><p>helloworld项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── default.go<br>├── main.go<br>├── models<br>├── routers<br>│   └── router.go<br>├── static<br>│   ├── css<br>│   ├── img<br>│   └── js<br>├── tests<br>│   └── default_test.go<br>└── views<br>  └── index.tpl</p>
-</li>
-<li><p>新建api项目</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee api helloworld</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>api项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── object.go<br>│   └── user.go<br>├── docs<br>│   └── doc.go<br>├── main.go<br>├── models<br>│   └── object.go<br>│   └── user.go<br>├── routers<br>│   └── router.go<br>└── tests<br>  └── default_test.go</p>
-</li>
-</ul>
-<blockquote>
-<p>和web项目对比，少了 static 和 views 目录，多了一个 test 模块，用来做单元测试的<br>可直接通过参数创建orm：bee api [appname] [-tables=””] [-driver=mysql] [-conn=root:@tcp(127.0.0.1:3306)/test]</p>
-</blockquote>
-<ul>
-<li><p>使用go mod</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go mod init helloworld</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>运行beego项目</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee run</span><br><span class="line"># 配合conf&#x2F;app.conf[EnableDocs &#x3D; true]开启swagger</span><br><span class="line">bee run -downdoc&#x3D;true -gendoc&#x3D;true</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>打开浏览器访问beego开启的本地端口，一般是8080，所以地址是：<a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a></p>
-</blockquote>
-</li>
-<li><p>使用pack命令部署生产环境</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bee pack -be GOOS&#x3D;linux</span><br><span class="line"># 生成一个压缩文件helloworld.tar.gz</span><br><span class="line"># 在生成环境解压后运行</span><br><span class="line">nohup .&#x2F;helloworld &amp;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用docker部署生产环境</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM golang:1.14.2-buster</span><br><span class="line"></span><br><span class="line">ENV TZ Asia&#x2F;Shanghai</span><br><span class="line">ENV GOKU_LOGLEVEL info</span><br><span class="line"></span><br><span class="line">ENV GOKU_RUNMODE prod</span><br><span class="line">ENV GOKU_PORT 8080</span><br><span class="line"></span><br><span class="line">RUN go build -v -o .&#x2F;build&#x2F;goku .&#x2F;main.go</span><br><span class="line"></span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line">COPY ..&#x2F;conf &#x2F;app&#x2F;conf</span><br><span class="line">COPY .&#x2F;build&#x2F;goku &#x2F;app&#x2F;goku</span><br><span class="line"></span><br><span class="line">ENTRYPOINT [&quot;.&#x2F;goku&quot;]</span><br></pre></td></tr></table></figure></li>
-<li>本项目GitHub<br><a href="https://github.com/blanklin030/beego-docker" target="_blank" rel="noopener">https://github.com/blanklin030/beego-docker</a><blockquote>
-<p>提供初始化后支持mysql的基础crud和相关配置</p>
-</blockquote>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>golang</category>
-      </categories>
-      <tags>
-        <tag>golang</tag>
-        <tag>beego</tag>
       </tags>
   </entry>
   <entry>
@@ -816,6 +776,46 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>前端基于docker的生产环境部署方案</title>
+    <url>/2020/07/20/frontend-docker-product/</url>
+    <content><![CDATA[<ul>
+<li>docker安装<ul>
+<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
+<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
+</ul>
+</li>
+<li>Dockerfile  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
+<p>server {</p>
+<p>  listen 8082;</p>
+<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
+<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
+<p>SHELL := /bin/bash</p>
+<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
+<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
+<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
+<pre><code>    # 注意docker run的参数,具体参数定义自行查找
+    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
+http://ip:8082
+```
+</code></pre><ul>
+<li>问题与思考<ul>
+<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
+<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>mysql在使用order by limit时出现数据重复的问题</title>
     <url>/2019/12/04/mysql-priority-que/</url>
     <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
@@ -873,6 +873,22 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>next模板页面空白解决方法</title>
+    <url>/2019/11/27/next-package-blank/</url>
+    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
+<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
+<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>next</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>使用nginx搭建加密的文件服务器</title>
     <url>/2020/05/07/nginx-file-server/</url>
     <content><![CDATA[<ul>
@@ -900,19 +916,29 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>next模板页面空白解决方法</title>
-    <url>/2019/11/27/next-package-blank/</url>
-    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
-<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
-<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
+    <title>centos7源码安装nginx</title>
+    <url>/2020/08/11/nginx-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
+<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>路径整理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
+</ul>
 ]]></content>
       <categories>
-        <category>web</category>
+        <category>web server</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
-        <tag>next</tag>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -974,32 +1000,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>php7.2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos7源码安装nginx</title>
-    <url>/2020/08/11/nginx-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -1120,24 +1120,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>macbook使用code .命令在vscode打开当前目录</title>
-    <url>/2020/02/17/vscode-open-project/</url>
-    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
-<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
-<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
-<blockquote>
-<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
-</blockquote>
-</blockquote>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>centos7下安装mysql5.7</title>
     <url>/2020/05/13/rmp-install-mysql/</url>
     <content><![CDATA[<ul>
@@ -1167,6 +1149,43 @@ http://ip:8082
       </categories>
       <tags>
         <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>macbook使用code .命令在vscode打开当前目录</title>
+    <url>/2020/02/17/vscode-open-project/</url>
+    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
+<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
+<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
+<blockquote>
+<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
+</blockquote>
+</blockquote>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>教你新建一个vue项目</title>
+    <url>/2019/11/27/vue-create-project/</url>
+    <content><![CDATA[<ul>
+<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
+<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
+下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>vuejs</tag>
+        <tag>vue-cli</tag>
+        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>
@@ -1209,25 +1228,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>HowToWriteMarkDownArticle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>教你新建一个vue项目</title>
-    <url>/2019/11/27/vue-create-project/</url>
-    <content><![CDATA[<ul>
-<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
-<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
-下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>vuejs</tag>
-        <tag>vue-cli</tag>
-        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>
