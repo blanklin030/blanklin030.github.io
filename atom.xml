@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-08-20T09:47:56.912Z</updated>
+  <updated>2020-08-22T14:20:20.841Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>beego安装和使用</title>
+    <link href="http://yoursite.com/2020/08/17/beego-install/"/>
+    <id>http://yoursite.com/2020/08/17/beego-install/</id>
+    <published>2020-08-17T07:09:55.000Z</published>
+    <updated>2020-08-22T14:20:20.841Z</updated>
+    
+    <content type="html"><![CDATA[<ul><li><p>beego是什么</p><blockquote><p>beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra 和 flask 这三个框架，但是结合了 Go 本身的一些特性（interface、struct 嵌入等）而设计的一个框架。<a href="https://beego.me" target="_blank" rel="noopener">beego</a></p></blockquote></li><li><p>查看go的安装环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env || grep GO111MODULE</span><br></pre></td></tr></table></figure><p><img src="/images/go-env.png" alt="go-env"></p></li><li><p>打开GO111MODULE</p><blockquote><p>go在1.11之后推出了自己的官方版本管理工具mod，需要使用mod必须将go的配置参数GO111MODULE打开，用以支持使用模块，注意在打开GO111MODULE后下载的依赖还是存在$GOPATH/pkg/mod中，而go install的结果放在$GOPATH/bin下，但是项目不再局限放在$GOPATH/src下，在任何位置我们都可以使用到$GOPATH/pkg/mod下的依赖</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env -w GO111MODULE&#x3D;on</span><br></pre></td></tr></table></figure></blockquote></li><li><p>修改go proxy</p><blockquote><p>由于wall的存在，我们无法使用官方的go proxy，所以需要修改proxy地址</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env -w GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn,direct</span><br></pre></td></tr></table></figure></blockquote></li><li><p>安装beego和bee</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com&#x2F;astaxie&#x2F;beego</span><br></pre></td></tr></table></figure></li><li><p>安装bee工具</p><blockquote><p>bee 工具是一个为了协助快速开发 beego 项目而创建的项目，您可以通过 bee 快速创建项目、实现热编译、开发测试以及开发完之后打包发布的一整套从创建、开发到部署的方案。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com&#x2F;beego&#x2F;bee</span><br></pre></td></tr></table></figure></blockquote></li><li><p>把bee添加为系统命令</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;blanklin&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOPATH&#x2F;bin</span><br></pre></td></tr></table></figure></li><li><p>新建helloworld项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bee new helloworld</span><br></pre></td></tr></table></figure></li><li><p>helloworld项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── default.go<br>├── main.go<br>├── models<br>├── routers<br>│   └── router.go<br>├── static<br>│   ├── css<br>│   ├── img<br>│   └── js<br>├── tests<br>│   └── default_test.go<br>└── views<br>  └── index.tpl</p></li><li><p>新建api项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bee api helloworld</span><br></pre></td></tr></table></figure></li><li><p>api项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── object.go<br>│   └── user.go<br>├── docs<br>│   └── doc.go<br>├── main.go<br>├── models<br>│   └── object.go<br>│   └── user.go<br>├── routers<br>│   └── router.go<br>└── tests<br>  └── default_test.go</p></li></ul><blockquote><p>和web项目对比，少了 static 和 views 目录，多了一个 test 模块，用来做单元测试的<br>可直接通过参数创建orm：bee api [appname] [-tables=””] [-driver=mysql] [-conn=root:@tcp(127.0.0.1:3306)/test]</p></blockquote><ul><li><p>使用go mod</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go mod init helloworld</span><br></pre></td></tr></table></figure></li><li><p>运行beego项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bee run</span><br><span class="line"># 配合conf&#x2F;app.conf[EnableDocs &#x3D; true]开启swagger</span><br><span class="line">bee run -downdoc&#x3D;true -gendoc&#x3D;true</span><br></pre></td></tr></table></figure><blockquote><p>打开浏览器访问beego开启的本地端口，一般是8080，所以地址是：<a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a></p></blockquote></li><li><p>使用pack命令部署生产环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bee pack -be GOOS&#x3D;linux</span><br><span class="line"># 生成一个压缩文件helloworld.tar.gz</span><br><span class="line"># 在生成环境解压后运行</span><br><span class="line">nohup .&#x2F;helloworld &amp;</span><br></pre></td></tr></table></figure></li><li><p>使用docker部署生产环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.14.2-buster</span><br><span class="line"></span><br><span class="line">ENV TZ Asia&#x2F;Shanghai</span><br><span class="line">ENV GOKU_LOGLEVEL info</span><br><span class="line"></span><br><span class="line">ENV GOKU_RUNMODE prod</span><br><span class="line">ENV GOKU_PORT 8080</span><br><span class="line"></span><br><span class="line">RUN go build -v -o .&#x2F;build&#x2F;goku .&#x2F;main.go</span><br><span class="line"></span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line">COPY ..&#x2F;conf &#x2F;app&#x2F;conf</span><br><span class="line">COPY .&#x2F;build&#x2F;goku &#x2F;app&#x2F;goku</span><br><span class="line"></span><br><span class="line">ENTRYPOINT [&quot;.&#x2F;goku&quot;]</span><br></pre></td></tr></table></figure></li><li>本项目GitHub<br><a href="https://github.com/blanklin030/beego-docker" target="_blank" rel="noopener">https://github.com/blanklin030/beego-docker</a><blockquote><p>提供初始化后支持mysql的基础crud和相关配置</p></blockquote></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;beego是什么&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra
+      
+    
+    </summary>
+    
+    
+      <category term="golang" scheme="http://yoursite.com/categories/golang/"/>
+    
+    
+      <category term="golang" scheme="http://yoursite.com/tags/golang/"/>
+    
+      <category term="beego" scheme="http://yoursite.com/tags/beego/"/>
+    
+  </entry>
   
   <entry>
     <title>源码安装zabbix5.0</title>
@@ -512,37 +543,6 @@
     
     
       <category term="mysql" scheme="http://yoursite.com/tags/mysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>next模板页面空白解决方法</title>
-    <link href="http://yoursite.com/2019/11/27/beegon-install/"/>
-    <id>http://yoursite.com/2019/11/27/beegon-install/</id>
-    <published>2019-11-27T07:09:55.000Z</published>
-    <updated>2020-08-22T13:51:02.821Z</updated>
-    
-    <content type="html"><![CDATA[<ul><li><p>beego是什么</p><blockquote><p>beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra 和 flask 这三个框架，但是结合了 Go 本身的一些特性（interface、struct 嵌入等）而设计的一个框架。<a href="https://beego.me" target="_blank" rel="noopener">beego</a></p></blockquote></li><li><p>查看go的安装环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env || grep GO111MODULE</span><br></pre></td></tr></table></figure><p><img src="/images/go-env.png" alt="go-env"></p></li><li><p>打开GO111MODULE</p><blockquote><p>go在1.11之后推出了自己的官方版本管理工具mod，需要使用mod必须将go的配置参数GO111MODULE打开，用以支持使用模块，注意在打开GO111MODULE后下载的依赖还是存在$GOPATH/pkg/mod中，而go install的结果放在$GOPATH/bin下，但是项目不再局限放在$GOPATH/src下，在任何位置我们都可以使用到$GOPATH/pkg/mod下的依赖</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env -w GO111MODULE&#x3D;on</span><br></pre></td></tr></table></figure></blockquote></li><li><p>修改go proxy</p><blockquote><p>由于wall的存在，我们无法使用官方的go proxy，所以需要修改proxy地址</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go env -w GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn,direct</span><br></pre></td></tr></table></figure></blockquote></li><li><p>安装beego和bee</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com&#x2F;astaxie&#x2F;beego</span><br></pre></td></tr></table></figure></li><li><p>安装bee工具</p><blockquote><p>bee 工具是一个为了协助快速开发 beego 项目而创建的项目，您可以通过 bee 快速创建项目、实现热编译、开发测试以及开发完之后打包发布的一整套从创建、开发到部署的方案。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com&#x2F;beego&#x2F;bee</span><br></pre></td></tr></table></figure></blockquote></li><li><p>把bee添加为系统命令</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;blanklin&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOPATH&#x2F;bin</span><br></pre></td></tr></table></figure></li><li><p>新建helloworld项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bee new helloworld</span><br></pre></td></tr></table></figure></li><li><p>helloworld项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── default.go<br>├── main.go<br>├── models<br>├── routers<br>│   └── router.go<br>├── static<br>│   ├── css<br>│   ├── img<br>│   └── js<br>├── tests<br>│   └── default_test.go<br>└── views<br>  └── index.tpl</p></li><li><p>新建api项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bee api helloworld</span><br></pre></td></tr></table></figure></li><li><p>api项目目录结构<br>helloworld<br>├── conf<br>│   └── app.conf<br>├── controllers<br>│   └── object.go<br>│   └── user.go<br>├── docs<br>│   └── doc.go<br>├── main.go<br>├── models<br>│   └── object.go<br>│   └── user.go<br>├── routers<br>│   └── router.go<br>└── tests<br>  └── default_test.go</p></li></ul><blockquote><p>和web项目对比，少了 static 和 views 目录，多了一个 test 模块，用来做单元测试的<br>可直接通过参数创建orm：bee api [appname] [-tables=””] [-driver=mysql] [-conn=root:@tcp(127.0.0.1:3306)/test]</p></blockquote><ul><li><p>使用go mod</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go mod init helloworld</span><br></pre></td></tr></table></figure></li><li><p>运行beego项目</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bee run</span><br><span class="line"># 配合conf&#x2F;app.conf[EnableDocs &#x3D; true]开启swagger</span><br><span class="line">bee run -downdoc&#x3D;true -gendoc&#x3D;true</span><br></pre></td></tr></table></figure><blockquote><p>打开浏览器访问beego开启的本地端口，一般是8080，所以地址是：<a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a></p></blockquote></li><li><p>使用pack命令部署生产环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bee pack -be GOOS&#x3D;linux</span><br><span class="line"># 生成一个压缩文件helloworld.tar.gz</span><br><span class="line"># 在生成环境解压后运行</span><br><span class="line">nohup .&#x2F;helloworld &amp;</span><br></pre></td></tr></table></figure></li><li><p>使用docker部署生产环境</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.14.2-buster</span><br><span class="line"></span><br><span class="line">ENV TZ Asia&#x2F;Shanghai</span><br><span class="line">ENV GOKU_LOGLEVEL info</span><br><span class="line"></span><br><span class="line">ENV GOKU_RUNMODE prod</span><br><span class="line">ENV GOKU_PORT 8080</span><br><span class="line"></span><br><span class="line">RUN go build -v -o .&#x2F;build&#x2F;goku .&#x2F;main.go</span><br><span class="line"></span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line">COPY ..&#x2F;conf &#x2F;app&#x2F;conf</span><br><span class="line">COPY .&#x2F;build&#x2F;goku &#x2F;app&#x2F;goku</span><br><span class="line"></span><br><span class="line">ENTRYPOINT [&quot;.&#x2F;goku&quot;]</span><br></pre></td></tr></table></figure></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;beego是什么&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;beego 是一个快速开发 Go 应用的 HTTP 框架，他可以用来快速开发 API、Web 及后端服务等各种应用，是一个 RESTful 的框架，主要设计灵感来源于 tornado、sinatra
-      
-    
-    </summary>
-    
-    
-      <category term="golang" scheme="http://yoursite.com/categories/golang/"/>
-    
-    
-      <category term="golang" scheme="http://yoursite.com/tags/golang/"/>
-    
-      <category term="beego" scheme="http://yoursite.com/tags/beego/"/>
     
   </entry>
   
