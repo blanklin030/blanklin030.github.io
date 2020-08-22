@@ -144,6 +144,80 @@
       </tags>
   </entry>
   <entry>
+    <title>如何创建GitHub Page</title>
+    <url>/2019/10/29/create-github-page/</url>
+    <content><![CDATA[<h2 id="新建项目"><a href="#新建项目" class="headerlink" title="新建项目"></a>新建项目</h2><p>首先在 GitHub 新建一个仓库（Repository），名称为 {username}.github.io，注意这个名比较特殊，必须要是 github.io 为后缀结尾的。比如 我 的 GitHub 用户名就叫 blanklin030，那我就新建一个 blanklin030.github.io，新建完成之后就可以进行后续操作了。</p>
+<blockquote>
+<blockquote>
+<p>另外如果 GitHub 没有配置 SSH 连接的建议配置一下，这样后面在部署博客的时候会更方便。</p>
+</blockquote>
+</blockquote>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>首先在自己的电脑上安装 Node.js，下载地址：<a href="https://nodejs.org/zh-cn/download/，可以安装" target="_blank" rel="noopener">https://nodejs.org/zh-cn/download/，可以安装</a> Stable 版本。</p>
+<p>安装完毕之后，确保环境变量配置好，能正常使用 npm 命令。</p>
+<h2 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h2><p>接下来就需要安装 Hexo 了，这是一个博客框架，Hexo 官方还提供了一个命令行工具，用于快速创建项目、页面、编译、部署 Hexo 博客，所以在这之前我们需要先安装 Hexo 的命令行工具。</p>
+<p>命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<p>安装完毕之后，确保环境变量配置好，能正常使用 hexo 命令。</p>
+<h2 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h2><p>接下来我们使用 Hexo 的命令行创建一个项目，并将其在本地跑起来，整体跑通看看。<br>首先使用如下命令创建项目：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init &#123;name&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 name 就是项目名，我这里要创建 blanklin 的博客，我就把项目取名为 blanklin 了，用了纯小写，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init blinklin</span><br></pre></td></tr></table></figure>
+<p>这样 nightteam 文件夹下就会出现 Hexo 的初始化文件，包括 themes、scaffolds、source 等文件夹，这些内容暂且先不用管是做什么的，我们先知道有什么，然后一步步走下去看看都发生了什么变化。</p>
+<p>接下来我们首先进入新生成的文件夹里面，然后调用 Hexo 的 generate 命令，将 Hexo 编译生成 HTML 代码，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo generate</span><br></pre></td></tr></table></figure>
+<p>可以看到输出结果里面包含了 js、css、font 等内容，并发现他们都处在了项目根目录下的 public 文件夹下面了。</p>
+<p>然后我们利用 Hexo 提供的 serve 命令把博客在本地运行起来，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo serve</span><br></pre></td></tr></table></figure>
+<p>运行之后命令行输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http:&#x2F;&#x2F;localhost:4000 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>接下来我们来将这个初始化的博客进行一下部署，放到 GitHub Pages 上面验证一下其可用性。成功之后我们可以再进行后续的修改，比如修改主题、修改页面配置等等。</p>
+<p>那么怎么把这个页面部署到 GitHub Pages 上面呢，其实 Hexo 已经给我们提供一个命令，利用它我们可以直接将博客一键部署，不需要手动去配置服务器或进行其他的各项配置。</p>
+<p>部署命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+<p>在部署之前，我们需要先知道博客的部署地址，它需要对应 GitHub 的一个 Repository 的地址，这个信息需要我们来配置一下。</p>
+<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 master 分支，最终修改为如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+<p>另外我们还需要额外安装一个支持 Git 的部署插件，名字叫做 hexo-deployer-git，有了它我们才可以顺利将其部署到 GitHub 上面</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>安装成功之后，执行部署命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 master 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
+<p>这时候可能就有人有疑问了，那我博客的源码也想放到 GitHub 上面怎么办呢？其实很简单，新建一个其他的分支就好了，比如我这边就新建了一个 source 分支，代表博客源码的意思。</p>
+<p>具体的添加过程就很简单了，就是增加一个 source 分支，记录的博客的源码，参加如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">git init</span><br><span class="line">git checkout -b source</span><br><span class="line">git add -A</span><br><span class="line">git commit -m &quot;init blog&quot;</span><br><span class="line">git remote add origin git@github.com:&#123;username&#125;&#x2F;&#123;username&#125;.github.io.git</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure>
+<p>成功之后，可以到 GitHub 上再切换下默认分支，比如我就把默认的分支设置为了 source，当然不换也可以。</p>
+<h2 id="配置站点信息"><a href="#配置站点信息" class="headerlink" title="配置站点信息"></a>配置站点信息</h2><p>下面我就以自己的站点 NightTeam 为例，修改一些基本的配置，比如站点名、站点描述等等。</p>
+<p>修改根目录下的 _config.yml 文件，找到 Site 区域，这里面可以配置站点标题 title、副标题 subtitle 等内容、关键字 keywords 等内容，比如我的就修改为如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Site</span><br><span class="line">title: NightTeam</span><br><span class="line">subtitle: 一个专注技术的组织</span><br><span class="line">description: 涉猎的主要编程语言为 Python、Rust、C++、Go，领域涵盖爬虫、深度学习、服务研发和对象存储等。</span><br><span class="line">keywords: &quot;Python, Rust, C++, Go, 爬虫, 深度学习, 服务研发, 对象存储&quot;</span><br><span class="line">author: NightTeam</span><br></pre></td></tr></table></figure>
+<p>这里大家可以参照格式把内容改成自己的。</p>
+<p>另外还可以设置一下语言，如果要设置为汉语的话可以将 language 的字段设置为 zh-CN，修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
+<h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>目前 Hexo 里面应用最多的主题基本就是 Next 主题了，个人感觉这个主题还是挺好看的，另外它支持的插件和功能也极为丰富，配置了这个主题，我们的博客可以支持更多的扩展功能，比如阅览进度条、中英文空格排版、图片懒加载等等。</p>
+<p>那么首先就让我们来安装下 Next 这个主题吧，目前 Next 主题已经更新到 7.x 版本了，我们可以直接到 Next 主题的 GitHub Repository 上把这个主题下载下来。</p>
+<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> master 分支 Clone 下来。</p>
+<p>首先命令行进入到项目的根目录，执行如下命令即可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next themes&#x2F;next</span><br></pre></td></tr></table></figure>
+<p>执行完毕之后 Next 主题的源码就会出现在项目的 themes/next 文件夹下。</p>
+<p>然后我们需要修改下博客所用的主题名称，修改项目根目录下的 _config.yml 文件，找到 theme 字段，修改为 next 即可，修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure>
+<p>然后本地重新开启服务，访问刷新下页面，就可以看到 next 主题就切换成功了</p>
+<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><p>现在我们已经成功切换到 next 主题上面了，接下来我们就对主题进行进一步地详细配置吧，比如修改样式、增加其他各项功能的支持，下面逐项道来。</p>
+<p>Next 主题内部也提供了一个配置文件，名字同样叫做 _config.yml，只不过位置不一样，它在 themes/next 文件夹下，Next 主题里面所有的功能都可以通过这个配置文件来控制，下文所述的内容都是修改的 themes/next/_config.yml 文件。</p>
+<h4 id="样式"><a href="#样式" class="headerlink" title="样式"></a>样式</h4><p>Next 主题还提供了多种样式，风格都是类似黑白的搭配，但整个布局位置不太一样，通过修改配置文件的 scheme 字段即可，我选了 Pisces 样式，修改 _config.yml （注意是 themes/next/_config.yml 文件）如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheme: Pisces</span><br><span class="line"># 大家可以自行根据喜好选择。</span><br><span class="line"># scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">#scheme: Gemini</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>还有很多其他的配置项，可自己参考修改，在这里就不一一概述了</p>
+</blockquote>
+<p>最后大家修改完配置后请<a href="https://blanklin030.github.io/2019/10/29/write-article/" target="_blank" rel="noopener">参考文档</a>继续学习如何创建文章。</p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>带你开箱真香ClickHouse</title>
     <url>/2019/11/26/clickhouse-hello-world/</url>
     <content><![CDATA[<h2 id="OLAP介绍"><a href="#OLAP介绍" class="headerlink" title="OLAP介绍"></a>OLAP介绍</h2><h4 id="OLAP概述"><a href="#OLAP概述" class="headerlink" title="OLAP概述"></a>OLAP概述</h4><p>OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。<br>在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。 分区技术在OLAP系统中的重要性主要体现在数据库管理上，比如数据库加载，可以通过分区交换的方式实现，备份可以通过备份分区表空间实现，删除数据可以通过分区进行删除，至于分区在性能上的影响，它可以使得一些大表的扫描变得很快（只扫描单个分区）。另外，如果分区结合并行的话，也可以使得整个表的扫描会变得很快。总之，分区主要的功能是管理上的方便性，它并不能绝对保证查询性能的提高，有时候分区会带来性能上的提高，有时候会降低。</p>
@@ -334,77 +408,79 @@
       </tags>
   </entry>
   <entry>
-    <title>如何创建GitHub Page</title>
-    <url>/2019/10/29/create-github-page/</url>
-    <content><![CDATA[<h2 id="新建项目"><a href="#新建项目" class="headerlink" title="新建项目"></a>新建项目</h2><p>首先在 GitHub 新建一个仓库（Repository），名称为 {username}.github.io，注意这个名比较特殊，必须要是 github.io 为后缀结尾的。比如 我 的 GitHub 用户名就叫 blanklin030，那我就新建一个 blanklin030.github.io，新建完成之后就可以进行后续操作了。</p>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <blockquote>
-<blockquote>
-<p>另外如果 GitHub 没有配置 SSH 连接的建议配置一下，这样后面在部署博客的时候会更方便。</p>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
 </blockquote>
-</blockquote>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>首先在自己的电脑上安装 Node.js，下载地址：<a href="https://nodejs.org/zh-cn/download/，可以安装" target="_blank" rel="noopener">https://nodejs.org/zh-cn/download/，可以安装</a> Stable 版本。</p>
-<p>安装完毕之后，确保环境变量配置好，能正常使用 npm 命令。</p>
-<h2 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h2><p>接下来就需要安装 Hexo 了，这是一个博客框架，Hexo 官方还提供了一个命令行工具，用于快速创建项目、页面、编译、部署 Hexo 博客，所以在这之前我们需要先安装 Hexo 的命令行工具。</p>
-<p>命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
-<p>安装完毕之后，确保环境变量配置好，能正常使用 hexo 命令。</p>
-<h2 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h2><p>接下来我们使用 Hexo 的命令行创建一个项目，并将其在本地跑起来，整体跑通看看。<br>首先使用如下命令创建项目：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init &#123;name&#125;</span><br></pre></td></tr></table></figure>
-<p>这里的 name 就是项目名，我这里要创建 blanklin 的博客，我就把项目取名为 blanklin 了，用了纯小写，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo init blinklin</span><br></pre></td></tr></table></figure>
-<p>这样 nightteam 文件夹下就会出现 Hexo 的初始化文件，包括 themes、scaffolds、source 等文件夹，这些内容暂且先不用管是做什么的，我们先知道有什么，然后一步步走下去看看都发生了什么变化。</p>
-<p>接下来我们首先进入新生成的文件夹里面，然后调用 Hexo 的 generate 命令，将 Hexo 编译生成 HTML 代码，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo generate</span><br></pre></td></tr></table></figure>
-<p>可以看到输出结果里面包含了 js、css、font 等内容，并发现他们都处在了项目根目录下的 public 文件夹下面了。</p>
-<p>然后我们利用 Hexo 提供的 serve 命令把博客在本地运行起来，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo serve</span><br></pre></td></tr></table></figure>
-<p>运行之后命令行输出如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http:&#x2F;&#x2F;localhost:4000 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>接下来我们来将这个初始化的博客进行一下部署，放到 GitHub Pages 上面验证一下其可用性。成功之后我们可以再进行后续的修改，比如修改主题、修改页面配置等等。</p>
-<p>那么怎么把这个页面部署到 GitHub Pages 上面呢，其实 Hexo 已经给我们提供一个命令，利用它我们可以直接将博客一键部署，不需要手动去配置服务器或进行其他的各项配置。</p>
-<p>部署命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>在部署之前，我们需要先知道博客的部署地址，它需要对应 GitHub 的一个 Repository 的地址，这个信息需要我们来配置一下。</p>
-<p>打开根目录下的 _config.yml 文件，找到 Deployment 这个地方，把刚才新建的 Repository 的地址贴过来，然后指定分支为 master 分支，最终修改为如下内容：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: &#123;git repo ssh address&#125;</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
-<p>另外我们还需要额外安装一个支持 Git 的部署插件，名字叫做 hexo-deployer-git，有了它我们才可以顺利将其部署到 GitHub 上面</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<p>安装成功之后，执行部署命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>如果没有报错，那说明 hexo deploy 操作就做了两个动作，1 个是 build 文件到 public 目录，还有 1 个就是 git add &amp;&amp; git commit &amp;&amp; git push 后到 GitHub 仓库了。<br>这时候我们去 GitHub 上面看看 Hexo 上传了什么内容，打开之后可以看到 master 分支就可以看到其实就是把 public 目录 push 到 repository 了。</p>
-<p>这时候可能就有人有疑问了，那我博客的源码也想放到 GitHub 上面怎么办呢？其实很简单，新建一个其他的分支就好了，比如我这边就新建了一个 source 分支，代表博客源码的意思。</p>
-<p>具体的添加过程就很简单了，就是增加一个 source 分支，记录的博客的源码，参加如下命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">git init</span><br><span class="line">git checkout -b source</span><br><span class="line">git add -A</span><br><span class="line">git commit -m &quot;init blog&quot;</span><br><span class="line">git remote add origin git@github.com:&#123;username&#125;&#x2F;&#123;username&#125;.github.io.git</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure>
-<p>成功之后，可以到 GitHub 上再切换下默认分支，比如我就把默认的分支设置为了 source，当然不换也可以。</p>
-<h2 id="配置站点信息"><a href="#配置站点信息" class="headerlink" title="配置站点信息"></a>配置站点信息</h2><p>下面我就以自己的站点 NightTeam 为例，修改一些基本的配置，比如站点名、站点描述等等。</p>
-<p>修改根目录下的 _config.yml 文件，找到 Site 区域，这里面可以配置站点标题 title、副标题 subtitle 等内容、关键字 keywords 等内容，比如我的就修改为如下内容：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Site</span><br><span class="line">title: NightTeam</span><br><span class="line">subtitle: 一个专注技术的组织</span><br><span class="line">description: 涉猎的主要编程语言为 Python、Rust、C++、Go，领域涵盖爬虫、深度学习、服务研发和对象存储等。</span><br><span class="line">keywords: &quot;Python, Rust, C++, Go, 爬虫, 深度学习, 服务研发, 对象存储&quot;</span><br><span class="line">author: NightTeam</span><br></pre></td></tr></table></figure>
-<p>这里大家可以参照格式把内容改成自己的。</p>
-<p>另外还可以设置一下语言，如果要设置为汉语的话可以将 language 的字段设置为 zh-CN，修改如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
-<h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>目前 Hexo 里面应用最多的主题基本就是 Next 主题了，个人感觉这个主题还是挺好看的，另外它支持的插件和功能也极为丰富，配置了这个主题，我们的博客可以支持更多的扩展功能，比如阅览进度条、中英文空格排版、图片懒加载等等。</p>
-<p>那么首先就让我们来安装下 Next 这个主题吧，目前 Next 主题已经更新到 7.x 版本了，我们可以直接到 Next 主题的 GitHub Repository 上把这个主题下载下来。</p>
-<p>主题的 GitHub 地址是：<a href="https://github.com/theme-next/hexo-theme-next，我们可以直接把" target="_blank" rel="noopener">https://github.com/theme-next/hexo-theme-next，我们可以直接把</a> master 分支 Clone 下来。</p>
-<p>首先命令行进入到项目的根目录，执行如下命令即可：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next themes&#x2F;next</span><br></pre></td></tr></table></figure>
-<p>执行完毕之后 Next 主题的源码就会出现在项目的 themes/next 文件夹下。</p>
-<p>然后我们需要修改下博客所用的主题名称，修改项目根目录下的 _config.yml 文件，找到 theme 字段，修改为 next 即可，修改如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure>
-<p>然后本地重新开启服务，访问刷新下页面，就可以看到 next 主题就切换成功了</p>
-<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><p>现在我们已经成功切换到 next 主题上面了，接下来我们就对主题进行进一步地详细配置吧，比如修改样式、增加其他各项功能的支持，下面逐项道来。</p>
-<p>Next 主题内部也提供了一个配置文件，名字同样叫做 _config.yml，只不过位置不一样，它在 themes/next 文件夹下，Next 主题里面所有的功能都可以通过这个配置文件来控制，下文所述的内容都是修改的 themes/next/_config.yml 文件。</p>
-<h4 id="样式"><a href="#样式" class="headerlink" title="样式"></a>样式</h4><p>Next 主题还提供了多种样式，风格都是类似黑白的搭配，但整个布局位置不太一样，通过修改配置文件的 scheme 字段即可，我选了 Pisces 样式，修改 _config.yml （注意是 themes/next/_config.yml 文件）如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheme: Pisces</span><br><span class="line"># 大家可以自行根据喜好选择。</span><br><span class="line"># scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">#scheme: Gemini</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>还有很多其他的配置项，可自己参考修改，在这里就不一一概述了</p>
-</blockquote>
-<p>最后大家修改完配置后请<a href="https://blanklin030.github.io/2019/10/29/write-article/" target="_blank" rel="noopener">参考文档</a>继续学习如何创建文章。</p>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
 ]]></content>
       <categories>
         <category>tools</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>聊聊go环境安装及go.mod的使用</title>
+    <url>/2019/12/05/go-mod-hello/</url>
+    <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
+<h2 id="go的开发环境"><a href="#go的开发环境" class="headerlink" title="go的开发环境"></a>go的开发环境</h2><ul>
+<li>安装go<blockquote>
+<p>推荐使用go1.12+版本  </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go</span><br><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;didi&#x2F;Documents&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li>GO111MODULE<br>在 1.12 版本之前，使用 Go modules 之前需要环境变量 GO111MODULE：<ul>
+<li>GO111MODULE=off: 不使用 Module-aware mode。</li>
+<li>GO111MODULE=on: 使用 Module-aware mode，不会去 GOPATH 下面查找依赖包。</li>
+<li>GO111MODULE=auto或unset: Golang 自己检测是不是使用Module-aware mode。  <blockquote>
+<p>根据官方描述在不设置GO111MODULE的情况下或者设为auto的时候，如果在当前目录或者父目录中有go.mod文件，那么就使用Module-aware mode， 而go1.12中，如果包位于GOPATH/src下，且GO111MODULE=auto, 即使有go.mod的存在，go仍然使用GOPATH mode:</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>GO PROXY<br>GOPROXY环境变量是伴随着modules而生，在go1.13中得到了增强，可以设置为逗号分隔的url列表来指定多个代理，其默认值为<a href="https://proxy.golang.org,direct。" target="_blank" rel="noopener">https://proxy.golang.org,direct。</a><br>direct：表示直接连接，所有direct后面逗号隔开都proxy都不会被使用。</p>
+<blockquote>
+<p>这里可以设置GOPROXY=<a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a> </p>
+</blockquote>
+</li>
+<li><p>go env命令查看所有go的系统环境变量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GO111MODULE&#x3D;&quot;on&quot;</span><br><span class="line">GOARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOBIN&#x3D;&quot;&quot;</span><br><span class="line">GOCACHE&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Caches&#x2F;go-build&quot;</span><br><span class="line">GOENV&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Application Support&#x2F;go&#x2F;env&quot;</span><br><span class="line">GOEXE&#x3D;&quot;&quot;</span><br><span class="line">GOFLAGS&#x3D;&quot;&quot;</span><br><span class="line">GOHOSTARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOHOSTOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">&#x2F;&#x2F; 省略其他的</span><br></pre></td></tr></table></figure>
+<h2 id="go-mod的使用"><a href="#go-mod的使用" class="headerlink" title="go.mod的使用"></a>go.mod的使用</h2></li>
+<li>创建项目<br>在GOPATH目录之外任意创建一个项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code</span><br><span class="line">mkdir hello-go-mod</span><br></pre></td></tr></table></figure></li>
+<li>初始化go.mod<br>进入到项目根目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code&#x2F;hello-go-mod</span><br><span class="line">go mod init hello-go-mod</span><br><span class="line">&#x2F;&#x2F;提示创建成功： go: creating new go.mod: module hello-go-mod</span><br><span class="line">ll </span><br><span class="line">&#x2F;&#x2F; 看到根目录下多了go.mod文件</span><br></pre></td></tr></table></figure></li>
+<li>go run触发modules工作<br>在项目的根目录下创建一个main.go文件，复制下面的内容到文件里<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import(</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;github.com&#x2F;valyala&#x2F;fasthttp&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">   fmt.Print(&quot;hello go mod&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<strong><em>go run main.go</em></strong><br>发现项目目录下多了一个 go.sum<br>go.sum用来记录每个 package 的版本和哈希值。<br>go.mod 文件正常情况会包含 module 和 require 模块，除此之外还可以包含 replace 和 exclude 模块</li>
+</ul>
+<h2 id="调教GoLang"><a href="#调教GoLang" class="headerlink" title="调教GoLang"></a>调教GoLang</h2><ol>
+<li>开启go-mod<br><img src="/images/go-mod.png" alt="go-mod"></li>
+<li>开启go-fmt<br><img src="/images/go-fmt.png" alt="go-fmt"></li>
+<li>开启go-import<br><img src="/images/go-fmt-1.png" alt="go-fmt-1"></li>
+</ol>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -626,35 +702,30 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
+</blockquote>
 <ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
 </blockquote>
 </li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
 </ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
 ]]></content>
       <categories>
         <category>tools</category>
       </categories>
       <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
+        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -695,6 +766,42 @@ http://ip:8082
       </categories>
       <tags>
         <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql在使用order by limit时出现数据重复的问题</title>
+    <url>/2019/12/04/mysql-priority-que/</url>
+    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
+<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
+</blockquote>
+</li>
+<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
+<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
+<p>很明显，模式1能够极大的减少回表的随机IO。</p>
+</blockquote>
+</li>
+<li>priority query</li>
+</ul>
+<ol>
+<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
+<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
+</ol>
+<ul>
+<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
+<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
+<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>database</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -745,77 +852,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>聊聊go环境安装及go.mod的使用</title>
-    <url>/2019/12/05/go-mod-hello/</url>
-    <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
-<h2 id="go的开发环境"><a href="#go的开发环境" class="headerlink" title="go的开发环境"></a>go的开发环境</h2><ul>
-<li>安装go<blockquote>
-<p>推荐使用go1.12+版本  </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go</span><br><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;didi&#x2F;Documents&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
-</li>
-<li>GO111MODULE<br>在 1.12 版本之前，使用 Go modules 之前需要环境变量 GO111MODULE：<ul>
-<li>GO111MODULE=off: 不使用 Module-aware mode。</li>
-<li>GO111MODULE=on: 使用 Module-aware mode，不会去 GOPATH 下面查找依赖包。</li>
-<li>GO111MODULE=auto或unset: Golang 自己检测是不是使用Module-aware mode。  <blockquote>
-<p>根据官方描述在不设置GO111MODULE的情况下或者设为auto的时候，如果在当前目录或者父目录中有go.mod文件，那么就使用Module-aware mode， 而go1.12中，如果包位于GOPATH/src下，且GO111MODULE=auto, 即使有go.mod的存在，go仍然使用GOPATH mode:</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>GO PROXY<br>GOPROXY环境变量是伴随着modules而生，在go1.13中得到了增强，可以设置为逗号分隔的url列表来指定多个代理，其默认值为<a href="https://proxy.golang.org,direct。" target="_blank" rel="noopener">https://proxy.golang.org,direct。</a><br>direct：表示直接连接，所有direct后面逗号隔开都proxy都不会被使用。</p>
-<blockquote>
-<p>这里可以设置GOPROXY=<a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a> </p>
-</blockquote>
-</li>
-<li><p>go env命令查看所有go的系统环境变量</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GO111MODULE&#x3D;&quot;on&quot;</span><br><span class="line">GOARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOBIN&#x3D;&quot;&quot;</span><br><span class="line">GOCACHE&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Caches&#x2F;go-build&quot;</span><br><span class="line">GOENV&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Application Support&#x2F;go&#x2F;env&quot;</span><br><span class="line">GOEXE&#x3D;&quot;&quot;</span><br><span class="line">GOFLAGS&#x3D;&quot;&quot;</span><br><span class="line">GOHOSTARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOHOSTOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">&#x2F;&#x2F; 省略其他的</span><br></pre></td></tr></table></figure>
-<h2 id="go-mod的使用"><a href="#go-mod的使用" class="headerlink" title="go.mod的使用"></a>go.mod的使用</h2></li>
-<li>创建项目<br>在GOPATH目录之外任意创建一个项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code</span><br><span class="line">mkdir hello-go-mod</span><br></pre></td></tr></table></figure></li>
-<li>初始化go.mod<br>进入到项目根目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code&#x2F;hello-go-mod</span><br><span class="line">go mod init hello-go-mod</span><br><span class="line">&#x2F;&#x2F;提示创建成功： go: creating new go.mod: module hello-go-mod</span><br><span class="line">ll </span><br><span class="line">&#x2F;&#x2F; 看到根目录下多了go.mod文件</span><br></pre></td></tr></table></figure></li>
-<li>go run触发modules工作<br>在项目的根目录下创建一个main.go文件，复制下面的内容到文件里<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import(</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;github.com&#x2F;valyala&#x2F;fasthttp&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">   fmt.Print(&quot;hello go mod&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<strong><em>go run main.go</em></strong><br>发现项目目录下多了一个 go.sum<br>go.sum用来记录每个 package 的版本和哈希值。<br>go.mod 文件正常情况会包含 module 和 require 模块，除此之外还可以包含 replace 和 exclude 模块</li>
-</ul>
-<h2 id="调教GoLang"><a href="#调教GoLang" class="headerlink" title="调教GoLang"></a>调教GoLang</h2><ol>
-<li>开启go-mod<br><img src="/images/go-mod.png" alt="go-mod"></li>
-<li>开启go-fmt<br><img src="/images/go-fmt.png" alt="go-fmt"></li>
-<li>开启go-import<br><img src="/images/go-fmt-1.png" alt="go-fmt-1"></li>
-</ol>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql5.7忘记root密码</title>
     <url>/2020/07/16/mysql5.7-forget-password/</url>
     <content><![CDATA[<ul>
@@ -831,69 +867,6 @@ http://ip:8082
 ]]></content>
       <categories>
         <category>tool</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>使用nginx搭建加密的文件服务器</title>
-    <url>/2020/05/07/nginx-file-server/</url>
-    <content><![CDATA[<ul>
-<li>安装epel<br>EPEL 仓库中有 Nginx 的安装包。如果你还没有安装过 EPEL，可以通过运行下面的命令来完成安装：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install nginx</span><br></pre></td></tr></table></figure></li>
-<li>配置文件<ul>
-<li>日志文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log</span><br><span class="line"> &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log</span><br></pre></td></tr></table></figure></li>
-<li>conf文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;</span><br></pre></td></tr></table></figure></li>
-<li>项目文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html&#x2F;&lt;site_name&gt;</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;&lt;site_name&gt;</span><br></pre></td></tr></table></figure></li>
-<li>nginx命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-<li>生成密钥<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 使用openssl生成密钥</span><br><span class="line">printf &quot;admin:$(openssl passwd -crypt 123456)\n&quot; &gt;&gt; &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">cat &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">admin:xyJkVhXGAZ8tM</span><br><span class="line"># 使用htpasswd生成密钥</span><br><span class="line">yum install httpd-tools -y</span><br><span class="line">htpasswd -c -d &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd admin</span><br></pre></td></tr></table></figure></li>
-<li>添加server配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  localhost;</span><br><span class="line"></span><br><span class="line">  auth_basic   &quot;登录认证&quot;;</span><br><span class="line">  auth_basic_user_file &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd;</span><br><span class="line"></span><br><span class="line">  autoindex on;</span><br><span class="line">  autoindex_exact_size on; #显示文件大小</span><br><span class="line">  autoindex_localtime on; #显示文件时间</span><br><span class="line"></span><br><span class="line">  root   &#x2F;var&#x2F;www&#x2F;html;</span><br><span class="line">  index  index.html index.php</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>重启nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx -s reload</span><br></pre></td></tr></table></figure>
-<img src="/images/nginx-file-server.png" alt="nginx-file-server"></li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mysql在使用order by limit时出现数据重复的问题</title>
-    <url>/2019/12/04/mysql-priority-que/</url>
-    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
-<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
-</blockquote>
-</li>
-<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
-<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
-<p>很明显，模式1能够极大的减少回表的随机IO。</p>
-</blockquote>
-</li>
-<li>priority query</li>
-</ul>
-<ol>
-<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
-<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
-<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
-</ol>
-<ul>
-<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
-<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
-<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>database</category>
       </categories>
       <tags>
         <tag>mysql</tag>
@@ -942,27 +915,30 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>macbook多版本使用nodejs</title>
-    <url>/2020/07/16/nvm/</url>
-    <content><![CDATA[<blockquote>
-<p>nvm:node version manager</p>
-<ul>
-<li>安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nvm</span><br></pre></td></tr></table></figure></li>
-<li>把nvm加入系统环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &quot;source $(brew --prefix nvm)&#x2F;nvm.sh&quot; &gt;&gt; ~&#x2F;.bash_profile</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></li>
-<li>查看远程版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm ls-remote</span><br></pre></td></tr></table></figure></li>
-<li>安装指定的版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
-<li>安装稳定版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install stable</span><br></pre></td></tr></table></figure></li>
-<li>查看本地安装的版本列表<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm ls</span><br></pre></td></tr></table></figure></li>
-<li>使用某版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm use &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
-<li>删除某版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm uninstall &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
+    <title>使用nginx搭建加密的文件服务器</title>
+    <url>/2020/05/07/nginx-file-server/</url>
+    <content><![CDATA[<ul>
+<li>安装epel<br>EPEL 仓库中有 Nginx 的安装包。如果你还没有安装过 EPEL，可以通过运行下面的命令来完成安装：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install nginx</span><br></pre></td></tr></table></figure></li>
+<li>配置文件<ul>
+<li>日志文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log</span><br><span class="line"> &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log</span><br></pre></td></tr></table></figure></li>
+<li>conf文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>项目文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html&#x2F;&lt;site_name&gt;</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;&lt;site_name&gt;</span><br></pre></td></tr></table></figure></li>
+<li>nginx命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
 </ul>
-</blockquote>
+</li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+<li>生成密钥<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 使用openssl生成密钥</span><br><span class="line">printf &quot;admin:$(openssl passwd -crypt 123456)\n&quot; &gt;&gt; &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">cat &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">admin:xyJkVhXGAZ8tM</span><br><span class="line"># 使用htpasswd生成密钥</span><br><span class="line">yum install httpd-tools -y</span><br><span class="line">htpasswd -c -d &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd admin</span><br></pre></td></tr></table></figure></li>
+<li>添加server配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  localhost;</span><br><span class="line"></span><br><span class="line">  auth_basic   &quot;登录认证&quot;;</span><br><span class="line">  auth_basic_user_file &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd;</span><br><span class="line"></span><br><span class="line">  autoindex on;</span><br><span class="line">  autoindex_exact_size on; #显示文件大小</span><br><span class="line">  autoindex_localtime on; #显示文件时间</span><br><span class="line"></span><br><span class="line">  root   &#x2F;var&#x2F;www&#x2F;html;</span><br><span class="line">  index  index.html index.php</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>重启nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx -s reload</span><br></pre></td></tr></table></figure>
+<img src="/images/nginx-file-server.png" alt="nginx-file-server"></li>
+</ul>
 ]]></content>
       <categories>
-        <category>tool</category>
+        <category>tools</category>
       </categories>
       <tags>
-        <tag>nodejs</tag>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -1003,6 +979,30 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>macbook多版本使用nodejs</title>
+    <url>/2020/07/16/nvm/</url>
+    <content><![CDATA[<blockquote>
+<p>nvm:node version manager</p>
+<ul>
+<li>安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nvm</span><br></pre></td></tr></table></figure></li>
+<li>把nvm加入系统环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &quot;source $(brew --prefix nvm)&#x2F;nvm.sh&quot; &gt;&gt; ~&#x2F;.bash_profile</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></li>
+<li>查看远程版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm ls-remote</span><br></pre></td></tr></table></figure></li>
+<li>安装指定的版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
+<li>安装稳定版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install stable</span><br></pre></td></tr></table></figure></li>
+<li>查看本地安装的版本列表<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm ls</span><br></pre></td></tr></table></figure></li>
+<li>使用某版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm use &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
+<li>删除某版本<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm uninstall &lt;version&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>nodejs</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>python的orm框架peewee使用介绍</title>
     <url>/2020/05/19/python-peewee/</url>
     <content><![CDATA[<blockquote>
@@ -1040,6 +1040,68 @@ http://ip:8082
       </categories>
       <tags>
         <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>virtualenv使用介绍</title>
+    <url>/2020/05/19/python-virtualenv/</url>
+    <content><![CDATA[<blockquote>
+<p>为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。  </p>
+</blockquote>
+<ul>
+<li>安装virtualenv<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure></li>
+<li>创建虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">virtualenv -p $(which python) venv</span><br></pre></td></tr></table></figure></li>
+<li>打开虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source venv&#x2F;bin&#x2F;activate</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>(venv)  ~/Documents/code/python/project</p>
+</blockquote>
+</li>
+<li>在虚拟环境安装模块<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install xx</span><br></pre></td></tr></table></figure></li>
+<li>关闭虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>~/Documents/code/python/project</p>
+</blockquote>
+</li>
+<li>在pycharm配置virtualenv<br><img src="/images/pycharm-virtualenv.png" alt="pycharm-virtualenv"><br><img src="/images/pycharm-virtualenv-1.png" alt="pycharm-virtualenv-1"><br><img src="/images/pycharm-virtualenv-2.png" alt="pycharm-virtualenv-2"></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos7下安装mysql5.7</title>
+    <url>/2020/05/13/rmp-install-mysql/</url>
+    <content><![CDATA[<ul>
+<li>卸载旧rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">————————————————</span><br><span class="line">&#x2F;&#x2F; 逐个卸载</span><br><span class="line">rpm -e --nodeps MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">&#x2F;&#x2F; 确认卸载完成</span><br><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">&#x2F;&#x2F;my.cnf也可以删了</span><br><span class="line">rm -fr &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F;为空</span><br></pre></td></tr></table></figure></li>
+<li>下载rpm包<br><a href="http://repo.mysql.com/" target="_blank" rel="noopener">地址1</a><br><a href="https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html" target="_blank" rel="noopener">地址2</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;repo.mysql.com&#x2F;mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo rpm -ivh mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
+<li>查看yum repo源<blockquote>
+<p>会获得两个mysql的yum repo源：/etc/yum.repos.d/mysql-community.repo，/etc/yum.repos.d/mysql-community-source.repo</p>
+</blockquote>
+</li>
+<li>install mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install mysql-server</span><br></pre></td></tr></table></figure></li>
+<li>查看mysql安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa | grep mysql</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>rpm -qa | grep mysql-community<br>mysql-community-server-5.7.27-2.el7.x86_64<br>mysql-community-release-el7-5.noarch<br>mysql-community-libs-5.7.27-2.el7.x86_64<br>mysql-community-common-57.27-2.el7.x86_64<br>mysql-community-devel-5.7.27-2.el7.x86_64<br>mysql-community-client-5.7.27-2.el7.x86_64</p>
+</blockquote>
+</li>
+<li>初始化mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;version &lt;5.7</span><br><span class="line">mysql_install_db</span><br><span class="line">&#x2F;&#x2F;version &gt;&#x3D;5.7</span><br><span class="line">mysqld --initialize</span><br></pre></td></tr></table></figure></li>
+<li>修改my.cnf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F; 在下面制定启动用户是mysql</span><br><span class="line">[mysqld]</span><br><span class="line">user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
+<li>启动mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld</span><br><span class="line">&#x2F;&#x2F; 若为做上一步，则启动时--user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
+<li>修改root用户密码<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">&#x2F;&#x2F; 首次登陆密码是空的，直接进入</span><br><span class="line">use mysql</span><br><span class="line">update user set password&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">flush privileges;</span><br><span class="line">exit;</span><br></pre></td></tr></table></figure></li>
+<li>创建一个远程访问用户<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;创建用户</span><br><span class="line">create user &#39;somebody&#39; identified by &#39;password’;</span><br><span class="line">&#x2F;&#x2F;给用户授权</span><br><span class="line">Grant ALL PRIVILEGES on *.* to somebody@‘%’;</span><br><span class="line">&#x2F;&#x2F;刷新</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -1090,57 +1152,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>centos7下安装mysql5.7</title>
-    <url>/2020/05/13/rmp-install-mysql/</url>
-    <content><![CDATA[<ul>
-<li>卸载旧rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">————————————————</span><br><span class="line">&#x2F;&#x2F; 逐个卸载</span><br><span class="line">rpm -e --nodeps MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">&#x2F;&#x2F; 确认卸载完成</span><br><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">&#x2F;&#x2F;my.cnf也可以删了</span><br><span class="line">rm -fr &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F;为空</span><br></pre></td></tr></table></figure></li>
-<li>下载rpm包<br><a href="http://repo.mysql.com/" target="_blank" rel="noopener">地址1</a><br><a href="https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html" target="_blank" rel="noopener">地址2</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;repo.mysql.com&#x2F;mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo rpm -ivh mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
-<li>查看yum repo源<blockquote>
-<p>会获得两个mysql的yum repo源：/etc/yum.repos.d/mysql-community.repo，/etc/yum.repos.d/mysql-community-source.repo</p>
-</blockquote>
-</li>
-<li>install mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install mysql-server</span><br></pre></td></tr></table></figure></li>
-<li>查看mysql安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa | grep mysql</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>rpm -qa | grep mysql-community<br>mysql-community-server-5.7.27-2.el7.x86_64<br>mysql-community-release-el7-5.noarch<br>mysql-community-libs-5.7.27-2.el7.x86_64<br>mysql-community-common-57.27-2.el7.x86_64<br>mysql-community-devel-5.7.27-2.el7.x86_64<br>mysql-community-client-5.7.27-2.el7.x86_64</p>
-</blockquote>
-</li>
-<li>初始化mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;version &lt;5.7</span><br><span class="line">mysql_install_db</span><br><span class="line">&#x2F;&#x2F;version &gt;&#x3D;5.7</span><br><span class="line">mysqld --initialize</span><br></pre></td></tr></table></figure></li>
-<li>修改my.cnf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F; 在下面制定启动用户是mysql</span><br><span class="line">[mysqld]</span><br><span class="line">user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
-<li>启动mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld</span><br><span class="line">&#x2F;&#x2F; 若为做上一步，则启动时--user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
-<li>修改root用户密码<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">&#x2F;&#x2F; 首次登陆密码是空的，直接进入</span><br><span class="line">use mysql</span><br><span class="line">update user set password&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">flush privileges;</span><br><span class="line">exit;</span><br></pre></td></tr></table></figure></li>
-<li>创建一个远程访问用户<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;创建用户</span><br><span class="line">create user &#39;somebody&#39; identified by &#39;password’;</span><br><span class="line">&#x2F;&#x2F;给用户授权</span><br><span class="line">Grant ALL PRIVILEGES on *.* to somebody@‘%’;</span><br><span class="line">&#x2F;&#x2F;刷新</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tool</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>教你新建一个vue项目</title>
-    <url>/2019/11/27/vue-create-project/</url>
-    <content><![CDATA[<ul>
-<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
-<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
-下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>vuejs</tag>
-        <tag>vue-cli</tag>
-        <tag>webpack</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>macbook使用code .命令在vscode打开当前目录</title>
     <url>/2020/02/17/vscode-open-project/</url>
     <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
@@ -1156,36 +1167,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>vscode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>virtualenv使用介绍</title>
-    <url>/2020/05/19/python-virtualenv/</url>
-    <content><![CDATA[<blockquote>
-<p>为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。  </p>
-</blockquote>
-<ul>
-<li>安装virtualenv<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure></li>
-<li>创建虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">virtualenv -p $(which python) venv</span><br></pre></td></tr></table></figure></li>
-<li>打开虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source venv&#x2F;bin&#x2F;activate</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>(venv)  ~/Documents/code/python/project</p>
-</blockquote>
-</li>
-<li>在虚拟环境安装模块<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install xx</span><br></pre></td></tr></table></figure></li>
-<li>关闭虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>~/Documents/code/python/project</p>
-</blockquote>
-</li>
-<li>在pycharm配置virtualenv<br><img src="/images/pycharm-virtualenv.png" alt="pycharm-virtualenv"><br><img src="/images/pycharm-virtualenv-1.png" alt="pycharm-virtualenv-1"><br><img src="/images/pycharm-virtualenv-2.png" alt="pycharm-virtualenv-2"></li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -1228,6 +1209,25 @@ http://ip:8082
       </categories>
       <tags>
         <tag>HowToWriteMarkDownArticle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>教你新建一个vue项目</title>
+    <url>/2019/11/27/vue-create-project/</url>
+    <content><![CDATA[<ul>
+<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
+<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
+下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>vuejs</tag>
+        <tag>vue-cli</tag>
+        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>
