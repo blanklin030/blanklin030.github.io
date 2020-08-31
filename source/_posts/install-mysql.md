@@ -6,6 +6,7 @@ tags:
 categories:
   - tool
 ---
+## 使用rpm包方式安装mysql
 + 卸载旧rpm包
 ```
 rpm -qa |grep -i mysql
@@ -52,12 +53,76 @@ mysql-community-libs-5.7.27-2.el7.x86_64
 mysql-community-common-57.27-2.el7.x86_64
 mysql-community-devel-5.7.27-2.el7.x86_64
 mysql-community-client-5.7.27-2.el7.x86_64
+
+## 使用源码安装mysql
++ 获取源码安装包
+```
+wget  https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-boost-5.7.20.tar.gz
+```
+
++ 安装系统所需依赖
+```
+yum install -y cmake gcc-c++ gcc ncurses-devel perl-Data-Dumper boost boost-doc boost-devel
+```
++ 创建mysql用户
+```
+useradd mysql  -s /sbin/nologin
+mkdir -pv /usr/local/mysql/mydata
+mkdir -pv /usr/local/mysql/conf
+chown -R mysql:mysql /usr/local/mysql
+```
++ 删除mariadbd的my.cnf文件
+```
+rm -fr /etc/my.cnf
+```
++ 解压源码包并安装
+```
+tar zxvf mysql-boost-5.7.20.tar.gz
+
+cmake \
+-DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
+-DMYSQL_DATADIR=/usr/local/mysql/mydata \
+-DSYSCONFDIR=/usr/local/mysql/conf \
+-DMYSQL_USER=mysql \
+-DWITH_MYISAM_STORAGE_ENGINE=1 \
+-DWITH_INNOBASE_STORAGE_ENGINE=1 \
+-DMYSQL_UNIX_ADDR=/usr/local/mysql/mysql.sock \
+-DMYSQL_TCP_PORT=3306 \
+-DEXTRA_CHARSETS=all \
+-DDEFAULT_CHARSET=utf8 \
+-DDEFAULT_COLLATION=utf8_general_ci \
+-DWITH_DEBUG=0 \
+-DMYSQL_MAINTAINER_MODE=0 \
+-DWITH_SSL:STRING=bundled \
+-DWITH_ZLIB:STRING=bundled \
+-DDOWNLOAD_BOOST=1 \
+-DWITH_BOOST=./boost
+
+make && make install
+```
++ 创建my.cnf
+```
+vim /etc/my.cnf
+# 复制下面内容
+[mysqld]
+datadir=/usr/local/mysql/mydata  
+socket=/tmp/mysql.sock 
+```
++ 把mysql添加到系统服务并设置开机启动
+```
+cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld
+chmod +x /etc/init.d/mysqld
+chkconfig --add mysqld
+chkconfig mysqld on
+cp /usr/local/mysql/bin/ /usr/bin/
+```
+
 + 初始化mysql
 ```
 //version <5.7
 mysql_install_db
 //version >=5.7
-mysqld --initialize
+mysqld --initialize --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/mydata
 ```
 + 修改my.cnf
 ```
@@ -65,12 +130,31 @@ vim /etc/my.cnf
 // 在下面制定启动用户是mysql
 [mysqld]
 user=mysql
+datadir=/usr/local/mysql/mydata      
+socket=/tmp/mysql.sock 
 ```
 + 启动mysqld
 ```
 mysqld
-// 若为做上一步，则启动时--user=mysql
+// 若未做上一步，则启动时--user=mysql
+# 或者
+service mysqld start
 ```
+
++ 新建软链接
+```
+ln -s /tmp/mysql.sock /usr/local/mysql/mysql.sock
+service mysqld restart
+```
+
++ 修改mysq.cnf
+```
+[mysqld]
+user=mysql
+datadir=/usr/local/mysql/mydata      
+socket=/usr/local/mysql/mysql.sock 
+```
+
 + 修改root用户密码
 ```
 mysql -uroot -p
