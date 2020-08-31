@@ -144,6 +144,184 @@
       </tags>
   </entry>
   <entry>
+    <title>按日切割使用docker安装的nginx容器</title>
+    <url>/2020/02/17/docke-nginx-logrotate/</url>
+    <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
+<li>查看docker nginx容器 进程 pid<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 请务必确认您的docker container name是什么，笔者名称是nginx</span><br><span class="line">&#x2F;&#x2F; 命令1</span><br><span class="line">sudo docker inspect --format&#x3D;&#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令2是命令1的缩写</span><br><span class="line">sudo docker inspect  -f &#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令3是命令2的缩写</span><br><span class="line">sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 命令4</span><br><span class="line">sudo docker top $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;) | grep master | awk &#39;&#123;print $2&#125;&#39;</span><br></pre></td></tr></table></figure></li>
+<li>通知nginx重新打开日志文件<blockquote>
+<p>Nginx 官方其实给出了如何滚动日志的说明：<br>Rotating Log-files<br>In order to rotate log files, they need to be renamed first. After that USR1 signal should be sent to the master process. The master process will then re-open all currently open log files and assign them an unprivileged user under which the worker processes are running, as an owner. After successful re-opening, the master process closes all open files and sends the message to worker process to ask them to re-open files. Worker processes also open new files and close old files right away. As a result, old files are almost immediately available for post processing, such as compression.<br>以上英文的大致意思是<br>1.先把旧的日志文件重命名<br>2.然后给 nginx master 进程发送 USR1 信号<br>3.nginx master 进程收到信号后会做一些处理，然后要求工作者进程重新打开日志文件<br>4.工作者进程打开新的日志文件并关闭旧的日志文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill -USR1 pid</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>logrotate使用帮助</p>
+<ul>
+<li>配置说明</li>
+</ul>
+</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">daily</td>
+<td style="text-align:center">日志的轮替周期是每天</td>
+</tr>
+<tr>
+<td style="text-align:left">weekly</td>
+<td style="text-align:center">日志的轮替周期是每周</td>
+</tr>
+<tr>
+<td style="text-align:left">monthly</td>
+<td style="text-align:center">日志的轮替周期是每月</td>
+</tr>
+<tr>
+<td style="text-align:left">rotate</td>
+<td style="text-align:center">数字 保留的日志文件个数，0指没有备份</td>
+</tr>
+<tr>
+<td style="text-align:left">compress</td>
+<td style="text-align:center">当进行日志轮替时，对旧的日志进行压缩</td>
+</tr>
+<tr>
+<td style="text-align:left">create</td>
+<td style="text-align:center">mode owner group 建立新日志，同时指定新日志的权限与所有者和所属组，如 create 0644 root root</td>
+</tr>
+<tr>
+<td style="text-align:left">copytruncate</td>
+<td style="text-align:center">用于还在打开中的日志文件，把当前日志备份并截断</td>
+</tr>
+<tr>
+<td style="text-align:left">mail</td>
+<td style="text-align:center">address 当进行日志轮替时，输出内容通过邮件发送到指定的邮件地址，如 mail test@gmail.com</td>
+</tr>
+<tr>
+<td style="text-align:left">missingok</td>
+<td style="text-align:center">如果日志不存在，则忽略改日志的警告信息</td>
+</tr>
+<tr>
+<td style="text-align:left">notifempty</td>
+<td style="text-align:center">如果日志为空文件，则不进行日志轮替</td>
+</tr>
+<tr>
+<td style="text-align:left">minsize</td>
+<td style="text-align:center">大小 日志只有大于指定大小才进行日志轮替，而不是按照时间轮替，如 size 100k</td>
+</tr>
+<tr>
+<td style="text-align:left">dateext</td>
+<td style="text-align:center">使用日期作为日志轮替文件的后缀，如 access.log-2019-07-12</td>
+</tr>
+<tr>
+<td style="text-align:left">sharedscripts</td>
+<td style="text-align:center">在此关键词之后的脚本只执行一次</td>
+</tr>
+<tr>
+<td style="text-align:left">prerotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 prerotate 脚本结束</td>
+</tr>
+<tr>
+<td style="text-align:left">postrotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 postrotate脚本结束</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">-?或–help</td>
+<td style="text-align:center">在线帮助</td>
+</tr>
+<tr>
+<td style="text-align:left">-d或–debug</td>
+<td style="text-align:center">详细显示指令执行过程，便于排错或了解程序执行的情况</td>
+</tr>
+<tr>
+<td style="text-align:left">-f或–force</td>
+<td style="text-align:center">强行启动记录文件维护操作，纵使logrotate指令认为没有需要亦然</td>
+</tr>
+<tr>
+<td style="text-align:left">-s&lt;状态文件&gt;或–state=&lt;状态文件&gt;</td>
+<td style="text-align:center">使用指定的状态文件</td>
+</tr>
+<tr>
+<td style="text-align:left">-v或–version</td>
+<td style="text-align:center">显示指令执行过程</td>
+</tr>
+<tr>
+<td style="text-align:left">-usage</td>
+<td style="text-align:center">显示指令基本用法</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="脚本详解"><a href="#脚本详解" class="headerlink" title="脚本详解"></a>脚本详解</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo vim &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br><span class="line">&#x2F;&#x2F;复制以下脚本，第一行是您的nginx log路径</span><br><span class="line">&#x2F;home&#x2F;xx&#x2F;docker&#x2F;nginx&#x2F;logs&#x2F;*log &#123;</span><br><span class="line">        daily</span><br><span class="line">        dateext</span><br><span class="line">        missingok</span><br><span class="line">        rotate 52</span><br><span class="line">        compress</span><br><span class="line">        delaycompress</span><br><span class="line">        notifempty</span><br><span class="line">        su hadoop hadoop</span><br><span class="line">        create 0664 hadoop hadoop</span><br><span class="line">        sharedscripts</span><br><span class="line">        postrotate</span><br><span class="line">            sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx | xargs sudo kill -USR1</span><br><span class="line">        endscript</span><br><span class="line">&#125;</span><br><span class="line">sudo  logrotate -vf &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br></pre></td></tr></table></figure>
+<p><img src="/images/logrotate.png" alt="loratate"></p>
+<h2 id="crontab-加定时脚本"><a href="#crontab-加定时脚本" class="headerlink" title="crontab 加定时脚本"></a>crontab 加定时脚本</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;logrotate &#x2F;etc&#x2F;logrotate.d&#x2F;nginx &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<h2 id="使用docker安装nginx"><a href="#使用docker安装nginx" class="headerlink" title="使用docker安装nginx"></a>使用docker安装nginx</h2><ul>
+<li>docker run(运行容器)的参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">–-name</td>
+<td style="text-align:center">容器名称</td>
+</tr>
+<tr>
+<td style="text-align:left">–-link</td>
+<td style="text-align:center">连接某个镜像</td>
+</tr>
+<tr>
+<td style="text-align:left">–port</td>
+<td style="text-align:center">端口映射</td>
+</tr>
+<tr>
+<td style="text-align:left">–volum</td>
+<td style="text-align:center">持久化存储</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>获取nginx 镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker pull nginx</span><br></pre></td></tr></table></figure></li>
+<li>运行nginx容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称</span><br><span class="line">docker run --name nginx --network spring-net -p 80:80 -d -v &#x2F;etc&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:ro -v &#x2F;etc&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d -v &#x2F;opt&#x2F;nginx&#x2F;dist:&#x2F;opt&#x2F;nginx&#x2F;dist -v &#x2F;etc&#x2F;localtime:&#x2F;etc&#x2F;localtime:ro -v &#x2F;var&#x2F;log&#x2F;nginx:&#x2F;var&#x2F;log&#x2F;nginx nginx</span><br></pre></td></tr></table></figure></li>
+<li>拷贝宿主机的nginx配置到容器内，指定目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker cp nginx:&#x2F;etc&#x2F;nginx &#x2F;etc&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+<li>Dockerfile编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line"> COPY content &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line"> COPY conf &#x2F;etc&#x2F;nginx</span><br><span class="line"> VOLUME &#x2F;var&#x2F;log&#x2F;nginx&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li>docker-compose.yml编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">web:</span><br><span class="line">  image: nginx</span><br><span class="line">  volumes:</span><br><span class="line">   - .&#x2F;mysite.template:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template</span><br><span class="line">  ports:</span><br><span class="line">   - &quot;8080:80&quot;</span><br><span class="line">  environment:</span><br><span class="line">   - NGINX_HOST&#x3D;foobar.com</span><br><span class="line">   - NGINX_PORT&#x3D;80</span><br><span class="line">  command: &#x2F;bin&#x2F;bash -c &quot;envsubst &lt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template &gt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &amp;&amp; exec nginx -g &#39;daemon off;&#39;&quot;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+        <tag>docker</tag>
+        <tag>logrotate</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>带你开箱真香ClickHouse</title>
     <url>/2019/11/26/clickhouse-hello-world/</url>
     <content><![CDATA[<h2 id="OLAP介绍"><a href="#OLAP介绍" class="headerlink" title="OLAP介绍"></a>OLAP介绍</h2><h4 id="OLAP概述"><a href="#OLAP概述" class="headerlink" title="OLAP概述"></a>OLAP概述</h4><p>OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。<br>在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。 分区技术在OLAP系统中的重要性主要体现在数据库管理上，比如数据库加载，可以通过分区交换的方式实现，备份可以通过备份分区表空间实现，删除数据可以通过分区进行删除，至于分区在性能上的影响，它可以使得一些大表的扫描变得很快（只扫描单个分区）。另外，如果分区结合并行的话，也可以使得整个表的扫描会变得很快。总之，分区主要的功能是管理上的方便性，它并不能绝对保证查询性能的提高，有时候分区会带来性能上的提高，有时候会降低。</p>
@@ -408,6 +586,38 @@
       </tags>
   </entry>
   <entry>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+</blockquote>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>前端基于docker的生产环境部署方案</title>
     <url>/2020/07/20/frontend-docker-product/</url>
     <content><![CDATA[<ul>
@@ -445,216 +655,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
-<ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
-</blockquote>
-</li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>按日切割使用docker安装的nginx容器</title>
-    <url>/2020/02/17/docke-nginx-logrotate/</url>
-    <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
-<li>查看docker nginx容器 进程 pid<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 请务必确认您的docker container name是什么，笔者名称是nginx</span><br><span class="line">&#x2F;&#x2F; 命令1</span><br><span class="line">sudo docker inspect --format&#x3D;&#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令2是命令1的缩写</span><br><span class="line">sudo docker inspect  -f &#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令3是命令2的缩写</span><br><span class="line">sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 命令4</span><br><span class="line">sudo docker top $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;) | grep master | awk &#39;&#123;print $2&#125;&#39;</span><br></pre></td></tr></table></figure></li>
-<li>通知nginx重新打开日志文件<blockquote>
-<p>Nginx 官方其实给出了如何滚动日志的说明：<br>Rotating Log-files<br>In order to rotate log files, they need to be renamed first. After that USR1 signal should be sent to the master process. The master process will then re-open all currently open log files and assign them an unprivileged user under which the worker processes are running, as an owner. After successful re-opening, the master process closes all open files and sends the message to worker process to ask them to re-open files. Worker processes also open new files and close old files right away. As a result, old files are almost immediately available for post processing, such as compression.<br>以上英文的大致意思是<br>1.先把旧的日志文件重命名<br>2.然后给 nginx master 进程发送 USR1 信号<br>3.nginx master 进程收到信号后会做一些处理，然后要求工作者进程重新打开日志文件<br>4.工作者进程打开新的日志文件并关闭旧的日志文件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill -USR1 pid</span><br></pre></td></tr></table></figure></blockquote>
-</li>
-<li><p>logrotate使用帮助</p>
-<ul>
-<li>配置说明</li>
-</ul>
-</li>
-</ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">参数说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">daily</td>
-<td style="text-align:center">日志的轮替周期是每天</td>
-</tr>
-<tr>
-<td style="text-align:left">weekly</td>
-<td style="text-align:center">日志的轮替周期是每周</td>
-</tr>
-<tr>
-<td style="text-align:left">monthly</td>
-<td style="text-align:center">日志的轮替周期是每月</td>
-</tr>
-<tr>
-<td style="text-align:left">rotate</td>
-<td style="text-align:center">数字 保留的日志文件个数，0指没有备份</td>
-</tr>
-<tr>
-<td style="text-align:left">compress</td>
-<td style="text-align:center">当进行日志轮替时，对旧的日志进行压缩</td>
-</tr>
-<tr>
-<td style="text-align:left">create</td>
-<td style="text-align:center">mode owner group 建立新日志，同时指定新日志的权限与所有者和所属组，如 create 0644 root root</td>
-</tr>
-<tr>
-<td style="text-align:left">copytruncate</td>
-<td style="text-align:center">用于还在打开中的日志文件，把当前日志备份并截断</td>
-</tr>
-<tr>
-<td style="text-align:left">mail</td>
-<td style="text-align:center">address 当进行日志轮替时，输出内容通过邮件发送到指定的邮件地址，如 mail test@gmail.com</td>
-</tr>
-<tr>
-<td style="text-align:left">missingok</td>
-<td style="text-align:center">如果日志不存在，则忽略改日志的警告信息</td>
-</tr>
-<tr>
-<td style="text-align:left">notifempty</td>
-<td style="text-align:center">如果日志为空文件，则不进行日志轮替</td>
-</tr>
-<tr>
-<td style="text-align:left">minsize</td>
-<td style="text-align:center">大小 日志只有大于指定大小才进行日志轮替，而不是按照时间轮替，如 size 100k</td>
-</tr>
-<tr>
-<td style="text-align:left">dateext</td>
-<td style="text-align:center">使用日期作为日志轮替文件的后缀，如 access.log-2019-07-12</td>
-</tr>
-<tr>
-<td style="text-align:left">sharedscripts</td>
-<td style="text-align:center">在此关键词之后的脚本只执行一次</td>
-</tr>
-<tr>
-<td style="text-align:left">prerotate/endscript</td>
-<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 prerotate 脚本结束</td>
-</tr>
-<tr>
-<td style="text-align:left">postrotate/endscript</td>
-<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 postrotate脚本结束</td>
-</tr>
-</tbody>
-</table>
-</div>
-<ul>
-<li>参数说明</li>
-</ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">参数说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">-?或–help</td>
-<td style="text-align:center">在线帮助</td>
-</tr>
-<tr>
-<td style="text-align:left">-d或–debug</td>
-<td style="text-align:center">详细显示指令执行过程，便于排错或了解程序执行的情况</td>
-</tr>
-<tr>
-<td style="text-align:left">-f或–force</td>
-<td style="text-align:center">强行启动记录文件维护操作，纵使logrotate指令认为没有需要亦然</td>
-</tr>
-<tr>
-<td style="text-align:left">-s&lt;状态文件&gt;或–state=&lt;状态文件&gt;</td>
-<td style="text-align:center">使用指定的状态文件</td>
-</tr>
-<tr>
-<td style="text-align:left">-v或–version</td>
-<td style="text-align:center">显示指令执行过程</td>
-</tr>
-<tr>
-<td style="text-align:left">-usage</td>
-<td style="text-align:center">显示指令基本用法</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="脚本详解"><a href="#脚本详解" class="headerlink" title="脚本详解"></a>脚本详解</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo vim &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br><span class="line">&#x2F;&#x2F;复制以下脚本，第一行是您的nginx log路径</span><br><span class="line">&#x2F;home&#x2F;xx&#x2F;docker&#x2F;nginx&#x2F;logs&#x2F;*log &#123;</span><br><span class="line">        daily</span><br><span class="line">        dateext</span><br><span class="line">        missingok</span><br><span class="line">        rotate 52</span><br><span class="line">        compress</span><br><span class="line">        delaycompress</span><br><span class="line">        notifempty</span><br><span class="line">        su hadoop hadoop</span><br><span class="line">        create 0664 hadoop hadoop</span><br><span class="line">        sharedscripts</span><br><span class="line">        postrotate</span><br><span class="line">            sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx | xargs sudo kill -USR1</span><br><span class="line">        endscript</span><br><span class="line">&#125;</span><br><span class="line">sudo  logrotate -vf &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br></pre></td></tr></table></figure>
-<p><img src="/images/logrotate.png" alt="loratate"></p>
-<h2 id="crontab-加定时脚本"><a href="#crontab-加定时脚本" class="headerlink" title="crontab 加定时脚本"></a>crontab 加定时脚本</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;logrotate &#x2F;etc&#x2F;logrotate.d&#x2F;nginx &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<h2 id="使用docker安装nginx"><a href="#使用docker安装nginx" class="headerlink" title="使用docker安装nginx"></a>使用docker安装nginx</h2><ul>
-<li>docker run(运行容器)的参数说明</li>
-</ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">–-name</td>
-<td style="text-align:center">容器名称</td>
-</tr>
-<tr>
-<td style="text-align:left">–-link</td>
-<td style="text-align:center">连接某个镜像</td>
-</tr>
-<tr>
-<td style="text-align:left">–port</td>
-<td style="text-align:center">端口映射</td>
-</tr>
-<tr>
-<td style="text-align:left">–volum</td>
-<td style="text-align:center">持久化存储</td>
-</tr>
-</tbody>
-</table>
-</div>
-<ul>
-<li>获取nginx 镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker pull nginx</span><br></pre></td></tr></table></figure></li>
-<li>运行nginx容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称</span><br><span class="line">docker run --name nginx --network spring-net -p 80:80 -d -v &#x2F;etc&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:ro -v &#x2F;etc&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d -v &#x2F;opt&#x2F;nginx&#x2F;dist:&#x2F;opt&#x2F;nginx&#x2F;dist -v &#x2F;etc&#x2F;localtime:&#x2F;etc&#x2F;localtime:ro -v &#x2F;var&#x2F;log&#x2F;nginx:&#x2F;var&#x2F;log&#x2F;nginx nginx</span><br></pre></td></tr></table></figure></li>
-<li>拷贝宿主机的nginx配置到容器内，指定目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker cp nginx:&#x2F;etc&#x2F;nginx &#x2F;etc&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-<li>Dockerfile编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line"> COPY content &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line"> COPY conf &#x2F;etc&#x2F;nginx</span><br><span class="line"> VOLUME &#x2F;var&#x2F;log&#x2F;nginx&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li>docker-compose.yml编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">web:</span><br><span class="line">  image: nginx</span><br><span class="line">  volumes:</span><br><span class="line">   - .&#x2F;mysite.template:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template</span><br><span class="line">  ports:</span><br><span class="line">   - &quot;8080:80&quot;</span><br><span class="line">  environment:</span><br><span class="line">   - NGINX_HOST&#x3D;foobar.com</span><br><span class="line">   - NGINX_PORT&#x3D;80</span><br><span class="line">  command: &#x2F;bin&#x2F;bash -c &quot;envsubst &lt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template &gt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &amp;&amp; exec nginx -g &#39;daemon off;&#39;&quot;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-        <tag>docker</tag>
-        <tag>logrotate</tag>
       </tags>
   </entry>
   <entry>
@@ -702,70 +702,95 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
+    <title>centos7下安装mysql5.7</title>
+    <url>/2020/05/13/install-mysql/</url>
+    <content><![CDATA[<h2 id="使用rpm包方式安装mysql"><a href="#使用rpm包方式安装mysql" class="headerlink" title="使用rpm包方式安装mysql"></a>使用rpm包方式安装mysql</h2><ul>
+<li>卸载旧rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">————————————————</span><br><span class="line">&#x2F;&#x2F; 逐个卸载</span><br><span class="line">rpm -e --nodeps MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">&#x2F;&#x2F; 确认卸载完成</span><br><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">&#x2F;&#x2F;my.cnf也可以删了</span><br><span class="line">rm -fr &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F;为空</span><br></pre></td></tr></table></figure></li>
+<li>下载rpm包<br><a href="http://repo.mysql.com/" target="_blank" rel="noopener">地址1</a><br><a href="https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html" target="_blank" rel="noopener">地址2</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;repo.mysql.com&#x2F;mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo rpm -ivh mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
+<li>查看yum repo源<blockquote>
+<p>会获得两个mysql的yum repo源：/etc/yum.repos.d/mysql-community.repo，/etc/yum.repos.d/mysql-community-source.repo</p>
 </blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
+<li>install mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install mysql-server</span><br></pre></td></tr></table></figure></li>
+<li>查看mysql安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa | grep mysql</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
+<p>rpm -qa | grep mysql-community<br>mysql-community-server-5.7.27-2.el7.x86_64<br>mysql-community-release-el7-5.noarch<br>mysql-community-libs-5.7.27-2.el7.x86_64<br>mysql-community-common-57.27-2.el7.x86_64<br>mysql-community-devel-5.7.27-2.el7.x86_64<br>mysql-community-client-5.7.27-2.el7.x86_64</p>
 </blockquote>
+</li>
+</ul>
+<h2 id="使用源码安装mysql"><a href="#使用源码安装mysql" class="headerlink" title="使用源码安装mysql"></a>使用源码安装mysql</h2><ul>
+<li><p>获取源码安装包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget  https:&#x2F;&#x2F;dev.mysql.com&#x2F;get&#x2F;Downloads&#x2F;MySQL-5.7&#x2F;mysql-boost-5.7.20.tar.gz</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装系统所需依赖</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y cmake gcc-c++ gcc ncurses-devel perl-Data-Dumper boost boost-doc boost-devel</span><br></pre></td></tr></table></figure></li>
+<li>创建mysql用户<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">useradd mysql  -s &#x2F;sbin&#x2F;nologin</span><br><span class="line">mkdir -pv &#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata</span><br><span class="line">mkdir -pv &#x2F;usr&#x2F;local&#x2F;mysql&#x2F;conf</span><br><span class="line">chown -R mysql:mysql &#x2F;usr&#x2F;local&#x2F;mysql</span><br></pre></td></tr></table></figure></li>
+<li>删除mariadbd的my.cnf文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr &#x2F;etc&#x2F;my.cnf</span><br></pre></td></tr></table></figure></li>
+<li>解压源码包并安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tar zxvf mysql-boost-5.7.20.tar.gz</span><br><span class="line"></span><br><span class="line">cmake \</span><br><span class="line">-DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql \</span><br><span class="line">-DMYSQL_DATADIR&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata \</span><br><span class="line">-DSYSCONFDIR&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;conf \</span><br><span class="line">-DMYSQL_USER&#x3D;mysql \</span><br><span class="line">-DWITH_MYISAM_STORAGE_ENGINE&#x3D;1 \</span><br><span class="line">-DWITH_INNOBASE_STORAGE_ENGINE&#x3D;1 \</span><br><span class="line">-DMYSQL_UNIX_ADDR&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mysql.sock \</span><br><span class="line">-DMYSQL_TCP_PORT&#x3D;3306 \</span><br><span class="line">-DEXTRA_CHARSETS&#x3D;all \</span><br><span class="line">-DDEFAULT_CHARSET&#x3D;utf8 \</span><br><span class="line">-DDEFAULT_COLLATION&#x3D;utf8_general_ci \</span><br><span class="line">-DWITH_DEBUG&#x3D;0 \</span><br><span class="line">-DMYSQL_MAINTAINER_MODE&#x3D;0 \</span><br><span class="line">-DWITH_SSL:STRING&#x3D;bundled \</span><br><span class="line">-DWITH_ZLIB:STRING&#x3D;bundled \</span><br><span class="line">-DDOWNLOAD_BOOST&#x3D;1 \</span><br><span class="line">-DWITH_BOOST&#x3D;.&#x2F;boost</span><br><span class="line"></span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure></li>
+<li>创建my.cnf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.cnf</span><br><span class="line"># 复制下面内容</span><br><span class="line">[mysqld]</span><br><span class="line">datadir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata  </span><br><span class="line">socket&#x3D;&#x2F;tmp&#x2F;mysql.sock</span><br></pre></td></tr></table></figure></li>
+<li><p>把mysql添加到系统服务并设置开机启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp &#x2F;usr&#x2F;local&#x2F;mysql&#x2F;support-files&#x2F;mysql.server &#x2F;etc&#x2F;init.d&#x2F;mysqld</span><br><span class="line">chmod +x &#x2F;etc&#x2F;init.d&#x2F;mysqld</span><br><span class="line">chkconfig --add mysqld</span><br><span class="line">chkconfig mysqld on</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;mysql&#x2F;bin&#x2F; &#x2F;usr&#x2F;bin&#x2F;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化mysql</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;version &lt;5.7</span><br><span class="line">mysql_install_db</span><br><span class="line">&#x2F;&#x2F;version &gt;&#x3D;5.7</span><br><span class="line">mysqld --initialize --user&#x3D;mysql --basedir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql --datadir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata</span><br></pre></td></tr></table></figure></li>
+<li>修改my.cnf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F; 在下面制定启动用户是mysql</span><br><span class="line">[mysqld]</span><br><span class="line">user&#x3D;mysql</span><br><span class="line">datadir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata      </span><br><span class="line">socket&#x3D;&#x2F;tmp&#x2F;mysql.sock</span><br></pre></td></tr></table></figure></li>
+<li><p>启动mysqld</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld</span><br><span class="line">&#x2F;&#x2F; 若未做上一步，则启动时--user&#x3D;mysql</span><br><span class="line"># 或者</span><br><span class="line">service mysqld start</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建软链接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;tmp&#x2F;mysql.sock &#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mysql.sock</span><br><span class="line">service mysqld restart</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改mysq.cnf</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">user&#x3D;mysql</span><br><span class="line">datadir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mydata      </span><br><span class="line">socket&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;mysql.sock</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改root用户密码</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">&#x2F;&#x2F; 首次登陆密码是空的，直接进入</span><br><span class="line">use mysql</span><br><span class="line">update user set password&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">flush privileges;</span><br><span class="line">exit;</span><br></pre></td></tr></table></figure></li>
+<li>创建一个远程访问用户<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;创建用户</span><br><span class="line">create user &#39;somebody&#39; identified by &#39;password’;</span><br><span class="line">&#x2F;&#x2F;给用户授权</span><br><span class="line">Grant ALL PRIVILEGES on *.* to somebody@‘%’;</span><br><span class="line">&#x2F;&#x2F;刷新</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>tools</category>
+        <category>tool</category>
       </categories>
       <tags>
-        <tag>grafana</tag>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
-    <title>grafana开发环境搭建（MacBook）</title>
-    <url>/2020/05/12/grafana-develop-environment/</url>
-    <content><![CDATA[<ul>
-<li>安装go<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install go</span><br></pre></td></tr></table></figure></li>
-<li>安装nodejs<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nodejs</span><br><span class="line"># npm切换淘宝源</span><br><span class="line">npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br></pre></td></tr></table></figure></li>
-<li>安装yarn<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure></li>
-<li>clone项目<br>git项目地址：<a href="https://github.com/grafana/grafana" target="_blank" rel="noopener">https://github.com/grafana/grafana</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;grafana&#x2F;grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果无法get下来，就直接clone 项目后，放到$GOPATH/src/github.com/grafana/grafana</p>
+    <title>mysql在使用order by limit时出现数据重复的问题</title>
+    <url>/2019/12/04/mysql-priority-que/</url>
+    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
+<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
 </blockquote>
 </li>
-<li>前端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">npm install -g node-gyp</span><br><span class="line"># 安装依赖</span><br><span class="line">yarn install --pure-lockfile</span><br><span class="line"># 执行编译</span><br><span class="line">yarn start</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>编译完成后，在public文件夹会看到多了个build文件夹</p>
+<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
+<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
+<p>很明显，模式1能够极大的减少回表的随机IO。</p>
 </blockquote>
 </li>
-<li>后端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">go run build.go setup</span><br><span class="line">go run build.go build</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>编译完成后，会看到多了个bin文件夹</p>
-</blockquote>
-</li>
-<li><p>运行</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin&#x2F;grafana-server start</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go run build.go build package</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i grafana_xxxx.deb</span><br><span class="line">&#x2F;&#x2F; 项目文件</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;grafana</span><br><span class="line">&#x2F;&#x2F; 配置文件</span><br><span class="line">&#x2F;etc&#x2F;grafana&#x2F;grafana.ini</span><br></pre></td></tr></table></figure>
+<li>priority query</li>
+</ul>
+<ol>
+<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
+<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
+</ol>
+<ul>
+<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
+<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
+<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>tools</category>
+        <category>database</category>
       </categories>
       <tags>
-        <tag>grafana</tag>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -816,39 +841,30 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>mysql在使用order by limit时出现数据重复的问题</title>
-    <url>/2019/12/04/mysql-priority-que/</url>
-    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
-<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
 </blockquote>
-</li>
-<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
-<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
-<p>很明显，模式1能够极大的减少回表的随机IO。</p>
-</blockquote>
-</li>
-<li>priority query</li>
-</ul>
-<ol>
-<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
-<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
-<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
-</ol>
 <ul>
-<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
-<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
-<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
+</blockquote>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>database</category>
+        <category>tools</category>
       </categories>
       <tags>
-        <tag>mysql</tag>
+        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -916,43 +932,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>centos7源码安装php7.2</title>
-    <url>/2020/08/11/php7.2-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
-<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
-<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
-<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
-<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure></li>
-<li>修改执行 php-fpm 的权限<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
-<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
-</blockquote>
-<ul>
-<li><p>使用信号控制</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看php-fpm的master进程</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
-<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
-<ul>
-<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>php7.2</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>centos7源码安装nginx</title>
     <url>/2020/08/11/nginx-install/</url>
     <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
@@ -1000,6 +979,46 @@ http://ip:8082
       </categories>
       <tags>
         <tag>nodejs</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>grafana开发环境搭建（MacBook）</title>
+    <url>/2020/05/12/grafana-develop-environment/</url>
+    <content><![CDATA[<ul>
+<li>安装go<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install go</span><br></pre></td></tr></table></figure></li>
+<li>安装nodejs<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nodejs</span><br><span class="line"># npm切换淘宝源</span><br><span class="line">npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br></pre></td></tr></table></figure></li>
+<li>安装yarn<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure></li>
+<li>clone项目<br>git项目地址：<a href="https://github.com/grafana/grafana" target="_blank" rel="noopener">https://github.com/grafana/grafana</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;grafana&#x2F;grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果无法get下来，就直接clone 项目后，放到$GOPATH/src/github.com/grafana/grafana</p>
+</blockquote>
+</li>
+<li>前端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">npm install -g node-gyp</span><br><span class="line"># 安装依赖</span><br><span class="line">yarn install --pure-lockfile</span><br><span class="line"># 执行编译</span><br><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译完成后，在public文件夹会看到多了个build文件夹</p>
+</blockquote>
+</li>
+<li>后端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">go run build.go setup</span><br><span class="line">go run build.go build</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译完成后，会看到多了个bin文件夹</p>
+</blockquote>
+</li>
+<li><p>运行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin&#x2F;grafana-server start</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go run build.go build package</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i grafana_xxxx.deb</span><br><span class="line">&#x2F;&#x2F; 项目文件</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;grafana</span><br><span class="line">&#x2F;&#x2F; 配置文件</span><br><span class="line">&#x2F;etc&#x2F;grafana&#x2F;grafana.ini</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -1073,6 +1092,43 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>centos7源码安装php7.2</title>
+    <url>/2020/08/11/php7.2-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
+<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
+<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
+<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
+<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure></li>
+<li>修改执行 php-fpm 的权限<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
+<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
+</blockquote>
+<ul>
+<li><p>使用信号控制</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看php-fpm的master进程</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
+<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
+<ul>
+<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web server</category>
+      </categories>
+      <tags>
+        <tag>php7.2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>在centos7下安装python3</title>
     <url>/2020/05/19/python3-install/</url>
     <content><![CDATA[<blockquote>
@@ -1120,38 +1176,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>centos7下安装mysql5.7</title>
-    <url>/2020/05/13/rmp-install-mysql/</url>
-    <content><![CDATA[<ul>
-<li>卸载旧rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">————————————————</span><br><span class="line">&#x2F;&#x2F; 逐个卸载</span><br><span class="line">rpm -e --nodeps MySQL-client-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-server-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-shared-5.6.23-1.sles11.x86_64</span><br><span class="line">rpm -e --nodeps MySQL-devel-5.6.23-1.sles11.x86_64</span><br><span class="line">&#x2F;&#x2F; 确认卸载完成</span><br><span class="line">rpm -qa |grep -i mysql</span><br><span class="line">&#x2F;&#x2F;my.cnf也可以删了</span><br><span class="line">rm -fr &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F;为空</span><br></pre></td></tr></table></figure></li>
-<li>下载rpm包<br><a href="http://repo.mysql.com/" target="_blank" rel="noopener">地址1</a><br><a href="https://centos.pkgs.org/7/mysql-5.7-x86_64/mysql-community-server-5.7.20-1.el7.x86_64.rpm.html" target="_blank" rel="noopener">地址2</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;repo.mysql.com&#x2F;mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装rpm包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo rpm -ivh mysql57-community-release-fc27.rpm</span><br></pre></td></tr></table></figure></li>
-<li>查看yum repo源<blockquote>
-<p>会获得两个mysql的yum repo源：/etc/yum.repos.d/mysql-community.repo，/etc/yum.repos.d/mysql-community-source.repo</p>
-</blockquote>
-</li>
-<li>install mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install mysql-server</span><br></pre></td></tr></table></figure></li>
-<li>查看mysql安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa | grep mysql</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>rpm -qa | grep mysql-community<br>mysql-community-server-5.7.27-2.el7.x86_64<br>mysql-community-release-el7-5.noarch<br>mysql-community-libs-5.7.27-2.el7.x86_64<br>mysql-community-common-57.27-2.el7.x86_64<br>mysql-community-devel-5.7.27-2.el7.x86_64<br>mysql-community-client-5.7.27-2.el7.x86_64</p>
-</blockquote>
-</li>
-<li>初始化mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;version &lt;5.7</span><br><span class="line">mysql_install_db</span><br><span class="line">&#x2F;&#x2F;version &gt;&#x3D;5.7</span><br><span class="line">mysqld --initialize</span><br></pre></td></tr></table></figure></li>
-<li>修改my.cnf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.cnf</span><br><span class="line">&#x2F;&#x2F; 在下面制定启动用户是mysql</span><br><span class="line">[mysqld]</span><br><span class="line">user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
-<li>启动mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld</span><br><span class="line">&#x2F;&#x2F; 若为做上一步，则启动时--user&#x3D;mysql</span><br></pre></td></tr></table></figure></li>
-<li>修改root用户密码<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">&#x2F;&#x2F; 首次登陆密码是空的，直接进入</span><br><span class="line">use mysql</span><br><span class="line">update user set password&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">flush privileges;</span><br><span class="line">exit;</span><br></pre></td></tr></table></figure></li>
-<li>创建一个远程访问用户<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;创建用户</span><br><span class="line">create user &#39;somebody&#39; identified by &#39;password’;</span><br><span class="line">&#x2F;&#x2F;给用户授权</span><br><span class="line">Grant ALL PRIVILEGES on *.* to somebody@‘%’;</span><br><span class="line">&#x2F;&#x2F;刷新</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tool</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>macbook使用code .命令在vscode打开当前目录</title>
     <url>/2020/02/17/vscode-open-project/</url>
     <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
@@ -1167,25 +1191,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>vscode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>教你新建一个vue项目</title>
-    <url>/2019/11/27/vue-create-project/</url>
-    <content><![CDATA[<ul>
-<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
-<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
-下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>vuejs</tag>
-        <tag>vue-cli</tag>
-        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>
@@ -1228,6 +1233,25 @@ http://ip:8082
       </categories>
       <tags>
         <tag>HowToWriteMarkDownArticle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>教你新建一个vue项目</title>
+    <url>/2019/11/27/vue-create-project/</url>
+    <content><![CDATA[<ul>
+<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
+<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
+下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>vuejs</tag>
+        <tag>vue-cli</tag>
+        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>
