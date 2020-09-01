@@ -33,6 +33,78 @@ yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php7
 ```
 systemctl enable php72-php-fpm.service
 ```
+### 源码安装
++ 安装系统依赖
+```
+yum install epel-release -y
+yum install autoconf libtool re2c bison libxml2-devel bzip2-devel libcurl-devel libpng-devel libicu-devel gcc-c++ libmcrypt-devel libwebp-devel libjpeg-devel openssl-devel -y
+```
++ 下载源码
+```
+curl -O -L https://github.com/php/php-src/archive/php-7.2.3.tar.gz
+tar -zxvf php-7.2.3.tar.gz
+cd php-src-php-7.2.3
+```
++ 编译安装
+```
+./buildconf --force
+./configure --prefix=/usr/local/php --enable-fpm --disable-short-tags --with-openssl --with-pcre-regex --with-pcre-jit --with-zlib --enable-bcmath --with-bz2 --enable-calendar --with-curl --enable-exif --with-gd --enable-intl --enable-mbstring --with-mysqli --enable-pcntl --with-pdo-mysql --enable-soap --enable-sockets --with-xmlrpc --enable-zip --with-webp-dir --with-jpeg-dir --with-png-dir
+make clean
+make
+make install
+```
++ php-fpm setup
+```
+cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
+cp /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
+cp php.ini-development /usr/local/php/etc/php.ini
+```
++ 修改配置
+```
+vim /usr/local/php/etc/php.ini
+expose_php = Off
+short_open_tag = ON
+max_execution_time = 300
+max_input_time = 300
+memory_limit = 128M
+post_max_size = 32M
+date.timezone = Asia/Shanghai
+mbstring.func_overload=2
+```
+
+```
+vim /usr/local/php/etc/php-fpm.d/www.conf
+listen = /var/run/www/php-cgi.sock
+listen.owner = www
+listen.group = www
+listen.mode = 0660
+listen.allowed_clients = 127.0.0.1
+pm = dynamic
+listen.backlog = -1
+pm.max_children = 180
+pm.start_servers = 50
+pm.min_spare_servers = 50
+pm.max_spare_servers = 180
+request_terminate_timeout = 120
+request_slowlog_timeout = 50
+slowlog = var/log/slow.log
+```
+
+```
+vim /usr/local/php/etc/php-fpm.conf
+pid = /usr/local/php/var/run/php-fpm.pid
+```
++ php加入系统环境
+```
+vim /etc/bashrc
+export PHP_PATH=/usr/local/php
+export PATH=$PHP_PATH/bin:$PATH
+```
++ 启动php-fpm
+```
+/usr/local/php/sbin/php-fpm
+```
+
 + 修改执行 php-fpm 的权限
 ```
 vi /etc/opt/remi/php72/php-fpm.d/www.conf
