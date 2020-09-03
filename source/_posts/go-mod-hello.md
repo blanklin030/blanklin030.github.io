@@ -91,8 +91,7 @@ go.sum用来记录每个 package 的版本和哈希值。
 go.mod 文件正常情况会包含 module 和 require 模块，除此之外还可以包含 replace 和 exclude 模块
 
 ## 调教GoLang
-File->New->Project
-如下图：
+1. 开启go-mod
 ![go-mod](/images/go-mod.png)
 
 ## golint使用
