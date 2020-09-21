@@ -79,6 +79,71 @@
       </tags>
   </entry>
   <entry>
+    <title>聊聊cgi的二三事</title>
+    <url>/2019/11/07/cgi/</url>
+    <content><![CDATA[<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p><strong>通用网关接口</strong>（Common Gateway Interface/CGI）描述了客户端和服务器程序之间传输数据的一种标准，可以让一个客户端，从网页浏览器向执行在网络服务器上的程序请求数据。CGI 独立于任何语言的，CGI 程序可以用任何脚本语言或者是完全独立编程语言实现，只要这个语言可以在这个系统上运行。</p>
+<p><img src="/images/cgi.jpg" alt="cgi"><br>从上面这站图我们可以窥知几个重点的阶段<br>1、web browser 收到 Http request 后，将 request 转给 web server<br>2、web server 启动 CGI 程序，并通过环境变量、标准输入传递数据<br>3、cgi 进程启动解析器、加载配置（如业务相关配置）、连接其它服务器（如数据库服务器）、逻辑处理等<br>4、cgi 程将处理结果通过标准输出、标准错误，传递给 web server<br>5、 web server 收到 cgi 返回的结果，构建 Http Response 返回给客户端，并杀死 cgi 进程</p>
+<blockquote>
+<p>web erver 与 cgi 通过环境变量、标准输入、标准输出、标准错误互相传递数据这就是 fork and execute 模式，有多少的 http request，就会 fork 出多少的子进程去处理，而每个子进程都需要启动 cgi 解释器、加载配置、链接其他服务器等初始化工作，所以这就是 cgi 性能低下的根本原因，当用户请求非常多的时候，会大量挤占系统的资源如：内存、cpu 时间等。</p>
+</blockquote>
+<p>以下是一些 get 请求常见的环境变量</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">环境变量</th>
+<th style="text-align:center">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">REMOTE_ADDR</td>
+<td style="text-align:center">client 端的 host 名称。</td>
+</tr>
+<tr>
+<td style="text-align:center">REMOTE_METHOD</td>
+<td style="text-align:center">client 端发出请求的方法（如 get、post）。</td>
+</tr>
+<tr>
+<td style="text-align:center">SCRIPT_NAME</td>
+<td style="text-align:center">CGI 程式所在的虚拟路径，如/cgi-bin/echo。</td>
+</tr>
+<tr>
+<td style="text-align:center">SERVER_NAME</td>
+<td style="text-align:center">server 的 host 名称或 IP 地址。</td>
+</tr>
+<tr>
+<td style="text-align:center">QUERY_STRING</td>
+<td style="text-align:center">传递给 CGI 程式的请求参数，也就是用”?”隔开，添加在 URL 后面的字串。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="标准输入"><a href="#标准输入" class="headerlink" title="标准输入"></a>标准输入</h3><p>环境变量的大小是有一定的限制的，当需要传送的数据量大时，储存环境变量的空间可能会不足，造成数据接收不完全，甚至无法执行 CGI 程序。因此后来又发展出另外一种方法：POST，也就是利用 I/O 重新导向的技巧，让 CGI 程序可以由 STDIN 和 STDOUT 直接跟浏览器沟通。<br>当我们指定用这种方法传递请求的数据时，web 服务器收到数据后会先放在一块输入缓冲区中，并且将数据的大小记录在 CONTENT_LENGTH 这个环境变数，然后调用 CGI 程式并将 CGI 程序的 STDIN 指向这块缓冲区，于是我们就可以很顺利的通过 STDIN 和环境变数 CONTENT_LENGTH 得到所有的资料，再没有资料大小的限制了。<br><strong>总结</strong>：CGI 使外部程序与 Web 服务器之间交互成为可能。CGI 程式运行在独立的进程中，并对每个 Web 请求建立一个进程，这种方法非常容易实现，但效率很差，难以扩展。面对大量请求，进程的大量建立和消亡使操作系统性能大大下降。此外，由于地址空间无法共享，也限制了资源重用。</p>
+<h2 id="FastCGI"><a href="#FastCGI" class="headerlink" title="FastCGI"></a>FastCGI</h2><p><strong>快速通用网关接口</strong>（Fast Common Gateway Interface／FastCGI）是通用网关接口（CGI）的改进，描述了客户端和服务器程序之间传输数据的一种标准。FastCGI 致力于减少 Web 服务器与 CGI 程式之间互动的开销，从而使服务器可以同时处理更多的 Web 请求。与为每个请求创建一个新的进程不同，FastCGI 使用持续的进程来处理一连串的请求。这些进程由 FastCGI 进程管理器管理，而不是 web 服务器。<br><img src="/images/fastcgi.jpg" alt="fastcgi"><br>1、Web 服务器启动时载入初始化 FastCGI 执行环境 。 例如 IIS ISAPI、apache mod_fastcgi、nginx ngx_http_fastcgi_module、lighttpd mod_fastcgi</p>
+<p>2、FastCGI 进程管理器自身初始化，启动多个 CGI 解释器进程并等待来自 Web 服务器的连接。启动 FastCGI 进程时，可以配置以 ip 和 UNIX 域 socket 两种方式启动。</p>
+<p>3、当客户端请求到达 Web 服务器时， Web 服务器将请求采用 socket 方式转发到 FastCGI 主进程，FastCGI 主进程选择并连接到一个 CGI 解释器。Web 服务器将 CGI 环境变量和标准输入发送到 FastCGI 子进程。</p>
+<p>4、FastCGI 子进程完成处理后将标准输出和错误信息从同一 socket 连接返回 Web 服务器。当 FastCGI 子进程关闭连接时，请求便处理完成。</p>
+<p>5、FastCGI 子进程接着等待并处理来自 Web 服务器的下一个连接。</p>
+<p>由于 FastCGI 程序并不需要不断的产生新进程，可以大大降低服务器的压力并且产生较高的应用效率。它的速度效率最少要比 CGI 技术提高 5 倍以上。它还支持分布式的部署， 即 FastCGI 程序可以在 web 服务器以外的主机上执行。</p>
+<p>总结：CGI 就是所谓的短生存期应用程序，FastCGI 就是所谓的长生存期应用程序。FastCGI 像是一个常驻(long-live)型的 CGI，它可以一直执行着，不会每次都要花费时间去 fork 一次(这是 CGI 最为人诟病的 fork-and-execute 模式)。</p>
+<h3 id="消息类型"><a href="#消息类型" class="headerlink" title="消息类型"></a>消息类型</h3><p>FastCGI 协议分为了 10 种类型，具体定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef enum _fcgi_request_type &#123;</span><br><span class="line">      FCGI_BEGIN_REQUEST   &#x3D;  1, &#x2F;* [in] *&#x2F;</span><br><span class="line">      FCGI_ABORT_REQUEST   &#x3D;  2, &#x2F;* [in]  (not supported) *&#x2F;</span><br><span class="line">      FCGI_END_REQUEST     &#x3D;  3, &#x2F;* [out] *&#x2F;</span><br><span class="line">      FCGI_PARAMS          &#x3D;  4, &#x2F;* [in]  environment variables  *&#x2F;</span><br><span class="line">      FCGI_STDIN           &#x3D;  5, &#x2F;* [in]  post data   *&#x2F;</span><br><span class="line">      FCGI_STDOUT          &#x3D;  6, &#x2F;* [out] response   *&#x2F;</span><br><span class="line">      FCGI_STDERR          &#x3D;  7, &#x2F;* [out] errors     *&#x2F;</span><br><span class="line">      FCGI_DATA    &#x3D;  8, &#x2F;* [in]  filter data (not supported) *&#x2F;</span><br><span class="line">      FCGI_GET_VALUES      &#x3D;  9, &#x2F;* [in]  *&#x2F;</span><br><span class="line">      FCGI_GET_VALUES_RESULT &#x3D; 10  &#x2F;* [out] *&#x2F;</span><br><span class="line">&#125; fcgi_request_type;</span><br></pre></td></tr></table></figure>
+<p>整个 FastCGI 是二进制连续传递的，定义了一个统一结构的消息头，用来读取每个消息的消息体，方便消息包的切割。一般情况下，最先发送的是 FCGI_BEGIN_REQUEST 类型的消息，然后是 FCGI_PARAMS 和 FCGI_STDIN 类型的消息，当 FastCGI 响应处理完后，将发送 FCGI_STDOUT 和 FCGI_STDERR 类型的消息，最后以 FCGI_END_REQUEST 表示请求的结束。FCGI_BEGIN_REQUEST 和 FCGI_END_REQUEST 分别表示请求的开始和结束，与整个协议相关。</p>
+<h2 id="php-fpm"><a href="#php-fpm" class="headerlink" title="php-fpm"></a>php-fpm</h2><p>PHP-FPM(<strong>FastCGI Process Manager</strong>：FastCGI 进程管理器)是一个 PHPFastCGI 管理器，是 FastCGI 的实现，并提供了进程管理的功能。进程包含 master 进程和 worker 进程两种进程。master 进程只有一个，负责监听端口，接收来自 Web Server 的请求，而 worker 进程则一般有多个(具体数量根据实际需要配置 pm.max_children = 5)，每个进程内部都嵌入了一个 PHP 解释器，是 PHP 代码真正执行的地方。<br><img src="/images/fpm.jpg" alt="fastcgi"></p>
+<h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><p>Nginx 不只有处理 http 请求的功能，还能做反向代理。Nginx 通过反向代理功能将动态请求转向后端 Php-fpm.<br>下面我们简单解释一下 nginx 的 server 模块是如何配置的</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80; #监听80端口，接收http请求</span><br><span class="line">    server_name  www.example.com; #就是网站地址</span><br><span class="line">    root         &#x2F;usr&#x2F;local&#x2F;etc&#x2F;nginx&#x2F;www&#x2F;example; # 准备存放代码工程的路径</span><br><span class="line">    #路由到网站根目录www.example.com时候的处理</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">        index index.php; #跳转到www.example.com&#x2F;index.php</span><br><span class="line">    &#125;</span><br><span class="line">    #当请求网站下php文件的时候，反向代理到php-fpm</span><br><span class="line">    location ~ \.php &#123;</span><br><span class="line">        fastcgi_pass        127.0.0.1:9000;#nginx fastcgi进程监听的IP地址和端口</span><br><span class="line">        fastcgi_index       index.php;</span><br><span class="line">        fastcgi_param       SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">        include             fastcgi_params; #加载nginx的fastcgi模块</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+        <tag>cgi</tag>
+        <tag>fastcgi</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>带你开箱真香ClickHouse</title>
     <url>/2019/11/26/clickhouse-hello-world/</url>
     <content><![CDATA[<h2 id="OLAP介绍"><a href="#OLAP介绍" class="headerlink" title="OLAP介绍"></a>OLAP介绍</h2><h4 id="OLAP概述"><a href="#OLAP概述" class="headerlink" title="OLAP概述"></a>OLAP概述</h4><p>OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。<br>在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。 分区技术在OLAP系统中的重要性主要体现在数据库管理上，比如数据库加载，可以通过分区交换的方式实现，备份可以通过备份分区表空间实现，删除数据可以通过分区进行删除，至于分区在性能上的影响，它可以使得一些大表的扫描变得很快（只扫描单个分区）。另外，如果分区结合并行的话，也可以使得整个表的扫描会变得很快。总之，分区主要的功能是管理上的方便性，它并不能绝对保证查询性能的提高，有时候分区会带来性能上的提高，有时候会降低。</p>
@@ -269,71 +334,6 @@
       </tags>
   </entry>
   <entry>
-    <title>聊聊cgi的二三事</title>
-    <url>/2019/11/07/cgi/</url>
-    <content><![CDATA[<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p><strong>通用网关接口</strong>（Common Gateway Interface/CGI）描述了客户端和服务器程序之间传输数据的一种标准，可以让一个客户端，从网页浏览器向执行在网络服务器上的程序请求数据。CGI 独立于任何语言的，CGI 程序可以用任何脚本语言或者是完全独立编程语言实现，只要这个语言可以在这个系统上运行。</p>
-<p><img src="/images/cgi.jpg" alt="cgi"><br>从上面这站图我们可以窥知几个重点的阶段<br>1、web browser 收到 Http request 后，将 request 转给 web server<br>2、web server 启动 CGI 程序，并通过环境变量、标准输入传递数据<br>3、cgi 进程启动解析器、加载配置（如业务相关配置）、连接其它服务器（如数据库服务器）、逻辑处理等<br>4、cgi 程将处理结果通过标准输出、标准错误，传递给 web server<br>5、 web server 收到 cgi 返回的结果，构建 Http Response 返回给客户端，并杀死 cgi 进程</p>
-<blockquote>
-<p>web erver 与 cgi 通过环境变量、标准输入、标准输出、标准错误互相传递数据这就是 fork and execute 模式，有多少的 http request，就会 fork 出多少的子进程去处理，而每个子进程都需要启动 cgi 解释器、加载配置、链接其他服务器等初始化工作，所以这就是 cgi 性能低下的根本原因，当用户请求非常多的时候，会大量挤占系统的资源如：内存、cpu 时间等。</p>
-</blockquote>
-<p>以下是一些 get 请求常见的环境变量</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:center">环境变量</th>
-<th style="text-align:center">内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">REMOTE_ADDR</td>
-<td style="text-align:center">client 端的 host 名称。</td>
-</tr>
-<tr>
-<td style="text-align:center">REMOTE_METHOD</td>
-<td style="text-align:center">client 端发出请求的方法（如 get、post）。</td>
-</tr>
-<tr>
-<td style="text-align:center">SCRIPT_NAME</td>
-<td style="text-align:center">CGI 程式所在的虚拟路径，如/cgi-bin/echo。</td>
-</tr>
-<tr>
-<td style="text-align:center">SERVER_NAME</td>
-<td style="text-align:center">server 的 host 名称或 IP 地址。</td>
-</tr>
-<tr>
-<td style="text-align:center">QUERY_STRING</td>
-<td style="text-align:center">传递给 CGI 程式的请求参数，也就是用”?”隔开，添加在 URL 后面的字串。</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h3 id="标准输入"><a href="#标准输入" class="headerlink" title="标准输入"></a>标准输入</h3><p>环境变量的大小是有一定的限制的，当需要传送的数据量大时，储存环境变量的空间可能会不足，造成数据接收不完全，甚至无法执行 CGI 程序。因此后来又发展出另外一种方法：POST，也就是利用 I/O 重新导向的技巧，让 CGI 程序可以由 STDIN 和 STDOUT 直接跟浏览器沟通。<br>当我们指定用这种方法传递请求的数据时，web 服务器收到数据后会先放在一块输入缓冲区中，并且将数据的大小记录在 CONTENT_LENGTH 这个环境变数，然后调用 CGI 程式并将 CGI 程序的 STDIN 指向这块缓冲区，于是我们就可以很顺利的通过 STDIN 和环境变数 CONTENT_LENGTH 得到所有的资料，再没有资料大小的限制了。<br><strong>总结</strong>：CGI 使外部程序与 Web 服务器之间交互成为可能。CGI 程式运行在独立的进程中，并对每个 Web 请求建立一个进程，这种方法非常容易实现，但效率很差，难以扩展。面对大量请求，进程的大量建立和消亡使操作系统性能大大下降。此外，由于地址空间无法共享，也限制了资源重用。</p>
-<h2 id="FastCGI"><a href="#FastCGI" class="headerlink" title="FastCGI"></a>FastCGI</h2><p><strong>快速通用网关接口</strong>（Fast Common Gateway Interface／FastCGI）是通用网关接口（CGI）的改进，描述了客户端和服务器程序之间传输数据的一种标准。FastCGI 致力于减少 Web 服务器与 CGI 程式之间互动的开销，从而使服务器可以同时处理更多的 Web 请求。与为每个请求创建一个新的进程不同，FastCGI 使用持续的进程来处理一连串的请求。这些进程由 FastCGI 进程管理器管理，而不是 web 服务器。<br><img src="/images/fastcgi.jpg" alt="fastcgi"><br>1、Web 服务器启动时载入初始化 FastCGI 执行环境 。 例如 IIS ISAPI、apache mod_fastcgi、nginx ngx_http_fastcgi_module、lighttpd mod_fastcgi</p>
-<p>2、FastCGI 进程管理器自身初始化，启动多个 CGI 解释器进程并等待来自 Web 服务器的连接。启动 FastCGI 进程时，可以配置以 ip 和 UNIX 域 socket 两种方式启动。</p>
-<p>3、当客户端请求到达 Web 服务器时， Web 服务器将请求采用 socket 方式转发到 FastCGI 主进程，FastCGI 主进程选择并连接到一个 CGI 解释器。Web 服务器将 CGI 环境变量和标准输入发送到 FastCGI 子进程。</p>
-<p>4、FastCGI 子进程完成处理后将标准输出和错误信息从同一 socket 连接返回 Web 服务器。当 FastCGI 子进程关闭连接时，请求便处理完成。</p>
-<p>5、FastCGI 子进程接着等待并处理来自 Web 服务器的下一个连接。</p>
-<p>由于 FastCGI 程序并不需要不断的产生新进程，可以大大降低服务器的压力并且产生较高的应用效率。它的速度效率最少要比 CGI 技术提高 5 倍以上。它还支持分布式的部署， 即 FastCGI 程序可以在 web 服务器以外的主机上执行。</p>
-<p>总结：CGI 就是所谓的短生存期应用程序，FastCGI 就是所谓的长生存期应用程序。FastCGI 像是一个常驻(long-live)型的 CGI，它可以一直执行着，不会每次都要花费时间去 fork 一次(这是 CGI 最为人诟病的 fork-and-execute 模式)。</p>
-<h3 id="消息类型"><a href="#消息类型" class="headerlink" title="消息类型"></a>消息类型</h3><p>FastCGI 协议分为了 10 种类型，具体定义如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef enum _fcgi_request_type &#123;</span><br><span class="line">      FCGI_BEGIN_REQUEST   &#x3D;  1, &#x2F;* [in] *&#x2F;</span><br><span class="line">      FCGI_ABORT_REQUEST   &#x3D;  2, &#x2F;* [in]  (not supported) *&#x2F;</span><br><span class="line">      FCGI_END_REQUEST     &#x3D;  3, &#x2F;* [out] *&#x2F;</span><br><span class="line">      FCGI_PARAMS          &#x3D;  4, &#x2F;* [in]  environment variables  *&#x2F;</span><br><span class="line">      FCGI_STDIN           &#x3D;  5, &#x2F;* [in]  post data   *&#x2F;</span><br><span class="line">      FCGI_STDOUT          &#x3D;  6, &#x2F;* [out] response   *&#x2F;</span><br><span class="line">      FCGI_STDERR          &#x3D;  7, &#x2F;* [out] errors     *&#x2F;</span><br><span class="line">      FCGI_DATA    &#x3D;  8, &#x2F;* [in]  filter data (not supported) *&#x2F;</span><br><span class="line">      FCGI_GET_VALUES      &#x3D;  9, &#x2F;* [in]  *&#x2F;</span><br><span class="line">      FCGI_GET_VALUES_RESULT &#x3D; 10  &#x2F;* [out] *&#x2F;</span><br><span class="line">&#125; fcgi_request_type;</span><br></pre></td></tr></table></figure>
-<p>整个 FastCGI 是二进制连续传递的，定义了一个统一结构的消息头，用来读取每个消息的消息体，方便消息包的切割。一般情况下，最先发送的是 FCGI_BEGIN_REQUEST 类型的消息，然后是 FCGI_PARAMS 和 FCGI_STDIN 类型的消息，当 FastCGI 响应处理完后，将发送 FCGI_STDOUT 和 FCGI_STDERR 类型的消息，最后以 FCGI_END_REQUEST 表示请求的结束。FCGI_BEGIN_REQUEST 和 FCGI_END_REQUEST 分别表示请求的开始和结束，与整个协议相关。</p>
-<h2 id="php-fpm"><a href="#php-fpm" class="headerlink" title="php-fpm"></a>php-fpm</h2><p>PHP-FPM(<strong>FastCGI Process Manager</strong>：FastCGI 进程管理器)是一个 PHPFastCGI 管理器，是 FastCGI 的实现，并提供了进程管理的功能。进程包含 master 进程和 worker 进程两种进程。master 进程只有一个，负责监听端口，接收来自 Web Server 的请求，而 worker 进程则一般有多个(具体数量根据实际需要配置 pm.max_children = 5)，每个进程内部都嵌入了一个 PHP 解释器，是 PHP 代码真正执行的地方。<br><img src="/images/fpm.jpg" alt="fastcgi"></p>
-<h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><p>Nginx 不只有处理 http 请求的功能，还能做反向代理。Nginx 通过反向代理功能将动态请求转向后端 Php-fpm.<br>下面我们简单解释一下 nginx 的 server 模块是如何配置的</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80; #监听80端口，接收http请求</span><br><span class="line">    server_name  www.example.com; #就是网站地址</span><br><span class="line">    root         &#x2F;usr&#x2F;local&#x2F;etc&#x2F;nginx&#x2F;www&#x2F;example; # 准备存放代码工程的路径</span><br><span class="line">    #路由到网站根目录www.example.com时候的处理</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">        index index.php; #跳转到www.example.com&#x2F;index.php</span><br><span class="line">    &#125;</span><br><span class="line">    #当请求网站下php文件的时候，反向代理到php-fpm</span><br><span class="line">    location ~ \.php &#123;</span><br><span class="line">        fastcgi_pass        127.0.0.1:9000;#nginx fastcgi进程监听的IP地址和端口</span><br><span class="line">        fastcgi_index       index.php;</span><br><span class="line">        fastcgi_param       SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">        include             fastcgi_params; #加载nginx的fastcgi模块</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-        <tag>cgi</tag>
-        <tag>fastcgi</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何创建GitHub Page</title>
     <url>/2019/10/29/create-github-page/</url>
     <content><![CDATA[<h2 id="新建项目"><a href="#新建项目" class="headerlink" title="新建项目"></a>新建项目</h2><p>首先在 GitHub 新建一个仓库（Repository），名称为 {username}.github.io，注意这个名比较特殊，必须要是 github.io 为后缀结尾的。比如 我 的 GitHub 用户名就叫 blanklin030，那我就新建一个 blanklin030.github.io，新建完成之后就可以进行后续操作了。</p>
@@ -405,6 +405,42 @@
       </categories>
       <tags>
         <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>docker ipv4 forwarding is disabled</title>
+    <url>/2020/09/21/docker-ipv4-forword/</url>
+    <content><![CDATA[<blockquote>
+<p>warning ipv4 forwarding is disabled. networking will not work.  </p>
+</blockquote>
+<ul>
+<li>起因<br>今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。</li>
+<li>进入服务器查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 查log</span><br><span class="line">docker logs xx</span><br><span class="line">2. 无报错log，查nginx》error.lo</span><br><span class="line">connection timeout...</span><br><span class="line">3. nginx提示连接超时了,ping服务</span><br><span class="line">curl -i http:&#x2F;&#x2F;ip:port&#x2F;api&#x2F;xx&#x2F;yy</span><br><span class="line">4. 给了200的返回码，去外网再ping，</span><br><span class="line">curl: (7) Failed to connect to ip port: Operation timed out</span><br></pre></td></tr></table></figure></li>
+<li>结论，外网无法连通这个ip和端口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 重启docker container</span><br><span class="line">sudo docker restart container_name</span><br><span class="line">WARNING: IPv4 forwarding is disabled. Networking will not work.</span><br></pre></td></tr></table></figure></li>
+<li><p>docker network bridge<br><img src="/images/docker-bridge.png" alt="docker-bridge"></p>
+<blockquote>
+<p>由于宿主机的IP地址与容器veth pair的 IP地址均不在同一个网段，故仅仅依靠veth pair和namespace的技术，还不足以使宿主机以外的网络主动发现容器的存在。为了使外界可以访问容器中的进程，docker采用了端口绑定的方式，也就是通过iptables的NAT，将宿主机上的端口流量转发到容器内的端口上。<br>举例说明 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 创建容器，并将宿主机的3306端口绑定到容器的3306端口</span><br><span class="line">docker run -tid --name db -p 3306:3306 MySQL</span><br><span class="line">2. 宿主机上，可以通过iptables -t nat -L -n，查到一条DNAT规则</span><br><span class="line">DNAT tcp -- 0.0.0.0&#x2F;0 0.0.0.0&#x2F;0 tcp dpt:3306 to:172.17.0.5:3306</span><br><span class="line">3. 以上的172.17.0.5即为bridge模式下，创建的容器IP</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>开启 ip 转发</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br><span class="line">或者</span><br><span class="line">sudo echo 1 &gt; &#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;ip_forward</span><br></pre></td></tr></table></figure></li>
+<li>重启 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart network</span><br></pre></td></tr></table></figure></li>
+<li>查看 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo sysctl net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>返回为“net.ipv4.ip_forward = 1”则表示成功了</p>
+</blockquote>
+</li>
+<li>重启容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker restart container_name</span><br></pre></td></tr></table></figure></li>
+<li>如果还提示上面的ipv4问题<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure></li>
+<li>删除容器，再run<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker rm -f xx</span><br><span class="line">sudo docker run -d --name xx image_name</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
       </tags>
   </entry>
   <entry>
@@ -586,25 +622,36 @@
       </tags>
   </entry>
   <entry>
-    <title>docker ipv4 forwarding is disabled</title>
-    <url>/2020/09/21/docker-ipv4-forword/</url>
-    <content><![CDATA[<blockquote>
-<p>warning ipv4 forwarding is disabled. networking will not work.  </p>
-</blockquote>
-<ul>
-<li>起因<br>今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。</li>
-<li>进入服务器查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 查log</span><br><span class="line">docker logs xx</span><br><span class="line">2. 无报错log，查nginx》error.lo</span><br><span class="line">connection timeout...</span><br><span class="line">3. nginx提示连接超时了,ping服务</span><br><span class="line">curl -i http:&#x2F;&#x2F;ip:port&#x2F;api&#x2F;xx&#x2F;yy</span><br><span class="line">4. 给了200的返回码，去外网再ping，</span><br><span class="line">curl: (7) Failed to connect to ip port: Operation timed out</span><br></pre></td></tr></table></figure></li>
-<li>结论，外网无法连通这个ip和端口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 重启docker container</span><br><span class="line">sudo docker restart container_name</span><br><span class="line">WARNING: IPv4 forwarding is disabled. Networking will not work.</span><br></pre></td></tr></table></figure></li>
-<li>开启 ip 转发<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br></pre></td></tr></table></figure></li>
-<li>重启 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart network</span><br></pre></td></tr></table></figure></li>
-<li>查看 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo sysctl net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>返回为“net.ipv4.ip_forward = 1”则表示成功了</p>
-</blockquote>
+    <title>前端基于docker的生产环境部署方案</title>
+    <url>/2020/07/20/frontend-docker-product/</url>
+    <content><![CDATA[<ul>
+<li>docker安装<ul>
+<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
+<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
+</ul>
 </li>
-<li>重启容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker restart container_name</span><br></pre></td></tr></table></figure></li>
-<li>如果还提示上面的ipv4问题<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure></li>
-<li>删除容器，再run<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker rm -f xx</span><br><span class="line">sudo docker run -d --name xx image_name</span><br></pre></td></tr></table></figure></li>
+<li>Dockerfile  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
+<p>server {</p>
+<p>  listen 8082;</p>
+<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
+<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
+<p>SHELL := /bin/bash</p>
+<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
+<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
+<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
+<pre><code>    # 注意docker run的参数,具体参数定义自行查找
+    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
+http://ip:8082
+```
+</code></pre><ul>
+<li>问题与思考<ul>
+<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
+<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
+</ul>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -647,43 +694,43 @@
       </tags>
   </entry>
   <entry>
-    <title>前端基于docker的生产环境部署方案</title>
-    <url>/2020/07/20/frontend-docker-product/</url>
+    <title>grafana开发环境搭建（MacBook）</title>
+    <url>/2020/05/12/grafana-develop-environment/</url>
     <content><![CDATA[<ul>
-<li>docker安装<ul>
-<li>brew install  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
-<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
-</ul>
+<li>安装go<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install go</span><br></pre></td></tr></table></figure></li>
+<li>安装nodejs<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nodejs</span><br><span class="line"># npm切换淘宝源</span><br><span class="line">npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br></pre></td></tr></table></figure></li>
+<li>安装yarn<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure></li>
+<li>clone项目<br>git项目地址：<a href="https://github.com/grafana/grafana" target="_blank" rel="noopener">https://github.com/grafana/grafana</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;grafana&#x2F;grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果无法get下来，就直接clone 项目后，放到$GOPATH/src/github.com/grafana/grafana</p>
+</blockquote>
 </li>
-<li>Dockerfile  </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
-<p>server {</p>
-<p>  listen 8082;</p>
-<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
-<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
-<p>SHELL := /bin/bash</p>
-<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
-<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
-<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
-<pre><code>    # 注意docker run的参数,具体参数定义自行查找
-    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
-http://ip:8082
-```
-</code></pre><ul>
-<li>问题与思考<ul>
-<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
-<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
-</ul>
+<li>前端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">npm install -g node-gyp</span><br><span class="line"># 安装依赖</span><br><span class="line">yarn install --pure-lockfile</span><br><span class="line"># 执行编译</span><br><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译完成后，在public文件夹会看到多了个build文件夹</p>
+</blockquote>
+</li>
+<li>后端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">go run build.go setup</span><br><span class="line">go run build.go build</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译完成后，会看到多了个bin文件夹</p>
+</blockquote>
+</li>
+<li><p>运行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin&#x2F;grafana-server start</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go run build.go build package</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i grafana_xxxx.deb</span><br><span class="line">&#x2F;&#x2F; 项目文件</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;grafana</span><br><span class="line">&#x2F;&#x2F; 配置文件</span><br><span class="line">&#x2F;etc&#x2F;grafana&#x2F;grafana.ini</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>tool</category>
+        <category>tools</category>
       </categories>
       <tags>
-        <tag>docker</tag>
+        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -748,73 +795,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>grafana开发环境搭建（MacBook）</title>
-    <url>/2020/05/12/grafana-develop-environment/</url>
-    <content><![CDATA[<ul>
-<li>安装go<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install go</span><br></pre></td></tr></table></figure></li>
-<li>安装nodejs<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">brew install nodejs</span><br><span class="line"># npm切换淘宝源</span><br><span class="line">npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br></pre></td></tr></table></figure></li>
-<li>安装yarn<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure></li>
-<li>clone项目<br>git项目地址：<a href="https://github.com/grafana/grafana" target="_blank" rel="noopener">https://github.com/grafana/grafana</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go get github.com&#x2F;grafana&#x2F;grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果无法get下来，就直接clone 项目后，放到$GOPATH/src/github.com/grafana/grafana</p>
-</blockquote>
-</li>
-<li>前端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">npm install -g node-gyp</span><br><span class="line"># 安装依赖</span><br><span class="line">yarn install --pure-lockfile</span><br><span class="line"># 执行编译</span><br><span class="line">yarn start</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>编译完成后，在public文件夹会看到多了个build文件夹</p>
-</blockquote>
-</li>
-<li>后端环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $GOPATH&#x2F;src&#x2F;github.com&#x2F;grafana&#x2F;grafana</span><br><span class="line">go run build.go setup</span><br><span class="line">go run build.go build</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>编译完成后，会看到多了个bin文件夹</p>
-</blockquote>
-</li>
-<li><p>运行</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin&#x2F;grafana-server start</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">go run build.go build package</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i grafana_xxxx.deb</span><br><span class="line">&#x2F;&#x2F; 项目文件</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;grafana</span><br><span class="line">&#x2F;&#x2F; 配置文件</span><br><span class="line">&#x2F;etc&#x2F;grafana&#x2F;grafana.ini</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>grafana迁移sqlite3到mysql</title>
     <url>/2020/05/12/grafana-sqlite3-mysql/</url>
     <content><![CDATA[<ul>
@@ -859,6 +839,159 @@ http://ip:8082
       </categories>
       <tags>
         <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql在使用order by limit时出现数据重复的问题</title>
+    <url>/2019/12/04/mysql-priority-que/</url>
+    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
+<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
+</blockquote>
+</li>
+<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
+<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
+<p>很明显，模式1能够极大的减少回表的随机IO。</p>
+</blockquote>
+</li>
+<li>priority query</li>
+</ul>
+<ol>
+<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
+<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
+</ol>
+<ul>
+<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
+<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
+<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>database</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
+</blockquote>
+<ul>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
+</blockquote>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql5.7忘记root密码</title>
+    <url>/2020/07/16/mysql5.7-forget-password/</url>
+    <content><![CDATA[<ul>
+<li>关闭mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br></pre></td></tr></table></figure></li>
+<li>修改my.conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,添加skip-grant-tables,意思是忽略所有表的授权</span><br><span class="line">skip-grant-tables</span><br></pre></td></tr></table></figure></li>
+<li>开启mysqld服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
+<li>进入mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -u root</span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; update mysql.user set authentication_string&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; exit;</span><br></pre></td></tr></table></figure></li>
+<li>撤回skip-grant-tables<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,注释掉skip-grant-tables</span><br></pre></td></tr></table></figure></li>
+<li>重启mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
+<li>密码登录mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">#输入刚配置的新密码</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>next模板页面空白解决方法</title>
+    <url>/2019/11/27/next-package-blank/</url>
+    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
+<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
+<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>next</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用nginx搭建加密的文件服务器</title>
+    <url>/2020/05/07/nginx-file-server/</url>
+    <content><![CDATA[<ul>
+<li>安装epel<br>EPEL 仓库中有 Nginx 的安装包。如果你还没有安装过 EPEL，可以通过运行下面的命令来完成安装：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install nginx</span><br></pre></td></tr></table></figure></li>
+<li>配置文件<ul>
+<li>日志文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log</span><br><span class="line"> &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log</span><br></pre></td></tr></table></figure></li>
+<li>conf文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>项目文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html&#x2F;&lt;site_name&gt;</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;&lt;site_name&gt;</span><br></pre></td></tr></table></figure></li>
+<li>nginx命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+<li>生成密钥<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 使用openssl生成密钥</span><br><span class="line">printf &quot;admin:$(openssl passwd -crypt 123456)\n&quot; &gt;&gt; &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">cat &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">admin:xyJkVhXGAZ8tM</span><br><span class="line"># 使用htpasswd生成密钥</span><br><span class="line">yum install httpd-tools -y</span><br><span class="line">htpasswd -c -d &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd admin</span><br></pre></td></tr></table></figure></li>
+<li>添加server配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  localhost;</span><br><span class="line"></span><br><span class="line">  auth_basic   &quot;登录认证&quot;;</span><br><span class="line">  auth_basic_user_file &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd;</span><br><span class="line"></span><br><span class="line">  autoindex on;</span><br><span class="line">  autoindex_exact_size on; #显示文件大小</span><br><span class="line">  autoindex_localtime on; #显示文件时间</span><br><span class="line"></span><br><span class="line">  root   &#x2F;var&#x2F;www&#x2F;html;</span><br><span class="line">  index  index.html index.php</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>重启nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx -s reload</span><br></pre></td></tr></table></figure>
+<img src="/images/nginx-file-server.png" alt="nginx-file-server"></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos7源码安装nginx</title>
+    <url>/2020/08/11/nginx-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
+<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>路径整理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>web server</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -918,63 +1051,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>mysql5.7忘记root密码</title>
-    <url>/2020/07/16/mysql5.7-forget-password/</url>
-    <content><![CDATA[<ul>
-<li>关闭mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br></pre></td></tr></table></figure></li>
-<li>修改my.conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,添加skip-grant-tables,意思是忽略所有表的授权</span><br><span class="line">skip-grant-tables</span><br></pre></td></tr></table></figure></li>
-<li>开启mysqld服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
-<li>进入mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -u root</span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; update mysql.user set authentication_string&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; exit;</span><br></pre></td></tr></table></figure></li>
-<li>撤回skip-grant-tables<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,注释掉skip-grant-tables</span><br></pre></td></tr></table></figure></li>
-<li>重启mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
-<li>密码登录mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">#输入刚配置的新密码</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tool</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mysql在使用order by limit时出现数据重复的问题</title>
-    <url>/2019/12/04/mysql-priority-que/</url>
-    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
-<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
-</blockquote>
-</li>
-<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
-<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
-<p>很明显，模式1能够极大的减少回表的随机IO。</p>
-</blockquote>
-</li>
-<li>priority query</li>
-</ul>
-<ol>
-<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
-<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
-<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
-</ol>
-<ul>
-<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
-<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
-<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>database</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql8忘记root密码</title>
     <url>/2020/09/03/mysql8-forget-password%20copy/</url>
     <content><![CDATA[<ul>
@@ -993,22 +1069,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>next模板页面空白解决方法</title>
-    <url>/2019/11/27/next-package-blank/</url>
-    <content><![CDATA[<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>+出现markdown语法出错</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在markdown语法里，不用使用”&lt;&gt;/“这些尖括号斜杆，不然会被markdown反解析后就有语法错误了!<br>全文搜索有出现有出现就替换掉！</p>
-<h2 id="原因-1"><a href="#原因-1" class="headerlink" title="原因"></a>原因</h2><p>从github仓库clone后，没有next目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ls themes&#x2F;next</span><br></pre></td></tr></table></figure><br>是否为空？</p>
-<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果确实是空的<br>则重新clone next仓库到指定目录<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -fr themes&#x2F;next</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;theme-next&#x2F;hexo-theme-next.git next</span><br><span class="line">&#x2F;&#x2F; 修改主题</span><br><span class="line">cd themes&#x2F;next&#x2F;</span><br><span class="line">vim _config.yml</span><br><span class="line">&#x2F;&#x2F; scheme: Pisces</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-        <tag>next</tag>
       </tags>
   </entry>
   <entry>
@@ -1036,142 +1096,26 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>centos7源码安装nginx</title>
-    <url>/2020/08/11/nginx-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos7源码安装php7.2</title>
-    <url>/2020/08/11/php7.2-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
-<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
-<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
-<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
-<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure>
-<h3 id="源码安装"><a href="#源码安装" class="headerlink" title="源码安装"></a>源码安装</h3></li>
-<li>安装系统依赖<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br><span class="line">yum install autoconf libtool re2c bison libxml2-devel bzip2-devel libcurl-devel libpng-devel libicu-devel gcc-c++ libmcrypt-devel libwebp-devel libjpeg-devel openssl-devel -y</span><br></pre></td></tr></table></figure></li>
-<li>下载源码<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -O -L https:&#x2F;&#x2F;github.com&#x2F;php&#x2F;php-src&#x2F;archive&#x2F;php-7.2.3.tar.gz</span><br><span class="line">tar -zxvf php-7.2.3.tar.gz</span><br><span class="line">cd php-src-php-7.2.3</span><br></pre></td></tr></table></figure></li>
-<li>编译安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;buildconf --force</span><br><span class="line">.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;php --enable-fpm --disable-short-tags --with-openssl --with-pcre-regex --with-pcre-jit --with-zlib --enable-bcmath --with-bz2 --enable-calendar --with-curl --enable-exif --with-gd --enable-intl --enable-mbstring --with-mysqli --enable-pcntl --with-pdo-mysql --enable-soap --enable-sockets --with-xmlrpc --enable-zip --with-webp-dir --with-jpeg-dir --with-png-dir</span><br><span class="line">make clean</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
-<li>php-fpm setup<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">cp php.ini-development &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br></pre></td></tr></table></figure></li>
-<li>修改配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br><span class="line">expose_php &#x3D; Off</span><br><span class="line">short_open_tag &#x3D; ON</span><br><span class="line">max_execution_time &#x3D; 300</span><br><span class="line">max_input_time &#x3D; 300</span><br><span class="line">memory_limit &#x3D; 128M</span><br><span class="line">post_max_size &#x3D; 32M</span><br><span class="line">date.timezone &#x3D; Asia&#x2F;Shanghai</span><br><span class="line">mbstring.func_overload&#x3D;2</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">listen &#x3D; &#x2F;var&#x2F;run&#x2F;www&#x2F;php-cgi.sock</span><br><span class="line">listen.owner &#x3D; www</span><br><span class="line">listen.group &#x3D; www</span><br><span class="line">listen.mode &#x3D; 0660</span><br><span class="line">listen.allowed_clients &#x3D; 127.0.0.1</span><br><span class="line">pm &#x3D; dynamic</span><br><span class="line">listen.backlog &#x3D; -1</span><br><span class="line">pm.max_children &#x3D; 180</span><br><span class="line">pm.start_servers &#x3D; 50</span><br><span class="line">pm.min_spare_servers &#x3D; 50</span><br><span class="line">pm.max_spare_servers &#x3D; 180</span><br><span class="line">request_terminate_timeout &#x3D; 120</span><br><span class="line">request_slowlog_timeout &#x3D; 50</span><br><span class="line">slowlog &#x3D; var&#x2F;log&#x2F;slow.log</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">pid &#x3D; &#x2F;usr&#x2F;local&#x2F;php&#x2F;var&#x2F;run&#x2F;php-fpm.pid</span><br></pre></td></tr></table></figure>
-<ul>
-<li>php加入系统环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;bashrc</span><br><span class="line">export PHP_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;php</span><br><span class="line">export PATH&#x3D;$PHP_PATH&#x2F;bin:$PATH</span><br></pre></td></tr></table></figure></li>
-<li><p>启动php-fpm</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;local&#x2F;php&#x2F;sbin&#x2F;php-fpm</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改执行 php-fpm 的权限</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
-<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
-</blockquote>
-<ul>
-<li><p>使用信号控制</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看php-fpm的master进程</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
-<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
-<ul>
-<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>php7.2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>使用nginx搭建加密的文件服务器</title>
-    <url>/2020/05/07/nginx-file-server/</url>
-    <content><![CDATA[<ul>
-<li>安装epel<br>EPEL 仓库中有 Nginx 的安装包。如果你还没有安装过 EPEL，可以通过运行下面的命令来完成安装：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo yum install nginx</span><br></pre></td></tr></table></figure></li>
-<li>配置文件<ul>
-<li>日志文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log</span><br><span class="line"> &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log</span><br></pre></td></tr></table></figure></li>
-<li>conf文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;</span><br></pre></td></tr></table></figure></li>
-<li>项目文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html&#x2F;&lt;site_name&gt;</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;&lt;site_name&gt;</span><br></pre></td></tr></table></figure></li>
-<li>nginx命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-<li>生成密钥<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 使用openssl生成密钥</span><br><span class="line">printf &quot;admin:$(openssl passwd -crypt 123456)\n&quot; &gt;&gt; &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">cat &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd</span><br><span class="line">admin:xyJkVhXGAZ8tM</span><br><span class="line"># 使用htpasswd生成密钥</span><br><span class="line">yum install httpd-tools -y</span><br><span class="line">htpasswd -c -d &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd admin</span><br></pre></td></tr></table></figure></li>
-<li>添加server配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  localhost;</span><br><span class="line"></span><br><span class="line">  auth_basic   &quot;登录认证&quot;;</span><br><span class="line">  auth_basic_user_file &#x2F;etc&#x2F;nginx&#x2F;conf&#x2F;htpasswd;</span><br><span class="line"></span><br><span class="line">  autoindex on;</span><br><span class="line">  autoindex_exact_size on; #显示文件大小</span><br><span class="line">  autoindex_localtime on; #显示文件时间</span><br><span class="line"></span><br><span class="line">  root   &#x2F;var&#x2F;www&#x2F;html;</span><br><span class="line">  index  index.html index.php</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>重启nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;sbin&#x2F;nginx -s reload</span><br></pre></td></tr></table></figure>
-<img src="/images/nginx-file-server.png" alt="nginx-file-server"></li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python的orm框架peewee使用介绍</title>
-    <url>/2020/05/19/python-peewee/</url>
+    <title>virtualenv使用介绍</title>
+    <url>/2020/05/19/python-virtualenv/</url>
     <content><![CDATA[<blockquote>
-<p>ORM(object relational mapping)对象关系映射，用来把对象模型表示的对象映射到基于SQL的关系型数据库结构中去，好处是我们在具体的操作实体对象时，不需要再去和复杂的sql语句打交道，只需要简单的操作实体对象的属性和方法。  </p>
+<p>为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。  </p>
 </blockquote>
 <ul>
-<li>peewee介绍<ul>
-<li>优点：<ul>
-<li>Django式的API，使其易用 </li>
-<li>轻量实现，很容易和任意web框架集成 </li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>不支持自动化 schema 迁移 </li>
-<li>多对多查询写起来不直观  </li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<li>安装virtualenv<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure></li>
+<li>创建虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">virtualenv -p $(which python) venv</span><br></pre></td></tr></table></figure></li>
+<li>打开虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source venv&#x2F;bin&#x2F;activate</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>具体使用请访问peewee的<a href="http://docs.peewee-orm.com/en/latest/peewee/installation.html" target="_blank" rel="noopener">官方文档</a>  </p>
+<p>(venv)  ~/Documents/code/python/project</p>
 </blockquote>
-<ul>
-<li>安装peewee<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install pymysql</span><br><span class="line">pip install peewee</span><br></pre></td></tr></table></figure></li>
-<li>自动创建model(库和表已经在mysql创建)<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">&#x2F;&#x2F; username是数据库用户名，host是数据库连接地址，database是数据库名</span><br><span class="line">python -m pwiz -e mysql -u username -H host --password database &gt; model.py</span><br><span class="line">&#x2F;&#x2F; 创建成功后会在model.py里看到对应的类名即表名驼峰</span><br></pre></td></tr></table></figure></li>
-<li>新增<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">from model import Person</span><br><span class="line">p &#x3D; Person(name&#x3D;&quot;xx&quot;,age&#x3D;18)</span><br><span class="line">p.save()</span><br></pre></td></tr></table></figure></li>
-<li>删除<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">p.delete_instance() # 返回删除的行数</span><br><span class="line">&#x2F;&#x2F; 或者</span><br><span class="line">query &#x3D; Person.delete().where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回删除的行数</span><br></pre></td></tr></table></figure></li>
-<li>修改<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">query &#x3D; Person.update(name&#x3D;&quot;yy&quot;).where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回修改的行数</span><br></pre></td></tr></table></figure></li>
-<li>查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 单条查询</span><br><span class="line">query &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">print(query.name)</span><br><span class="line">&#x2F;&#x2F; 多条查询</span><br><span class="line">for query in Person.select().where(Person.id &#x3D;&#x3D; 1):</span><br><span class="line">  print(query.name)</span><br></pre></td></tr></table></figure></li>
+</li>
+<li>在虚拟环境安装模块<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install xx</span><br></pre></td></tr></table></figure></li>
+<li>关闭虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>~/Documents/code/python/project</p>
+</blockquote>
+</li>
+<li>在pycharm配置virtualenv<br><img src="/images/pycharm-virtualenv.png" alt="pycharm-virtualenv"><br><img src="/images/pycharm-virtualenv-1.png" alt="pycharm-virtualenv-1"><br><img src="/images/pycharm-virtualenv-2.png" alt="pycharm-virtualenv-2"></li>
 </ul>
 ]]></content>
       <categories>
@@ -1229,33 +1173,56 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>virtualenv使用介绍</title>
-    <url>/2020/05/19/python-virtualenv/</url>
-    <content><![CDATA[<blockquote>
-<p>为了让不同的应用有不同的python环境，相互之间隔绝，互相不影响，我们引入virtualenv。  </p>
+    <title>centos7源码安装php7.2</title>
+    <url>/2020/08/11/php7.2-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
+<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
+<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
+<li>安装php7.2<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
+<li>设置开机自启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure>
+<h3 id="源码安装"><a href="#源码安装" class="headerlink" title="源码安装"></a>源码安装</h3></li>
+<li>安装系统依赖<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release -y</span><br><span class="line">yum install autoconf libtool re2c bison libxml2-devel bzip2-devel libcurl-devel libpng-devel libicu-devel gcc-c++ libmcrypt-devel libwebp-devel libjpeg-devel openssl-devel -y</span><br></pre></td></tr></table></figure></li>
+<li>下载源码<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -O -L https:&#x2F;&#x2F;github.com&#x2F;php&#x2F;php-src&#x2F;archive&#x2F;php-7.2.3.tar.gz</span><br><span class="line">tar -zxvf php-7.2.3.tar.gz</span><br><span class="line">cd php-src-php-7.2.3</span><br></pre></td></tr></table></figure></li>
+<li>编译安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;buildconf --force</span><br><span class="line">.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;php --enable-fpm --disable-short-tags --with-openssl --with-pcre-regex --with-pcre-jit --with-zlib --enable-bcmath --with-bz2 --enable-calendar --with-curl --enable-exif --with-gd --enable-intl --enable-mbstring --with-mysqli --enable-pcntl --with-pdo-mysql --enable-soap --enable-sockets --with-xmlrpc --enable-zip --with-webp-dir --with-jpeg-dir --with-png-dir</span><br><span class="line">make clean</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>php-fpm setup<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">cp php.ini-development &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br></pre></td></tr></table></figure></li>
+<li>修改配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br><span class="line">expose_php &#x3D; Off</span><br><span class="line">short_open_tag &#x3D; ON</span><br><span class="line">max_execution_time &#x3D; 300</span><br><span class="line">max_input_time &#x3D; 300</span><br><span class="line">memory_limit &#x3D; 128M</span><br><span class="line">post_max_size &#x3D; 32M</span><br><span class="line">date.timezone &#x3D; Asia&#x2F;Shanghai</span><br><span class="line">mbstring.func_overload&#x3D;2</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">listen &#x3D; &#x2F;var&#x2F;run&#x2F;www&#x2F;php-cgi.sock</span><br><span class="line">listen.owner &#x3D; www</span><br><span class="line">listen.group &#x3D; www</span><br><span class="line">listen.mode &#x3D; 0660</span><br><span class="line">listen.allowed_clients &#x3D; 127.0.0.1</span><br><span class="line">pm &#x3D; dynamic</span><br><span class="line">listen.backlog &#x3D; -1</span><br><span class="line">pm.max_children &#x3D; 180</span><br><span class="line">pm.start_servers &#x3D; 50</span><br><span class="line">pm.min_spare_servers &#x3D; 50</span><br><span class="line">pm.max_spare_servers &#x3D; 180</span><br><span class="line">request_terminate_timeout &#x3D; 120</span><br><span class="line">request_slowlog_timeout &#x3D; 50</span><br><span class="line">slowlog &#x3D; var&#x2F;log&#x2F;slow.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">pid &#x3D; &#x2F;usr&#x2F;local&#x2F;php&#x2F;var&#x2F;run&#x2F;php-fpm.pid</span><br></pre></td></tr></table></figure>
+<ul>
+<li>php加入系统环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;bashrc</span><br><span class="line">export PHP_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;php</span><br><span class="line">export PATH&#x3D;$PHP_PATH&#x2F;bin:$PATH</span><br></pre></td></tr></table></figure></li>
+<li><p>启动php-fpm</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;usr&#x2F;local&#x2F;php&#x2F;sbin&#x2F;php-fpm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改执行 php-fpm 的权限</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
+<li>路径整理<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
 </blockquote>
 <ul>
-<li>安装virtualenv<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure></li>
-<li>创建虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">virtualenv -p $(which python) venv</span><br></pre></td></tr></table></figure></li>
-<li>打开虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source venv&#x2F;bin&#x2F;activate</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>(venv)  ~/Documents/code/python/project</p>
-</blockquote>
+<li><p>使用信号控制</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
 </li>
-<li>在虚拟环境安装模块<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install xx</span><br></pre></td></tr></table></figure></li>
-<li>关闭虚拟环境<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>~/Documents/code/python/project</p>
-</blockquote>
+<li><p>查看php-fpm的master进程</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
+<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
+<ul>
+<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
+</ul>
 </li>
-<li>在pycharm配置virtualenv<br><img src="/images/pycharm-virtualenv.png" alt="pycharm-virtualenv"><br><img src="/images/pycharm-virtualenv-1.png" alt="pycharm-virtualenv-1"><br><img src="/images/pycharm-virtualenv-2.png" alt="pycharm-virtualenv-2"></li>
 </ul>
 ]]></content>
       <categories>
-        <category>tools</category>
+        <category>web server</category>
       </categories>
       <tags>
-        <tag>python</tag>
+        <tag>php7.2</tag>
       </tags>
   </entry>
   <entry>
@@ -1293,6 +1260,46 @@ http://ip:8082
         <tag>vuejs</tag>
         <tag>vue-cli</tag>
         <tag>webpack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python的orm框架peewee使用介绍</title>
+    <url>/2020/05/19/python-peewee/</url>
+    <content><![CDATA[<blockquote>
+<p>ORM(object relational mapping)对象关系映射，用来把对象模型表示的对象映射到基于SQL的关系型数据库结构中去，好处是我们在具体的操作实体对象时，不需要再去和复杂的sql语句打交道，只需要简单的操作实体对象的属性和方法。  </p>
+</blockquote>
+<ul>
+<li>peewee介绍<ul>
+<li>优点：<ul>
+<li>Django式的API，使其易用 </li>
+<li>轻量实现，很容易和任意web框架集成 </li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>不支持自动化 schema 迁移 </li>
+<li>多对多查询写起来不直观  </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>具体使用请访问peewee的<a href="http://docs.peewee-orm.com/en/latest/peewee/installation.html" target="_blank" rel="noopener">官方文档</a>  </p>
+</blockquote>
+<ul>
+<li>安装peewee<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install pymysql</span><br><span class="line">pip install peewee</span><br></pre></td></tr></table></figure></li>
+<li>自动创建model(库和表已经在mysql创建)<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">&#x2F;&#x2F; username是数据库用户名，host是数据库连接地址，database是数据库名</span><br><span class="line">python -m pwiz -e mysql -u username -H host --password database &gt; model.py</span><br><span class="line">&#x2F;&#x2F; 创建成功后会在model.py里看到对应的类名即表名驼峰</span><br></pre></td></tr></table></figure></li>
+<li>新增<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">from model import Person</span><br><span class="line">p &#x3D; Person(name&#x3D;&quot;xx&quot;,age&#x3D;18)</span><br><span class="line">p.save()</span><br></pre></td></tr></table></figure></li>
+<li>删除<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">p.delete_instance() # 返回删除的行数</span><br><span class="line">&#x2F;&#x2F; 或者</span><br><span class="line">query &#x3D; Person.delete().where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回删除的行数</span><br></pre></td></tr></table></figure></li>
+<li>修改<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">query &#x3D; Person.update(name&#x3D;&quot;yy&quot;).where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回修改的行数</span><br></pre></td></tr></table></figure></li>
+<li>查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 单条查询</span><br><span class="line">query &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">print(query.name)</span><br><span class="line">&#x2F;&#x2F; 多条查询</span><br><span class="line">for query in Person.select().where(Person.id &#x3D;&#x3D; 1):</span><br><span class="line">  print(query.name)</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>

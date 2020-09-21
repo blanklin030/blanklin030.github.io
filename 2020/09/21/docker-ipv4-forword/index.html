@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="BlankLin">
 <meta property="og:description" content="warning ipv4 forwarding is disabled. networking will not work.     起因今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。 进入服务器查询123456781. 查logdocker logs xx2. 无报错log，查nginx》error.loconnection">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/docker-bridge.png">
 <meta property="article:published_time" content="2020-09-21T09:00:15.000Z">
-<meta property="article:modified_time" content="2020-09-21T08:45:39.886Z">
+<meta property="article:modified_time" content="2020-09-21T09:18:35.971Z">
 <meta property="article:author" content="Blank Lin">
 <meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/docker-bridge.png">
 
 <link rel="canonical" href="http://yoursite.com/2020/09/21/docker-ipv4-forword/">
 
@@ -215,7 +217,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-21 17:00:15 / 修改时间：16:45:39" itemprop="dateCreated datePublished" datetime="2020-09-21T17:00:15+08:00">2020-09-21</time>
+              <time title="创建时间：2020-09-21 17:00:15 / 修改时间：17:18:35" itemprop="dateCreated datePublished" datetime="2020-09-21T17:00:15+08:00">2020-09-21</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,7 +247,14 @@
 <li>起因<br>今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。</li>
 <li>进入服务器查询<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 查log</span><br><span class="line">docker logs xx</span><br><span class="line">2. 无报错log，查nginx》error.lo</span><br><span class="line">connection timeout...</span><br><span class="line">3. nginx提示连接超时了,ping服务</span><br><span class="line">curl -i http:&#x2F;&#x2F;ip:port&#x2F;api&#x2F;xx&#x2F;yy</span><br><span class="line">4. 给了200的返回码，去外网再ping，</span><br><span class="line">curl: (7) Failed to connect to ip port: Operation timed out</span><br></pre></td></tr></table></figure></li>
 <li>结论，外网无法连通这个ip和端口<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 重启docker container</span><br><span class="line">sudo docker restart container_name</span><br><span class="line">WARNING: IPv4 forwarding is disabled. Networking will not work.</span><br></pre></td></tr></table></figure></li>
-<li>开启 ip 转发<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>docker network bridge<br><img src="/images/docker-bridge.png" alt="docker-bridge"></p>
+<blockquote>
+<p>由于宿主机的IP地址与容器veth pair的 IP地址均不在同一个网段，故仅仅依靠veth pair和namespace的技术，还不足以使宿主机以外的网络主动发现容器的存在。为了使外界可以访问容器中的进程，docker采用了端口绑定的方式，也就是通过iptables的NAT，将宿主机上的端口流量转发到容器内的端口上。<br>举例说明 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 创建容器，并将宿主机的3306端口绑定到容器的3306端口</span><br><span class="line">docker run -tid --name db -p 3306:3306 MySQL</span><br><span class="line">2. 宿主机上，可以通过iptables -t nat -L -n，查到一条DNAT规则</span><br><span class="line">DNAT tcp -- 0.0.0.0&#x2F;0 0.0.0.0&#x2F;0 tcp dpt:3306 to:172.17.0.5:3306</span><br><span class="line">3. 以上的172.17.0.5即为bridge模式下，创建的容器IP</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>开启 ip 转发</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br><span class="line">或者</span><br><span class="line">sudo echo 1 &gt; &#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;ip_forward</span><br></pre></td></tr></table></figure></li>
 <li>重启 network 服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart network</span><br></pre></td></tr></table></figure></li>
 <li>查看 network 服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
 <blockquote>
