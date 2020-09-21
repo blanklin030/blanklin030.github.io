@@ -213,7 +213,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-21 17:00:15 / 修改时间：16:41:46" itemprop="dateCreated datePublished" datetime="2020-09-21T17:00:15+08:00">2020-09-21</time>
+              <time title="创建时间：2020-09-21 17:00:15 / 修改时间：16:45:39" itemprop="dateCreated datePublished" datetime="2020-09-21T17:00:15+08:00">2020-09-21</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,7 +237,8 @@
 
       
           <blockquote>
-<p>warning ipv4 forwarding is disabled. networking will not work.</p>
+<p>warning ipv4 forwarding is disabled. networking will not work.  </p>
+</blockquote>
 <ul>
 <li>起因<br>今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。</li>
 <li>进入服务器查询<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 查log</span><br><span class="line">docker logs xx</span><br><span class="line">2. 无报错log，查nginx》error.lo</span><br><span class="line">connection timeout...</span><br><span class="line">3. nginx提示连接超时了,ping服务</span><br><span class="line">curl -i http:&#x2F;&#x2F;ip:port&#x2F;api&#x2F;xx&#x2F;yy</span><br><span class="line">4. 给了200的返回码，去外网再ping，</span><br><span class="line">curl: (7) Failed to connect to ip port: Operation timed out</span><br></pre></td></tr></table></figure></li>
@@ -245,12 +246,14 @@
 <li>开启 ip 转发<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br></pre></td></tr></table></figure></li>
 <li>重启 network 服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart network</span><br></pre></td></tr></table></figure></li>
 <li>查看 network 服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
-返回为“net.ipv4.ip_forward = 1”则表示成功了</li>
+<blockquote>
+<p>返回为“net.ipv4.ip_forward = 1”则表示成功了</p>
+</blockquote>
+</li>
 <li>重启容器<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker restart container_name</span><br></pre></td></tr></table></figure></li>
 <li>如果还提示上面的ipv4问题<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure></li>
 <li>删除容器，再run<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker rm -f xx</span><br><span class="line">sudo docker run -d --name xx image_name</span><br></pre></td></tr></table></figure></li>
 </ul>
-</blockquote>
 
       
     </div>
