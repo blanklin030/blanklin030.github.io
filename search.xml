@@ -144,6 +144,210 @@
       </tags>
   </entry>
   <entry>
+    <title>docker ipv4 forwarding is disabled</title>
+    <url>/2020/09/21/docker-ipv4-forword/</url>
+    <content><![CDATA[<blockquote>
+<p>warning ipv4 forwarding is disabled. networking will not work.</p>
+<ul>
+<li>起因<br>今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。</li>
+<li>进入服务器查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 查log</span><br><span class="line">docker logs xx</span><br><span class="line">2. 无报错log，查nginx》error.lo</span><br><span class="line">connection timeout...</span><br><span class="line">3. nginx提示连接超时了,ping服务</span><br><span class="line">curl -i http:&#x2F;&#x2F;ip:port&#x2F;api&#x2F;xx&#x2F;yy</span><br><span class="line">4. 给了200的返回码，去外网再ping，</span><br><span class="line">curl: (7) Failed to connect to ip port: Operation timed out</span><br></pre></td></tr></table></figure></li>
+<li>结论，外网无法连通这个ip和端口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 重启docker container</span><br><span class="line">sudo docker restart container_name</span><br><span class="line">WARNING: IPv4 forwarding is disabled. Networking will not work.</span><br></pre></td></tr></table></figure></li>
+<li>开启 ip 转发<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo echo net.ipv4.ip_forward&#x3D;1 &gt;&gt; &#x2F;etc&#x2F;sysctl.d&#x2F;enable-ip-forward.conf</span><br></pre></td></tr></table></figure></li>
+<li>重启 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart network</span><br></pre></td></tr></table></figure></li>
+<li>查看 network 服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo sysctl net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
+返回为“net.ipv4.ip_forward = 1”则表示成功了</li>
+<li>重启容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker restart container_name</span><br></pre></td></tr></table></figure></li>
+<li>如果还提示上面的ipv4问题<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure></li>
+<li>删除容器，再run<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker rm -f xx</span><br><span class="line">sudo docker run -d --name xx image_name</span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>tool</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>按日切割使用docker安装的nginx容器</title>
+    <url>/2020/02/17/docke-nginx-logrotate/</url>
+    <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
+<li>查看docker nginx容器 进程 pid<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 请务必确认您的docker container name是什么，笔者名称是nginx</span><br><span class="line">&#x2F;&#x2F; 命令1</span><br><span class="line">sudo docker inspect --format&#x3D;&#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令2是命令1的缩写</span><br><span class="line">sudo docker inspect  -f &#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令3是命令2的缩写</span><br><span class="line">sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 命令4</span><br><span class="line">sudo docker top $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;) | grep master | awk &#39;&#123;print $2&#125;&#39;</span><br></pre></td></tr></table></figure></li>
+<li>通知nginx重新打开日志文件<blockquote>
+<p>Nginx 官方其实给出了如何滚动日志的说明：<br>Rotating Log-files<br>In order to rotate log files, they need to be renamed first. After that USR1 signal should be sent to the master process. The master process will then re-open all currently open log files and assign them an unprivileged user under which the worker processes are running, as an owner. After successful re-opening, the master process closes all open files and sends the message to worker process to ask them to re-open files. Worker processes also open new files and close old files right away. As a result, old files are almost immediately available for post processing, such as compression.<br>以上英文的大致意思是<br>1.先把旧的日志文件重命名<br>2.然后给 nginx master 进程发送 USR1 信号<br>3.nginx master 进程收到信号后会做一些处理，然后要求工作者进程重新打开日志文件<br>4.工作者进程打开新的日志文件并关闭旧的日志文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill -USR1 pid</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>logrotate使用帮助</p>
+<ul>
+<li>配置说明</li>
+</ul>
+</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">daily</td>
+<td style="text-align:center">日志的轮替周期是每天</td>
+</tr>
+<tr>
+<td style="text-align:left">weekly</td>
+<td style="text-align:center">日志的轮替周期是每周</td>
+</tr>
+<tr>
+<td style="text-align:left">monthly</td>
+<td style="text-align:center">日志的轮替周期是每月</td>
+</tr>
+<tr>
+<td style="text-align:left">rotate</td>
+<td style="text-align:center">数字 保留的日志文件个数，0指没有备份</td>
+</tr>
+<tr>
+<td style="text-align:left">compress</td>
+<td style="text-align:center">当进行日志轮替时，对旧的日志进行压缩</td>
+</tr>
+<tr>
+<td style="text-align:left">create</td>
+<td style="text-align:center">mode owner group 建立新日志，同时指定新日志的权限与所有者和所属组，如 create 0644 root root</td>
+</tr>
+<tr>
+<td style="text-align:left">copytruncate</td>
+<td style="text-align:center">用于还在打开中的日志文件，把当前日志备份并截断</td>
+</tr>
+<tr>
+<td style="text-align:left">mail</td>
+<td style="text-align:center">address 当进行日志轮替时，输出内容通过邮件发送到指定的邮件地址，如 mail test@gmail.com</td>
+</tr>
+<tr>
+<td style="text-align:left">missingok</td>
+<td style="text-align:center">如果日志不存在，则忽略改日志的警告信息</td>
+</tr>
+<tr>
+<td style="text-align:left">notifempty</td>
+<td style="text-align:center">如果日志为空文件，则不进行日志轮替</td>
+</tr>
+<tr>
+<td style="text-align:left">minsize</td>
+<td style="text-align:center">大小 日志只有大于指定大小才进行日志轮替，而不是按照时间轮替，如 size 100k</td>
+</tr>
+<tr>
+<td style="text-align:left">dateext</td>
+<td style="text-align:center">使用日期作为日志轮替文件的后缀，如 access.log-2019-07-12</td>
+</tr>
+<tr>
+<td style="text-align:left">sharedscripts</td>
+<td style="text-align:center">在此关键词之后的脚本只执行一次</td>
+</tr>
+<tr>
+<td style="text-align:left">prerotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 prerotate 脚本结束</td>
+</tr>
+<tr>
+<td style="text-align:left">postrotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 postrotate脚本结束</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">-?或–help</td>
+<td style="text-align:center">在线帮助</td>
+</tr>
+<tr>
+<td style="text-align:left">-d或–debug</td>
+<td style="text-align:center">详细显示指令执行过程，便于排错或了解程序执行的情况</td>
+</tr>
+<tr>
+<td style="text-align:left">-f或–force</td>
+<td style="text-align:center">强行启动记录文件维护操作，纵使logrotate指令认为没有需要亦然</td>
+</tr>
+<tr>
+<td style="text-align:left">-s&lt;状态文件&gt;或–state=&lt;状态文件&gt;</td>
+<td style="text-align:center">使用指定的状态文件</td>
+</tr>
+<tr>
+<td style="text-align:left">-v或–version</td>
+<td style="text-align:center">显示指令执行过程</td>
+</tr>
+<tr>
+<td style="text-align:left">-usage</td>
+<td style="text-align:center">显示指令基本用法</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="脚本详解"><a href="#脚本详解" class="headerlink" title="脚本详解"></a>脚本详解</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo vim &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br><span class="line">&#x2F;&#x2F;复制以下脚本，第一行是您的nginx log路径</span><br><span class="line">&#x2F;home&#x2F;xx&#x2F;docker&#x2F;nginx&#x2F;logs&#x2F;*log &#123;</span><br><span class="line">        daily</span><br><span class="line">        dateext</span><br><span class="line">        missingok</span><br><span class="line">        rotate 52</span><br><span class="line">        compress</span><br><span class="line">        delaycompress</span><br><span class="line">        notifempty</span><br><span class="line">        su hadoop hadoop</span><br><span class="line">        create 0664 hadoop hadoop</span><br><span class="line">        sharedscripts</span><br><span class="line">        postrotate</span><br><span class="line">            sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx | xargs sudo kill -USR1</span><br><span class="line">        endscript</span><br><span class="line">&#125;</span><br><span class="line">sudo  logrotate -vf &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br></pre></td></tr></table></figure>
+<p><img src="/images/logrotate.png" alt="loratate"></p>
+<h2 id="crontab-加定时脚本"><a href="#crontab-加定时脚本" class="headerlink" title="crontab 加定时脚本"></a>crontab 加定时脚本</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;logrotate &#x2F;etc&#x2F;logrotate.d&#x2F;nginx &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<h2 id="使用docker安装nginx"><a href="#使用docker安装nginx" class="headerlink" title="使用docker安装nginx"></a>使用docker安装nginx</h2><ul>
+<li>docker run(运行容器)的参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">–-name</td>
+<td style="text-align:center">容器名称</td>
+</tr>
+<tr>
+<td style="text-align:left">–-link</td>
+<td style="text-align:center">连接某个镜像</td>
+</tr>
+<tr>
+<td style="text-align:left">–port</td>
+<td style="text-align:center">端口映射</td>
+</tr>
+<tr>
+<td style="text-align:left">–volum</td>
+<td style="text-align:center">持久化存储</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>获取nginx 镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker pull nginx</span><br></pre></td></tr></table></figure></li>
+<li>运行nginx容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称</span><br><span class="line">docker run --name nginx --network spring-net -p 80:80 -d -v &#x2F;etc&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:ro -v &#x2F;etc&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d -v &#x2F;opt&#x2F;nginx&#x2F;dist:&#x2F;opt&#x2F;nginx&#x2F;dist -v &#x2F;etc&#x2F;localtime:&#x2F;etc&#x2F;localtime:ro -v &#x2F;var&#x2F;log&#x2F;nginx:&#x2F;var&#x2F;log&#x2F;nginx nginx</span><br></pre></td></tr></table></figure></li>
+<li>拷贝宿主机的nginx配置到容器内，指定目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker cp nginx:&#x2F;etc&#x2F;nginx &#x2F;etc&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+<li>Dockerfile编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line"> COPY content &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line"> COPY conf &#x2F;etc&#x2F;nginx</span><br><span class="line"> VOLUME &#x2F;var&#x2F;log&#x2F;nginx&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li>docker-compose.yml编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">web:</span><br><span class="line">  image: nginx</span><br><span class="line">  volumes:</span><br><span class="line">   - .&#x2F;mysite.template:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template</span><br><span class="line">  ports:</span><br><span class="line">   - &quot;8080:80&quot;</span><br><span class="line">  environment:</span><br><span class="line">   - NGINX_HOST&#x3D;foobar.com</span><br><span class="line">   - NGINX_PORT&#x3D;80</span><br><span class="line">  command: &#x2F;bin&#x2F;bash -c &quot;envsubst &lt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template &gt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &amp;&amp; exec nginx -g &#39;daemon off;&#39;&quot;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+        <tag>docker</tag>
+        <tag>logrotate</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>带你开箱真香ClickHouse</title>
     <url>/2019/11/26/clickhouse-hello-world/</url>
     <content><![CDATA[<h2 id="OLAP介绍"><a href="#OLAP介绍" class="headerlink" title="OLAP介绍"></a>OLAP介绍</h2><h4 id="OLAP概述"><a href="#OLAP概述" class="headerlink" title="OLAP概述"></a>OLAP概述</h4><p>OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。<br>在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。 分区技术在OLAP系统中的重要性主要体现在数据库管理上，比如数据库加载，可以通过分区交换的方式实现，备份可以通过备份分区表空间实现，删除数据可以通过分区进行删除，至于分区在性能上的影响，它可以使得一些大表的扫描变得很快（只扫描单个分区）。另外，如果分区结合并行的话，也可以使得整个表的扫描会变得很快。总之，分区主要的功能是管理上的方便性，它并不能绝对保证查询性能的提高，有时候分区会带来性能上的提高，有时候会降低。</p>
@@ -334,181 +538,64 @@
       </tags>
   </entry>
   <entry>
-    <title>按日切割使用docker安装的nginx容器</title>
-    <url>/2020/02/17/docke-nginx-logrotate/</url>
-    <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
-<li>查看docker nginx容器 进程 pid<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 请务必确认您的docker container name是什么，笔者名称是nginx</span><br><span class="line">&#x2F;&#x2F; 命令1</span><br><span class="line">sudo docker inspect --format&#x3D;&#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令2是命令1的缩写</span><br><span class="line">sudo docker inspect  -f &#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令3是命令2的缩写</span><br><span class="line">sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 命令4</span><br><span class="line">sudo docker top $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;) | grep master | awk &#39;&#123;print $2&#125;&#39;</span><br></pre></td></tr></table></figure></li>
-<li>通知nginx重新打开日志文件<blockquote>
-<p>Nginx 官方其实给出了如何滚动日志的说明：<br>Rotating Log-files<br>In order to rotate log files, they need to be renamed first. After that USR1 signal should be sent to the master process. The master process will then re-open all currently open log files and assign them an unprivileged user under which the worker processes are running, as an owner. After successful re-opening, the master process closes all open files and sends the message to worker process to ask them to re-open files. Worker processes also open new files and close old files right away. As a result, old files are almost immediately available for post processing, such as compression.<br>以上英文的大致意思是<br>1.先把旧的日志文件重命名<br>2.然后给 nginx master 进程发送 USR1 信号<br>3.nginx master 进程收到信号后会做一些处理，然后要求工作者进程重新打开日志文件<br>4.工作者进程打开新的日志文件并关闭旧的日志文件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill -USR1 pid</span><br></pre></td></tr></table></figure></blockquote>
+    <title>聊聊go环境安装及go.mod的使用</title>
+    <url>/2019/12/05/go-mod-hello/</url>
+    <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
+<h2 id="go的开发环境"><a href="#go的开发环境" class="headerlink" title="go的开发环境"></a>go的开发环境</h2><ul>
+<li>安装go<blockquote>
+<p>推荐使用go1.12+版本  </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOPATH&#x3D;&quot;$&#123;HOME&#125;&#x2F;.go&quot;</span><br><span class="line">export GOROOT&#x3D;&quot;$(brew --prefix golang)&#x2F;libexec&quot;</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
 </li>
-<li><p>logrotate使用帮助</p>
-<ul>
-<li>配置说明</li>
-</ul>
+<li>GO111MODULE<br>在 1.12 版本之前，使用 Go modules 之前需要环境变量 GO111MODULE：<ul>
+<li>GO111MODULE=off: 不使用 Module-aware mode。</li>
+<li>GO111MODULE=on: 使用 Module-aware mode，不会去 GOPATH 下面查找依赖包。</li>
+<li>GO111MODULE=auto或unset: Golang 自己检测是不是使用Module-aware mode。  <blockquote>
+<p>根据官方描述在不设置GO111MODULE的情况下或者设为auto的时候，如果在当前目录或者父目录中有go.mod文件，那么就使用Module-aware mode， 而go1.12中，如果包位于GOPATH/src下，且GO111MODULE=auto, 即使有go.mod的存在，go仍然使用GOPATH mode:</p>
+</blockquote>
 </li>
 </ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">参数说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">daily</td>
-<td style="text-align:center">日志的轮替周期是每天</td>
-</tr>
-<tr>
-<td style="text-align:left">weekly</td>
-<td style="text-align:center">日志的轮替周期是每周</td>
-</tr>
-<tr>
-<td style="text-align:left">monthly</td>
-<td style="text-align:center">日志的轮替周期是每月</td>
-</tr>
-<tr>
-<td style="text-align:left">rotate</td>
-<td style="text-align:center">数字 保留的日志文件个数，0指没有备份</td>
-</tr>
-<tr>
-<td style="text-align:left">compress</td>
-<td style="text-align:center">当进行日志轮替时，对旧的日志进行压缩</td>
-</tr>
-<tr>
-<td style="text-align:left">create</td>
-<td style="text-align:center">mode owner group 建立新日志，同时指定新日志的权限与所有者和所属组，如 create 0644 root root</td>
-</tr>
-<tr>
-<td style="text-align:left">copytruncate</td>
-<td style="text-align:center">用于还在打开中的日志文件，把当前日志备份并截断</td>
-</tr>
-<tr>
-<td style="text-align:left">mail</td>
-<td style="text-align:center">address 当进行日志轮替时，输出内容通过邮件发送到指定的邮件地址，如 mail test@gmail.com</td>
-</tr>
-<tr>
-<td style="text-align:left">missingok</td>
-<td style="text-align:center">如果日志不存在，则忽略改日志的警告信息</td>
-</tr>
-<tr>
-<td style="text-align:left">notifempty</td>
-<td style="text-align:center">如果日志为空文件，则不进行日志轮替</td>
-</tr>
-<tr>
-<td style="text-align:left">minsize</td>
-<td style="text-align:center">大小 日志只有大于指定大小才进行日志轮替，而不是按照时间轮替，如 size 100k</td>
-</tr>
-<tr>
-<td style="text-align:left">dateext</td>
-<td style="text-align:center">使用日期作为日志轮替文件的后缀，如 access.log-2019-07-12</td>
-</tr>
-<tr>
-<td style="text-align:left">sharedscripts</td>
-<td style="text-align:center">在此关键词之后的脚本只执行一次</td>
-</tr>
-<tr>
-<td style="text-align:left">prerotate/endscript</td>
-<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 prerotate 脚本结束</td>
-</tr>
-<tr>
-<td style="text-align:left">postrotate/endscript</td>
-<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 postrotate脚本结束</td>
-</tr>
-</tbody>
-</table>
-</div>
-<ul>
-<li>参数说明</li>
+</li>
+<li><p>GO PROXY<br>GOPROXY环境变量是伴随着modules而生，在go1.13中得到了增强，可以设置为逗号分隔的url列表来指定多个代理，其默认值为<a href="https://proxy.golang.org,direct。" target="_blank" rel="noopener">https://proxy.golang.org,direct。</a><br>direct：表示直接连接，所有direct后面逗号隔开都proxy都不会被使用。</p>
+<blockquote>
+<p>这里可以设置GOPROXY=<a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a> </p>
+</blockquote>
+</li>
+<li><p>go env命令查看所有go的系统环境变量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GO111MODULE&#x3D;&quot;on&quot;</span><br><span class="line">GOARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOBIN&#x3D;&quot;&quot;</span><br><span class="line">GOCACHE&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Caches&#x2F;go-build&quot;</span><br><span class="line">GOENV&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Application Support&#x2F;go&#x2F;env&quot;</span><br><span class="line">GOEXE&#x3D;&quot;&quot;</span><br><span class="line">GOFLAGS&#x3D;&quot;&quot;</span><br><span class="line">GOHOSTARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOHOSTOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">&#x2F;&#x2F; 省略其他的</span><br></pre></td></tr></table></figure>
+<h2 id="go-mod的使用"><a href="#go-mod的使用" class="headerlink" title="go.mod的使用"></a>go.mod的使用</h2></li>
+<li>创建项目<br>在GOPATH目录之外任意创建一个项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code</span><br><span class="line">mkdir hello-go-mod</span><br></pre></td></tr></table></figure></li>
+<li>初始化go.mod<br>进入到项目根目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code&#x2F;hello-go-mod</span><br><span class="line">go mod init hello-go-mod</span><br><span class="line">&#x2F;&#x2F;提示创建成功： go: creating new go.mod: module hello-go-mod</span><br><span class="line">ll </span><br><span class="line">&#x2F;&#x2F; 看到根目录下多了go.mod文件</span><br></pre></td></tr></table></figure></li>
+<li>go run触发modules工作<br>在项目的根目录下创建一个main.go文件，复制下面的内容到文件里<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import(</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;github.com&#x2F;valyala&#x2F;fasthttp&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">   fmt.Print(&quot;hello go mod&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<strong><em>go run main.go</em></strong><br>发现项目目录下多了一个 go.sum<br>go.sum用来记录每个 package 的版本和哈希值。<br>go.mod 文件正常情况会包含 module 和 require 模块，除此之外还可以包含 replace 和 exclude 模块</li>
 </ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">参数说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">-?或–help</td>
-<td style="text-align:center">在线帮助</td>
-</tr>
-<tr>
-<td style="text-align:left">-d或–debug</td>
-<td style="text-align:center">详细显示指令执行过程，便于排错或了解程序执行的情况</td>
-</tr>
-<tr>
-<td style="text-align:left">-f或–force</td>
-<td style="text-align:center">强行启动记录文件维护操作，纵使logrotate指令认为没有需要亦然</td>
-</tr>
-<tr>
-<td style="text-align:left">-s&lt;状态文件&gt;或–state=&lt;状态文件&gt;</td>
-<td style="text-align:center">使用指定的状态文件</td>
-</tr>
-<tr>
-<td style="text-align:left">-v或–version</td>
-<td style="text-align:center">显示指令执行过程</td>
-</tr>
-<tr>
-<td style="text-align:left">-usage</td>
-<td style="text-align:center">显示指令基本用法</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="脚本详解"><a href="#脚本详解" class="headerlink" title="脚本详解"></a>脚本详解</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo vim &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br><span class="line">&#x2F;&#x2F;复制以下脚本，第一行是您的nginx log路径</span><br><span class="line">&#x2F;home&#x2F;xx&#x2F;docker&#x2F;nginx&#x2F;logs&#x2F;*log &#123;</span><br><span class="line">        daily</span><br><span class="line">        dateext</span><br><span class="line">        missingok</span><br><span class="line">        rotate 52</span><br><span class="line">        compress</span><br><span class="line">        delaycompress</span><br><span class="line">        notifempty</span><br><span class="line">        su hadoop hadoop</span><br><span class="line">        create 0664 hadoop hadoop</span><br><span class="line">        sharedscripts</span><br><span class="line">        postrotate</span><br><span class="line">            sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx | xargs sudo kill -USR1</span><br><span class="line">        endscript</span><br><span class="line">&#125;</span><br><span class="line">sudo  logrotate -vf &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br></pre></td></tr></table></figure>
-<p><img src="/images/logrotate.png" alt="loratate"></p>
-<h2 id="crontab-加定时脚本"><a href="#crontab-加定时脚本" class="headerlink" title="crontab 加定时脚本"></a>crontab 加定时脚本</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;logrotate &#x2F;etc&#x2F;logrotate.d&#x2F;nginx &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<h2 id="使用docker安装nginx"><a href="#使用docker安装nginx" class="headerlink" title="使用docker安装nginx"></a>使用docker安装nginx</h2><ul>
-<li>docker run(运行容器)的参数说明</li>
-</ul>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:center">说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">–-name</td>
-<td style="text-align:center">容器名称</td>
-</tr>
-<tr>
-<td style="text-align:left">–-link</td>
-<td style="text-align:center">连接某个镜像</td>
-</tr>
-<tr>
-<td style="text-align:left">–port</td>
-<td style="text-align:center">端口映射</td>
-</tr>
-<tr>
-<td style="text-align:left">–volum</td>
-<td style="text-align:center">持久化存储</td>
-</tr>
-</tbody>
-</table>
-</div>
+<h2 id="调教GoLang"><a href="#调教GoLang" class="headerlink" title="调教GoLang"></a>调教GoLang</h2><ol>
+<li>开启go-mod<br><img src="/images/go-mod.png" alt="go-mod"></li>
+</ol>
+<h2 id="golint使用"><a href="#golint使用" class="headerlink" title="golint使用"></a>golint使用</h2><blockquote>
+<p>目录cd到$GOPATH/src/github.com  </p>
+</blockquote>
 <ul>
-<li>获取nginx 镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker pull nginx</span><br></pre></td></tr></table></figure></li>
-<li>运行nginx容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称</span><br><span class="line">docker run --name nginx --network spring-net -p 80:80 -d -v &#x2F;etc&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:ro -v &#x2F;etc&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d -v &#x2F;opt&#x2F;nginx&#x2F;dist:&#x2F;opt&#x2F;nginx&#x2F;dist -v &#x2F;etc&#x2F;localtime:&#x2F;etc&#x2F;localtime:ro -v &#x2F;var&#x2F;log&#x2F;nginx:&#x2F;var&#x2F;log&#x2F;nginx nginx</span><br></pre></td></tr></table></figure></li>
-<li>拷贝宿主机的nginx配置到容器内，指定目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker cp nginx:&#x2F;etc&#x2F;nginx &#x2F;etc&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
-<li>Dockerfile编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line"> COPY content &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line"> COPY conf &#x2F;etc&#x2F;nginx</span><br><span class="line"> VOLUME &#x2F;var&#x2F;log&#x2F;nginx&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li>docker-compose.yml编写<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">web:</span><br><span class="line">  image: nginx</span><br><span class="line">  volumes:</span><br><span class="line">   - .&#x2F;mysite.template:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template</span><br><span class="line">  ports:</span><br><span class="line">   - &quot;8080:80&quot;</span><br><span class="line">  environment:</span><br><span class="line">   - NGINX_HOST&#x3D;foobar.com</span><br><span class="line">   - NGINX_PORT&#x3D;80</span><br><span class="line">  command: &#x2F;bin&#x2F;bash -c &quot;envsubst &lt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template &gt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &amp;&amp; exec nginx -g &#39;daemon off;&#39;&quot;</span><br></pre></td></tr></table></figure>
+<li>clone golint<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;lint.git</span><br></pre></td></tr></table></figure></li>
+<li>clone gotool<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;tools.git</span><br></pre></td></tr></table></figure></li>
+<li>go install<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd lint&#x2F;golint</span><br><span class="line">go install</span><br></pre></td></tr></table></figure></li>
+<li><p>调教GoLang</p>
+<ul>
+<li>配置golint扩展<br><img src="/images/golint.png" alt="go-lint"></li>
+<li>配置golint快捷键<br><img src="/images/golint-shortcut.png" alt="go-lint-shortcut"><blockquote>
+<p>现在可以在GoLang中使用option+command+l 进行lint了</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>错误提示<br><a href="/images/gotip.png">go-error</a><br>错误参考：<br><a href="https://github.com/golang/lint/tree/master/testdata" target="_blank" rel="noopener">https://github.com/golang/lint/tree/master/testdata</a></p>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>linux</category>
+        <category>tools</category>
       </categories>
       <tags>
-        <tag>nginx</tag>
-        <tag>docker</tag>
-        <tag>logrotate</tag>
+        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -586,38 +673,6 @@
       </tags>
   </entry>
   <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
-<ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
-</blockquote>
-</li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>grafana开发环境搭建（MacBook）</title>
     <url>/2020/05/12/grafana-develop-environment/</url>
     <content><![CDATA[<ul>
@@ -655,6 +710,38 @@
       </categories>
       <tags>
         <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+</blockquote>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
       </tags>
   </entry>
   <entry>
@@ -754,50 +841,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>聊聊go环境安装及go.mod的使用</title>
-    <url>/2019/12/05/go-mod-hello/</url>
-    <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
-<h2 id="go的开发环境"><a href="#go的开发环境" class="headerlink" title="go的开发环境"></a>go的开发环境</h2><ul>
-<li>安装go<blockquote>
-<p>推荐使用go1.12+版本  </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go</span><br><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;didi&#x2F;Documents&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
-</li>
-<li>GO111MODULE<br>在 1.12 版本之前，使用 Go modules 之前需要环境变量 GO111MODULE：<ul>
-<li>GO111MODULE=off: 不使用 Module-aware mode。</li>
-<li>GO111MODULE=on: 使用 Module-aware mode，不会去 GOPATH 下面查找依赖包。</li>
-<li>GO111MODULE=auto或unset: Golang 自己检测是不是使用Module-aware mode。  <blockquote>
-<p>根据官方描述在不设置GO111MODULE的情况下或者设为auto的时候，如果在当前目录或者父目录中有go.mod文件，那么就使用Module-aware mode， 而go1.12中，如果包位于GOPATH/src下，且GO111MODULE=auto, 即使有go.mod的存在，go仍然使用GOPATH mode:</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>GO PROXY<br>GOPROXY环境变量是伴随着modules而生，在go1.13中得到了增强，可以设置为逗号分隔的url列表来指定多个代理，其默认值为<a href="https://proxy.golang.org,direct。" target="_blank" rel="noopener">https://proxy.golang.org,direct。</a><br>direct：表示直接连接，所有direct后面逗号隔开都proxy都不会被使用。</p>
-<blockquote>
-<p>这里可以设置GOPROXY=<a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a> </p>
-</blockquote>
-</li>
-<li><p>go env命令查看所有go的系统环境变量</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GO111MODULE&#x3D;&quot;on&quot;</span><br><span class="line">GOARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOBIN&#x3D;&quot;&quot;</span><br><span class="line">GOCACHE&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Caches&#x2F;go-build&quot;</span><br><span class="line">GOENV&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Library&#x2F;Application Support&#x2F;go&#x2F;env&quot;</span><br><span class="line">GOEXE&#x3D;&quot;&quot;</span><br><span class="line">GOFLAGS&#x3D;&quot;&quot;</span><br><span class="line">GOHOSTARCH&#x3D;&quot;amd64&quot;</span><br><span class="line">GOHOSTOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOOS&#x3D;&quot;darwin&quot;</span><br><span class="line">GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">&#x2F;&#x2F; 省略其他的</span><br></pre></td></tr></table></figure>
-<h2 id="go-mod的使用"><a href="#go-mod的使用" class="headerlink" title="go.mod的使用"></a>go.mod的使用</h2></li>
-<li>创建项目<br>在GOPATH目录之外任意创建一个项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; GOPATH&#x3D;&quot;&#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;go&quot;</span><br><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code</span><br><span class="line">mkdir hello-go-mod</span><br></pre></td></tr></table></figure></li>
-<li>初始化go.mod<br>进入到项目根目录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &#x2F;Users&#x2F;xx&#x2F;Documents&#x2F;code&#x2F;hello-go-mod</span><br><span class="line">go mod init hello-go-mod</span><br><span class="line">&#x2F;&#x2F;提示创建成功： go: creating new go.mod: module hello-go-mod</span><br><span class="line">ll </span><br><span class="line">&#x2F;&#x2F; 看到根目录下多了go.mod文件</span><br></pre></td></tr></table></figure></li>
-<li>go run触发modules工作<br>在项目的根目录下创建一个main.go文件，复制下面的内容到文件里<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import(</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;github.com&#x2F;valyala&#x2F;fasthttp&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">   fmt.Print(&quot;hello go mod&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<strong><em>go run main.go</em></strong><br>发现项目目录下多了一个 go.sum<br>go.sum用来记录每个 package 的版本和哈希值。<br>go.mod 文件正常情况会包含 module 和 require 模块，除此之外还可以包含 replace 和 exclude 模块</li>
-</ul>
-<h2 id="调教GoLang"><a href="#调教GoLang" class="headerlink" title="调教GoLang"></a>调教GoLang</h2><ol>
-<li>开启go-mod<br><img src="/images/go-mod.png" alt="go-mod"></li>
-<li>开启go-fmt<br><img src="/images/go-fmt.png" alt="go-fmt"></li>
-<li>开启go-import<br><img src="/images/go-fmt-1.png" alt="go-fmt-1"></li>
-</ol>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>grafana迁移sqlite3到mysql</title>
     <url>/2020/05/12/grafana-sqlite3-mysql/</url>
     <content><![CDATA[<ul>
@@ -845,33 +888,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql在使用order by limit时出现数据重复的问题</title>
     <url>/2019/12/04/mysql-priority-que/</url>
     <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
@@ -902,6 +918,54 @@ http://ip:8082
 ]]></content>
       <categories>
         <category>database</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
+</blockquote>
+<ul>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
+</blockquote>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql8忘记root密码</title>
+    <url>/2020/09/03/mysql8-forget-password%20copy/</url>
+    <content><![CDATA[<ul>
+<li>关闭mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br></pre></td></tr></table></figure></li>
+<li>修改my.conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,添加skip-grant-tables,意思是忽略所有表的授权</span><br><span class="line">skip-grant-tables</span><br></pre></td></tr></table></figure></li>
+<li>开启mysqld服务<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
+<li>进入mysql，设置密码为空<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -u root</span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; update user set authentication_string&#x3D;&#39;&#39; where user&#x3D;&#39;root&#39;;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; exit;</span><br></pre></td></tr></table></figure></li>
+<li>撤回skip-grant-tables<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,注释掉skip-grant-tables</span><br></pre></td></tr></table></figure></li>
+<li>重启mysqld<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
+<li>无密码登录mysql<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line"></span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; ALTER user &#39;root&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;Qian123#&#39;;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; exit;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tool</category>
       </categories>
       <tags>
         <tag>mysql</tag>
@@ -969,6 +1033,72 @@ http://ip:8082
       </categories>
       <tags>
         <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos7源码安装nginx</title>
+    <url>/2020/08/11/nginx-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
+<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>路径整理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>web server</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python的orm框架peewee使用介绍</title>
+    <url>/2020/05/19/python-peewee/</url>
+    <content><![CDATA[<blockquote>
+<p>ORM(object relational mapping)对象关系映射，用来把对象模型表示的对象映射到基于SQL的关系型数据库结构中去，好处是我们在具体的操作实体对象时，不需要再去和复杂的sql语句打交道，只需要简单的操作实体对象的属性和方法。  </p>
+</blockquote>
+<ul>
+<li>peewee介绍<ul>
+<li>优点：<ul>
+<li>Django式的API，使其易用 </li>
+<li>轻量实现，很容易和任意web框架集成 </li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>不支持自动化 schema 迁移 </li>
+<li>多对多查询写起来不直观  </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>具体使用请访问peewee的<a href="http://docs.peewee-orm.com/en/latest/peewee/installation.html" target="_blank" rel="noopener">官方文档</a>  </p>
+</blockquote>
+<ul>
+<li>安装peewee<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install pymysql</span><br><span class="line">pip install peewee</span><br></pre></td></tr></table></figure></li>
+<li>自动创建model(库和表已经在mysql创建)<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">&#x2F;&#x2F; username是数据库用户名，host是数据库连接地址，database是数据库名</span><br><span class="line">python -m pwiz -e mysql -u username -H host --password database &gt; model.py</span><br><span class="line">&#x2F;&#x2F; 创建成功后会在model.py里看到对应的类名即表名驼峰</span><br></pre></td></tr></table></figure></li>
+<li>新增<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">from model import Person</span><br><span class="line">p &#x3D; Person(name&#x3D;&quot;xx&quot;,age&#x3D;18)</span><br><span class="line">p.save()</span><br></pre></td></tr></table></figure></li>
+<li>删除<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">p.delete_instance() # 返回删除的行数</span><br><span class="line">&#x2F;&#x2F; 或者</span><br><span class="line">query &#x3D; Person.delete().where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回删除的行数</span><br></pre></td></tr></table></figure></li>
+<li>修改<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">query &#x3D; Person.update(name&#x3D;&quot;yy&quot;).where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回修改的行数</span><br></pre></td></tr></table></figure></li>
+<li>查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 单条查询</span><br><span class="line">query &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">print(query.name)</span><br><span class="line">&#x2F;&#x2F; 多条查询</span><br><span class="line">for query in Person.select().where(Person.id &#x3D;&#x3D; 1):</span><br><span class="line">  print(query.name)</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -1049,69 +1179,21 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>centos7源码安装nginx</title>
-    <url>/2020/08/11/nginx-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python的orm框架peewee使用介绍</title>
-    <url>/2020/05/19/python-peewee/</url>
-    <content><![CDATA[<blockquote>
-<p>ORM(object relational mapping)对象关系映射，用来把对象模型表示的对象映射到基于SQL的关系型数据库结构中去，好处是我们在具体的操作实体对象时，不需要再去和复杂的sql语句打交道，只需要简单的操作实体对象的属性和方法。  </p>
-</blockquote>
-<ul>
-<li>peewee介绍<ul>
-<li>优点：<ul>
-<li>Django式的API，使其易用 </li>
-<li>轻量实现，很容易和任意web框架集成 </li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>不支持自动化 schema 迁移 </li>
-<li>多对多查询写起来不直观  </li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+    <title>macbook使用code .命令在vscode打开当前目录</title>
+    <url>/2020/02/17/vscode-open-project/</url>
+    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
+<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
+<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
 <blockquote>
-<p>具体使用请访问peewee的<a href="http://docs.peewee-orm.com/en/latest/peewee/installation.html" target="_blank" rel="noopener">官方文档</a>  </p>
+<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
 </blockquote>
-<ul>
-<li>安装peewee<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install pymysql</span><br><span class="line">pip install peewee</span><br></pre></td></tr></table></figure></li>
-<li>自动创建model(库和表已经在mysql创建)<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd project</span><br><span class="line">&#x2F;&#x2F; username是数据库用户名，host是数据库连接地址，database是数据库名</span><br><span class="line">python -m pwiz -e mysql -u username -H host --password database &gt; model.py</span><br><span class="line">&#x2F;&#x2F; 创建成功后会在model.py里看到对应的类名即表名驼峰</span><br></pre></td></tr></table></figure></li>
-<li>新增<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">from model import Person</span><br><span class="line">p &#x3D; Person(name&#x3D;&quot;xx&quot;,age&#x3D;18)</span><br><span class="line">p.save()</span><br></pre></td></tr></table></figure></li>
-<li>删除<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">p.delete_instance() # 返回删除的行数</span><br><span class="line">&#x2F;&#x2F; 或者</span><br><span class="line">query &#x3D; Person.delete().where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回删除的行数</span><br></pre></td></tr></table></figure></li>
-<li>修改<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">query &#x3D; Person.update(name&#x3D;&quot;yy&quot;).where(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">query.execute() # 返回修改的行数</span><br></pre></td></tr></table></figure></li>
-<li>查询<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 单条查询</span><br><span class="line">query &#x3D; Person.get(Person.id &#x3D;&#x3D; 1)</span><br><span class="line">print(query.name)</span><br><span class="line">&#x2F;&#x2F; 多条查询</span><br><span class="line">for query in Person.select().where(Person.id &#x3D;&#x3D; 1):</span><br><span class="line">  print(query.name)</span><br></pre></td></tr></table></figure></li>
-</ul>
+</blockquote>
 ]]></content>
       <categories>
         <category>tools</category>
       </categories>
       <tags>
-        <tag>python</tag>
+        <tag>vscode</tag>
       </tags>
   </entry>
   <entry>
@@ -1192,43 +1274,6 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
-    <title>macbook使用code .命令在vscode打开当前目录</title>
-    <url>/2020/02/17/vscode-open-project/</url>
-    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
-<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
-<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
-<blockquote>
-<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
-</blockquote>
-</blockquote>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>教你新建一个vue项目</title>
-    <url>/2019/11/27/vue-create-project/</url>
-    <content><![CDATA[<ul>
-<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
-<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
-下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-      <tags>
-        <tag>vuejs</tag>
-        <tag>vue-cli</tag>
-        <tag>webpack</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>源码安装zabbix5.0</title>
     <url>/2020/08/14/zabbix-source-data-install/</url>
     <content><![CDATA[<ul>
@@ -1301,6 +1346,25 @@ http://ip:8082
       </categories>
       <tags>
         <tag>zabbix</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>教你新建一个vue项目</title>
+    <url>/2019/11/27/vue-create-project/</url>
+    <content><![CDATA[<ul>
+<li>全局安装vue脚手架<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure></li>
+<li>使用webpack初始化项目<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vue init webpack my-project</span><br></pre></td></tr></table></figure>
+下面是安装过程系统给出的提示<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;项目名称</span><br><span class="line">? Project name devops</span><br><span class="line">&#x2F;&#x2F;项目描述</span><br><span class="line">? Project description bigdata devops platform</span><br><span class="line">&#x2F;&#x2F;项目作者</span><br><span class="line">? Author blank &lt;luck.linxiaoyu@gmail.com&gt;</span><br><span class="line">? Vue build standalone</span><br><span class="line">&#x2F;&#x2F;安装vue-router（vue的路由）</span><br><span class="line">? Install vue-router? Yes</span><br><span class="line">&#x2F;&#x2F; 使用eslint格式化你的代码</span><br><span class="line">? Use ESLint to lint your code? Yes</span><br><span class="line">&#x2F;&#x2F;选择Airbnb作为eslint的格式标准</span><br><span class="line">? Pick an ESLint preset Airbnb</span><br><span class="line">&#x2F;&#x2F;选一个单元测试工具</span><br><span class="line">? Set up unit tests Yes</span><br><span class="line">&#x2F;&#x2F; 我选的是jest</span><br><span class="line">? Pick a test runner jest</span><br><span class="line">&#x2F;&#x2F;使用nightwatch开始e2e单元测试</span><br><span class="line">? Setup e2e tests with Nightwatch? Yes</span><br><span class="line">&#x2F;&#x2F;项目创建使用使用npm install进行其他包安装</span><br><span class="line">? Should we run &#96;npm install&#96; for you after the project has been created? </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Project initialization finished!</span><br><span class="line"># &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x2F;&#x2F; 安装完成给出提示如何启动项目</span><br><span class="line">To get started:</span><br><span class="line">  cd new</span><br><span class="line">  npm run dev</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web</category>
+      </categories>
+      <tags>
+        <tag>vuejs</tag>
+        <tag>vue-cli</tag>
+        <tag>webpack</tag>
       </tags>
   </entry>
   <entry>

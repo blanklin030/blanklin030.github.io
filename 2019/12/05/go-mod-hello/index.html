@@ -28,10 +28,10 @@
 <meta property="og:description" content="下面流程安装在unix（MacBook）环境 go的开发环境 安装go 推荐使用go1.12+版本   1234567891011121314&#x2F;&#x2F; 安装homebrew：ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;ma">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/images/go-mod.png">
-<meta property="og:image" content="http://yoursite.com/images/go-fmt.png">
-<meta property="og:image" content="http://yoursite.com/images/go-fmt-1.png">
+<meta property="og:image" content="http://yoursite.com/images/golint.png">
+<meta property="og:image" content="http://yoursite.com/images/golint-shortcut.png">
 <meta property="article:published_time" content="2019-12-05T10:00:27.000Z">
-<meta property="article:modified_time" content="2020-08-20T09:47:56.907Z">
+<meta property="article:modified_time" content="2020-09-21T08:26:32.823Z">
 <meta property="article:author" content="Blank Lin">
 <meta property="article:tag" content="go">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-20 17:47:56" itemprop="dateModified" datetime="2020-08-20T17:47:56+08:00">2020-08-20</time>
+                <time title="修改时间：2020-09-21 16:26:32" itemprop="dateModified" datetime="2020-09-21T16:26:32+08:00">2020-09-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,7 +252,7 @@
 <h2 id="go的开发环境"><a href="#go的开发环境" class="headerlink" title="go的开发环境"></a>go的开发环境</h2><ul>
 <li>安装go<blockquote>
 <p>推荐使用go1.12+版本  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go</span><br><span class="line">export GOPATH&#x3D;&#x2F;Users&#x2F;didi&#x2F;Documents&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 安装homebrew：</span><br><span class="line">ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br><span class="line">&#x2F;&#x2F; 安装go</span><br><span class="line">brew install go</span><br><span class="line">&#x2F;&#x2F; 将go的配置加入到系统环境</span><br><span class="line">vim ~&#x2F;.bask_profile</span><br><span class="line">&#x2F;&#x2F; 复制下面的内容</span><br><span class="line">export GOPATH&#x3D;&quot;$&#123;HOME&#125;&#x2F;.go&quot;</span><br><span class="line">export GOROOT&#x3D;&quot;$(brew --prefix golang)&#x2F;libexec&quot;</span><br><span class="line">export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.io</span><br><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">&#x2F;&#x2F; 生效</span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure></blockquote>
 </li>
 <li>GO111MODULE<br>在 1.12 版本之前，使用 Go modules 之前需要环境变量 GO111MODULE：<ul>
 <li>GO111MODULE=off: 不使用 Module-aware mode。</li>
@@ -278,9 +278,26 @@
 </ul>
 <h2 id="调教GoLang"><a href="#调教GoLang" class="headerlink" title="调教GoLang"></a>调教GoLang</h2><ol>
 <li>开启go-mod<br><img src="/images/go-mod.png" alt="go-mod"></li>
-<li>开启go-fmt<br><img src="/images/go-fmt.png" alt="go-fmt"></li>
-<li>开启go-import<br><img src="/images/go-fmt-1.png" alt="go-fmt-1"></li>
 </ol>
+<h2 id="golint使用"><a href="#golint使用" class="headerlink" title="golint使用"></a>golint使用</h2><blockquote>
+<p>目录cd到$GOPATH/src/github.com  </p>
+</blockquote>
+<ul>
+<li>clone golint<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;lint.git</span><br></pre></td></tr></table></figure></li>
+<li>clone gotool<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;tools.git</span><br></pre></td></tr></table></figure></li>
+<li>go install<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd lint&#x2F;golint</span><br><span class="line">go install</span><br></pre></td></tr></table></figure></li>
+<li><p>调教GoLang</p>
+<ul>
+<li>配置golint扩展<br><img src="/images/golint.png" alt="go-lint"></li>
+<li>配置golint快捷键<br><img src="/images/golint-shortcut.png" alt="go-lint-shortcut"><blockquote>
+<p>现在可以在GoLang中使用option+command+l 进行lint了</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>错误提示<br><a href="/images/gotip.png">go-error</a><br>错误参考：<br><a href="https://github.com/golang/lint/tree/master/testdata" target="_blank" rel="noopener">https://github.com/golang/lint/tree/master/testdata</a></p>
+</li>
+</ul>
 
     </div>
 
@@ -383,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go的开发环境"><span class="nav-number">1.</span> <span class="nav-text">go的开发环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go-mod的使用"><span class="nav-number">2.</span> <span class="nav-text">go.mod的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调教GoLang"><span class="nav-number">3.</span> <span class="nav-text">调教GoLang</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go的开发环境"><span class="nav-number">1.</span> <span class="nav-text">go的开发环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go-mod的使用"><span class="nav-number">2.</span> <span class="nav-text">go.mod的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调教GoLang"><span class="nav-number">3.</span> <span class="nav-text">调教GoLang</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#golint使用"><span class="nav-number">4.</span> <span class="nav-text">golint使用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -399,7 +416,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
