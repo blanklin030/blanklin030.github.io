@@ -6,7 +6,8 @@ tags:
 categories:
   - tool
 ---
-> warning ipv4 forwarding is disabled. networking will not work.
+> warning ipv4 forwarding is disabled. networking will not work.  
+
 + 起因
 今天早上有个同学找过来问为什么xx平台502了，原谅笔者没有没有对该xx平台配置监控告警，原因是这个平台用户数太少。
 + 进入服务器查询
