@@ -98,5 +98,5 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/blanklin030/blank.github.io.git
+  repo: https://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@github.com/blanklin030/blank.github.io.git
   branch: master
