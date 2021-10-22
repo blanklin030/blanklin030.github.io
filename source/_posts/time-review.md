@@ -517,7 +517,7 @@ public class SimpleDateFormatErrorTest {
 }
 ```
 打印结果，输出是2020-12-27
-![avatar](/images/time_knowledge/7.png)
+![avatar](/images/time_knowledge/8.png)
 + 详解
 [官方文档](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)  
 
