@@ -1,6 +1,6 @@
 ---
-title: 关于时间的问题
-date: 2021-10-20 16:09:55
+title: 关于时间的思考和总结
+date: 2021-10-22 16:09:55
 tags:
   - java
 categories:
@@ -44,7 +44,7 @@ CST (China Standard Time，中国标准时间) 是UTC+8时区的知名名称之�
 ![avatar](/images/time_knowledge/4.png)
 > All HTTP date/time stamps MUST be represented in Greenwich Mean Time (GMT), without exception.
 格林尼治标准时间。 在HTTP协议中，时间都是用格林尼治标准时间来表示的，而不是本地时间。
-![RFC 7231, section 7.1.1.2: Date](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.1.2)
+[RFC 7231, section 7.1.1.2: Date](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.1.2)
 
 ## 在java里用到的时间
 
@@ -519,7 +519,7 @@ public class SimpleDateFormatErrorTest {
 打印结果，输出是2020-12-27
 ![avatar](/images/time_knowledge/7.png)
 + 详解
-![官方文档](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)  
+[官方文档](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)  
 
 | 字母 | 日期含义 | 举例 |
 | :-----| ----: | :----: |
