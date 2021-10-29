@@ -139,3 +139,9 @@ Runnable runnable = new Runnable() {
 + 6. 终止状态(TERMINATED)
 当线程的run()方法完成时，或者主线程的main()方法完成时，我们就认为它终止了。这个线程对象也许是活的，但是它已经不是一个单独执行的线程。线程一旦终止了，就不能复生。
 在一个终止的线程上调用start()方法，会抛出java.lang.IllegalThreadStateException异常。
+
+### 线程的应用实践
++ Thread类
+```
+
+```

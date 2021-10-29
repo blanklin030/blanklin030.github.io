@@ -192,3 +192,86 @@ javac -J-agentlib:hprof=heap=sites Hello.java
 javac -J-agentlib:hprof=heap=dump Hello.java
 ```
 > 注意在JVM启动参数中加入-Xrunprof:heap=sites参数可以生成CPU/Heap Profile文件，但对JVM性能影响非常大，不建议在线上服务器环境使用
+
+### jinfo查看jvm启动参数
+```
+// 看出所有参数
+jinfo -flags pid
+// 查看某个具体参数,例如InitialHeapSize
+jinfo -flag InitialHeapSize pid
+```
+![avatar](/images/java_high_cpu/11.png)
++ 开启/关闭某个jvm参数
+> 使用jinnfo可以在不重启虚拟机的情况下，动态修改jvm的参数，这个方法在生产环境尤其特别有用
+```
+// jinfo -flag [+|-]name pid
+jinfo -flag +PrintGC pid
+jinfo -flag -PrintGC pid
+```
++ 修改某个JVM进程的值
+```
+// jinfo -flag name=value pid
+jinfo -flag InitialHeapSize=64g pid
+```
+> 注意并不是所有参数都支持动态修改
++ 查看当前jvm进程所有的系统属性
+```
+jinfo -sysprops pid
+```
+![avatar](/images/java_high_cpu/12.png)
+
+### free命令查看机器物理内存
+
+```
+OPTIONS
+       -b, --bytes
+              Display the amount of memory in bytes.
+
+       -k, --kilo
+              Display the amount of memory in kilobytes.  This is the default.
+
+       -m, --mega
+              Display the amount of memory in megabytes.
+
+       -g, --giga
+              Display the amount of memory in gigabytes.
+
+       --tera Display the amount of memory in terabytes.
+
+       -h, --human
+              Show all output fields automatically scaled to shortest three digit unit and display the units of print out.  Following units are used.
+
+                B = bytes
+                K = kilos
+                M = megas
+                G = gigas
+                T = teras
+
+              If unit is missing, and you have petabyte of RAM or swap, the number is in terabytes and columns might not be aligned with header.
+
+       -w, --wide
+              Switch to the wide mode. The wide mode produces lines longer than 80 characters. In this mode buffers and cache are reported in two separate columns.
+
+       -c, --count count
+              Display the result count times.  Requires the -s option.
+
+       -l, --lohi
+              Show detailed low and high memory statistics.
+
+       -s, --seconds seconds
+              Continuously display the result delay seconds apart.  You may actually specify any floating point number for delay, usleep(3) is used for microsecond  resolu‐
+              tion delay times.
+
+       --si   Use power of 1000 not 1024.
+
+       -t, --total
+              Display a line showing the column totals.
+
+       --help Print help.
+
+       -V, --version
+              Display version information.
+
+```
+![avatar](/images/java_high_cpu/13.png)
+
