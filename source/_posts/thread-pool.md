@@ -15,10 +15,10 @@ categories:
 > 但凡涉及到网络读取，文件读取这类都是 `IO` 密集型，这类任务的特点是 `CPU` 计算耗费时间相比于等待 `IO` 操作完成的时间来说很少，大部分时间都花在了等待 `IO` 操作完成上。
 
 ### 线程池设置
-+ CPU 密集型任务(N+1)： 
++ CPU 密集型任务(CPU核数 + 1)： 
 > 这种任务消耗的主要是 `CPU` 资源，可以将线程数设置为 `N`（`CPU` 核心数）+1，比 `CPU` 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，`CPU` 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。
 
-+ I/O 密集型任务(2N)： 
++ I/O 密集型任务(CPU核数 * 2)： 
 > 这种任务应用起来，系统会用大部分的时间来处理 `I/O` 交互，而线程在处理 `I/O` 的时间段内不会占用 `CPU` 来处理，这时就可以将 `CPU` 交出给其它线程使用。因此在 I/O 密集型任务的应用中，我们可以多配置一些线程，具体的计算方法是 `2N`。
 
 + 参数介绍
@@ -205,3 +205,29 @@ public void execute(Runnable command) {
 ```
 ![avatar](/images/java_thread_pool/2.png)
 
+### 查看机器cpu信息
++ 查看物理cpu个数
+```
+cat /proc/cupinfo | grep 'physical id' | sort | uniq | wc
+```
+![avatar](/images/java_thread_pool/4.png)
+
++ 查看每个物理cpu中core的个数（即核数）
+```
+cat /proc/cupinof | grep 'cpu cores' | uniq
+```
+![avatar](/images/java_thread_pool/5.png)
+
++ 查看逻辑cpu的个数
+```
+cat /proc/cpuinfo | grep 'processor' | wc -l
+// 在java里也可以这样查询
+Runtime.getRuntime().avaliableProcessor();
+```
+![avatar](/images/java_thread_pool/3.png)
+
++ 查看cpu型号
+```
+cat /proc/cpuinfo | grep name | uniq | cut -f2 -d:
+```
+![avatar](/images/java_thread_pool/6.png)
