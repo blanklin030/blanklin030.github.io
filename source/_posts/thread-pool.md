@@ -208,19 +208,19 @@ public void execute(Runnable command) {
 ### 查看机器cpu信息
 + 查看物理cpu个数
 ```
-cat /proc/cupinfo | grep 'physical id' | sort | uniq | wc
+cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l
 ```
 ![avatar](/images/java_thread_pool/4.png)
 
 + 查看每个物理cpu中core的个数（即核数）
 ```
-cat /proc/cupinof | grep 'cpu cores' | uniq
+cat /proc/cpuinfo| grep "cpu cores"| uniq
 ```
 ![avatar](/images/java_thread_pool/5.png)
 
 + 查看逻辑cpu的个数
 ```
-cat /proc/cpuinfo | grep 'processor' | wc -l
+cat /proc/cpuinfo| grep "processor"| wc -l
 // 在java里也可以这样查询
 Runtime.getRuntime().avaliableProcessor();
 ```

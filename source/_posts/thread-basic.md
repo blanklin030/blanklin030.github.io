@@ -129,13 +129,60 @@ Runnable runnable = new Runnable() {
 
 + 3. 阻塞状态(BLOCKED)
 阻塞状态是线程阻塞在进入synchronized关键字修饰的方法或代码块(获取锁)时的状态。
+```
+public class ConcurrencyTest {
+    public static void main(String[] args) {
+        Object lock = new Object();
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(10,10,0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+        for (int i = 0; i< 11; i++) {
+            Thread thread = new Thread(() -> {
+                try {
+                    synchronized (lock) {
+                        System.out.println("try to refresh config");
+                        Thread.sleep(3*60*1000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            executor.submit(thread);
+        }
+        executor.shutdown();;
+    }
+}
+```
 
 + 4. 等待(WAITING)
 处于这种状态的线程不会被分配CPU执行时间，它们要等待被显式地唤醒，否则会处于无限期等待的状态。
-
+```
+public static void main(String[] args) {
+  Thread t = new Thread(()->{
+    System.out.println("hello");
+  });
+  System.out.println("start");
+  // 调用start方法，t线程从NEW状态-》runnable状态
+  t.start();
+  // 调用join方法，让main线程处于waiting状态，先执行t线程的start-》hello，t线程执行结束后处于terminated，main线程从waiting状态恢复到runnable状态，执行自己的的end
+  t.join();
+  System.out.println("end");
+}
+```
+![avatar](/images/java_thread_basic/7.png)
 + 5. 超时等待(TIMED_WAITING)
 处于这种状态的线程不会被分配CPU执行时间，不过无须无限期等待被其他线程显示地唤醒，在达到一定时间后它们会自动唤醒。
-
+```
+public static void main(String[] args) {
+  // 当前main线程处于RUNNABLE状态
+  try {
+    // 调用sleep后，main线程进入TIMED_WAITING状态
+      Thread.sleep(10000);
+  } catch (InterruptedException e) {
+      e.printStackTrace();
+  }
+  // 休眠结束后，恢复RUNNABLE状态
+}
+```
+![avatar](/images/java_thread_basic/6.png)
 + 6. 终止状态(TERMINATED)
 当线程的run()方法完成时，或者主线程的main()方法完成时，我们就认为它终止了。这个线程对象也许是活的，但是它已经不是一个单独执行的线程。线程一旦终止了，就不能复生。
 在一个终止的线程上调用start()方法，会抛出java.lang.IllegalThreadStateException异常。
@@ -143,5 +190,26 @@ Runnable runnable = new Runnable() {
 ### 线程的应用实践
 + Thread类
 ```
-
+public class ThreadStatusTest {
+    public static void main(String[] args) throws InterruptedException {
+        Thread t = new Thread(() -> {
+            System.out.println("hello");
+            try {
+                Thread.sleep(100000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        System.out.println("start");
+        System.out.println("==1=="+t.getState());
+        t.start();
+        System.out.println("==2=="+t.getState());
+        t.join();
+        System.out.println("==3=="+t.getState());
+        System.out.println("end");
+    }
+}
 ```
+如上图
+![avatar](/images/java_thread_basic/4.png)
+![avatar](/images/java_thread_basic/5.png)
