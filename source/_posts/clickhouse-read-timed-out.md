@@ -186,6 +186,27 @@ public class ReadTimedOutTest {
 ### 解决方法
 `clickhouse-jdbc`默认给`SOCKET_TIMEOUT`设置的时间是30s，由于服务端不知道何时能返回结果（此时间受`settings.max_execution_time`影响），所以我们最好给`jdbc`设置一个**socket_timeout=max_execution_time+10s**，防止服务端还在处理，而客户端已经超时断开连接。
 ![3](/images/clickhouse/jdbc/3.png)
+下面这个方法，主要是解析**jdbc:clickhouse://127.0.0.1:8023?socket_timeout=500000&connection_timeout=500000**
+```
+static Properties parseUriQueryPart(String query, Properties defaults) {
+  if (query == null) {
+      return defaults;
+  }
+  Properties urlProps = new Properties(defaults);
+  String queryKeyValues[] = query.split("&");
+  for (String keyValue : queryKeyValues) {
+      String keyValueTokens[] = keyValue.split("=");
+      if (keyValueTokens.length == 2) {
+          urlProps.put(keyValueTokens[0], keyValueTokens[1]);
+      } else {
+          logger.warn("don't know how to handle parameter pair: {}", keyValue);
+      }
+  }
+  return urlProps;
+}
+```
+![4](/images/clickhouse/jdbc/4.png)
+![5](/images/clickhouse/jdbc/5.png)
 
 ### 总结
 + `Read timed out`表示已经连接成功(即三次握手已经完成)，但是服务器没有及时返回数据(没有在设定的时间内返回数据)，导致读超时。
