@@ -208,6 +208,58 @@ static Properties parseUriQueryPart(String query, Properties defaults) {
 ![4](/images/clickhouse/jdbc/4.png)
 ![5](/images/clickhouse/jdbc/5.png)
 
+### clickhouse-jdbc执行过程
+#### 实例化ClickHouseDataSource对象
+```
+ClickHouseDataSource dataSource = new ClickHouseDataSource(jdbc, properties);
+```
+该构造函数主要是将**jdbc:clickhouse//ip:port/database?key1=value1&key2=value2**这个url进行解析，若涉及clickhouse默认参数，则会覆盖`clickhouse`默认配置，返回`ClickHouseProperties`d对象
+![6](/images/clickhouse/jdbc/6.png)
+
+#### 获取ClickHouseConnectionImpl连接
+```
+ClickHouseConnectionImpl connection = (ClickHouseConnectionImpl) dataSource.getConnection();
+```
++ 1、实例化ClickHouseConnectionImpl对象
+```
+ClickHouseConnectionImpl connection = new ClickHouseConnectionImpl(url, properties);
+```
+![7](/images/clickhouse/jdbc/7.png)
+![8](/images/clickhouse/jdbc/8.png)
+这里主要是干2件事，1、首先要实例化出`ClickHouseHttpClientBuilder`客户端对象构造器，这个构造器会把我们在**jdbc:clickhouse//ip:port/database?key1=value1&key2=value2**这个url里的**key1=value1&key2=value2**传入给`CloseableHttpClient`类型的`httpclient`，2、再去初始化连接，获取`clickhouse`服务端的时区和版本，所以我们每次连接`clickhouse-jdbc`，都会看到发出一条sql`select timezone(), version()`
+
++ 2、把连接存到`Collections.synchronizedMap`线程安全的`map`里
+```
+registerConnection(connection);
+```
++ 3、返回连接对象
+
+#### 执行sql过程
+```
+connection.createStatement().executeQuery(sql);
+```
++ 先初始化`ClickHouseStatementImpl`对象
+```
+public ClickHouseStatement createStatement(int resultSetType) throws SQLException {
+    return LogProxy.wrap(
+        ClickHouseStatement.class,
+        new ClickHouseStatementImpl(
+            httpclient,
+            this,
+            properties,
+            resultSetType));
+}
+```
+
++ 再执行`sql`
+1、方法`getLastInputStream`，支持`multi-query`用法，多条sql去查
+![9](/images/clickhouse/jdbc/9.png)
+2、调用的`getInputStream`方法其实就是构造http的post请求，去执行和返回结果，出错则抛出异常
+![10](/images/clickhouse/jdbc/10.png)
+3、获取最后的执行结果
+![11](/images/clickhouse/jdbc/11.png)
+4、返回最后sql的结果集`ResultSet`，select查询类按配置取到最后结果，其他为null
+
 ### 总结
 + `Read timed out`表示已经连接成功(即三次握手已经完成)，但是服务器没有及时返回数据(没有在设定的时间内返回数据)，导致读超时。
 + `java`在`linux`中的 `Read timed out` 并不是通过`C`函数`setSockOpt(SO_RCVTIMEO)`来设置的，而是通过`select(s, timeout)`来实现定时器，并抛出`JNI`异常来控制的
