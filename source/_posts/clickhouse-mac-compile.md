@@ -4,7 +4,7 @@ date: 2021-10-01 10:09:55
 tags:
   - clickhouse
 categories:
-  - introduction
+  - bigdata
 ---
 
 ### 安装Homebrew
@@ -67,6 +67,12 @@ CMake Error at contrib/croaring-cmake/CMakeLists.txt:22 (add_library):Cannot fin
 ![avatar](/images/clickhouse/5.png)
 
 ### debug方式运行
++ 1. debug时需要指定配置文件config.xml路径
+```
+--config-file=/Users/blanklin/Code/cpp/clickhouse-debug/conf/config.xml
+```
+![avatar](/images/clickhouse/7.png)
++ 2. 点右侧的蜘蛛按钮进行debug
 ![avatar](/images/clickhouse/6.png)
 
 

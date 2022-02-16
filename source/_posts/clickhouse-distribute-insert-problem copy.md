@@ -4,7 +4,7 @@ date: 2022-01-12 16:04:11
 tags:
   - clickhouse
 categories:
-  - sre
+  - bigdata
 ---
 ### 背景介绍
 + 首先解释下为什么要写入分布式表，而不是`MergeTree`表
@@ -103,7 +103,7 @@ SYSTEM FLUSH DISTRIBUTED db.tb
 drop table if exists db.tb
 ```
 + 清空分布式表数据
-> 这个方式只是清除掉积压的数据，不用删表，用户通过分布式表来查询时不会报表不存在
+> 这个方式只是清除掉积压的数据，不用删表，用户通过分布式表来查询时不会报表不存在，但是如果数据量非常大就不要用truncate方式了，因为会导致整个表被锁非常久，应该用`alter table xx drop partititon xx `方式，一个一个分区删。
 ```
 truncate table db.tb
 ```

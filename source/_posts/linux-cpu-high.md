@@ -2,69 +2,129 @@
 title: linux机器cpu打满排查过程
 date: 2021-07-13 10:09:55
 tags:
-  - java
+  - cpp
   - cpu
   - linux
 categories:
-  - devops
+  - sre
 ---
 
 ### 问题背景
 接收到告警短信，web应用登陆无响应，请求api均为504
+
 ### 影响范围
 平台无法正常使用
-### 排除思路
-一般情况下，java应用占用cpu较高的原因大部分分为以下两个情况
-1. 应用属于计算密集型应用
-2. 应用中出现了死循环
-### 排除过程
-+ 1. 首先查看系统资源占用信息，使用`top`查一下当前`cpu`较高的进程`pid`
+
+### 排查过程
+一般情况下，`cpp`应用占用`cpu`较高的原因大部分分为以下两个情况：
++ 应用属于计算密集型应用
+使用大量 `CPU` 会导致平均负载升高，此时`system load`和`cpu`使用数率值上是一致的
++ 应用中出现了`IO`密集型应用
+等待 `I/O` 也会导致平均负载升高，但 `CPU` 使用率不一定很高，所以`system load`和`cpu`使用率并不会一致
+
+#### 查询该机器的系统负载(system load)
++ 1.系统负载：
+是指系统cpu繁忙程度的度量指标，即有多少个进程在等待被cpu调度，就是进程等待cpu的队列长度
+
++ 2.平均负载：
+是指单位时间内，处于可运行状态和不可中断状态的进程数。所以，它不仅包括了正在使用 `CPU` 的进程，还包括等待 `CPU` 和等待 `I/O` 的进程，实际上是系统的平均活跃进程数统计
+
++ 3.uptime详解
 ```
-top
+// 观察uptime刷新，w命令/top命令皆可查询到系统的平均负载
+watch -D uptime
+// 得到结果
+ 11:10:17 up 628 days, 14:06,  2 users,  load average: 0.05, 3.53, 6.59
+ // 11:10:17是指当前系统时间
+ // up 628 days, 14:06 是指机器运行时间
+ // 2 users：是指当前登陆有2个用户
+ // load average: 0.05, 3.53, 6.59：是指当前1分钟/5分钟/15分钟的平均负载指
 ```
-![avatar](1.png)
-+ 2. 查看到进程`ID`后，可以通过`ps aux | grep pid`查看进程的详情
+假设平均负载是`2`，当前`cpu`数是`2cores`则说明`cpu`被`100%`使用，如果是`4cores`则说明`cpu`利用率是`50%`，如果是`1cores`，则说明有一半的进程都竞争得不到`cpu`
+
++ 3.如何查看机器的核心(core)呢
+```
+cat /proc/cpuinfo | grep cores | wc -l
+```
++ 4.如何查看机器是否开启超线程呢？
+```
+// 如何得到的值和grep cores后得到的核心数一致，则说明未开启
+cat /proc/cpuinfo | grep processor | wc -l
+```
+比如我们的机器2颗物理cpu，在每颗物理cpu上又做了6颗逻辑CPU，之后在每颗逻辑CPU上又实现了超线程后，假如此时你在系统中使用**cat /proc/cpuinfo |grep 'processor'|wc –l**返回24颗，如果load值（15分钟的返回值作为参考依据）长期在24以上，说明系统已经很繁忙了。
+
+#### 具体分析系统瓶颈
+> 结合平均负载分析，假如我们当前已经知道load很高，但是仍然无法判断是cpu占用率高，还是系统I/O繁忙，又或者是内存不足导致的？
+```
+vmstat 1
+```
+![cgi](/images/linux-cpu-high/6.png)
++ 1、procs列
+**r** 列表示运行和等待cpu时间片的进程数，如果长期大于cpu核心数，说明cpu不足，需要增加cpu。
+**b** 列表示在等待资源的进程数，比如正在等待I/O、或者内存交换等。
+
++ 2、system 显示采集间隔内发生的中断数
+**in** 列表示在某一时间间隔中观测到的每秒设备中断数。
+**cs** 列表示每秒产生的上下文切换次数，如当 cs 比磁盘 I/O 和网络信息包速率高得多，都应进行进一步调查。
+
++ 3、memory列
+**swpd** 切换到内存交换区的内存数量(k表示)。如果swpd的值不为0，或者比较大，比如超过了100m，只要
+**free** 当前的空闲页面列表中内存数量(k表示)
+**buff** 作为buffer cache的内存数量，一般对块设备的读写才需要缓冲。
+**cache** 作为page cache的内存数量，一般作为文件系统的cache，如果cache较大，说明用到cache的文件较多，如果此时IO中bi比较小，说明文件系统效率比较好。
+
++ 4、swap列
+**si** 由内存进入内存交换区数量。
+**so** 由内存交换区进入内存数量。
+**si**、**so**的值长期为0，系统性能还是正常
+
++ 5、IO列
+**bi** 从块设备读入数据的总量（读磁盘）（每秒kb）。
+**bo** 块设备写入数据的总量（写磁盘）（每秒kb）
+这里我们设置的bi+bo参考值为1000，如果超过1000，而且wa值较大应该考虑均衡磁盘负载，可以结合iostat输出来分析。
+
++ 6、cpu列
+**cs** 表示cpu的使用状态
+**us** 列显示了用户方式下所花费 CPU 时间的百分比。us的值比较高时，说明用户进程消耗的cpu时间多，但是如果长期大于50%，需要考虑优化用户的程序。
+**sy** 列显示了内核进程所花费的cpu时间的百分比。这里us + sy的参考值为80%，如果us+sy 大于 80%说明可能存在CPU不足
+**id** 列显示了cpu处在空闲状态的时间百分比
+**wa** 列显示了IO等待所占用的CPU时间的百分比。这里wa的参考值为30%，如果wa超过30%，说明IO等待严重，这可能是磁盘大量随机访问造成的，也可能磁盘或者磁盘访问控制器的带宽瓶颈造成的(主要是块操作)。
+
+> 通过以上分析，可以知道当前机器的瓶颈是cpu负载过高，那么如何知道哪个进程占用cpu资源呢？
+
+#### 查询该机器`cpu`占用最高的进程
+```
+// 每5秒统计一次
+pidstat -u 5 1
+```
+![cgi](/images/linux-cpu-high/1.png)
+> 也可以使用`top`命令查询到`cpu`占用最高的进程
+
+#### 查询该机器的`cpu`使用情况
+```
+// 每5秒刷新一次查看所有cpu的统计情况
+mpstat -P ALL 5 
+```
+![cgi](/images/linux-cpu-high/2.png)
+
+#### 查看到进程`ID`后，可以通过`ps aux | grep pid`查看进程的详情
 ```
 ps aux | grep pid
 ```
-![avatar](2.png)
-+ 3. 定位到最耗`cpu`的进程后，使用`ps -mp pid -o THREAD,tid,time | sort -rn`命令查看线程列表，并找到占用cpu最高的线程。其中`tid`表示线程`ID`，`time`表示线程已经运行的时间
-```
-ps -mp pid -o THREAD,tid,time | sort -rn
-```
-![avatar](3.png)
+![cgi](/images/linux-cpu-high/4.png)
 
-+ 4. 将需要的线程`ID`转换为`16`进制格式，可以使用`printf "%x\n" tid`命令
+#### 定位到最耗`cpu`的进程后，使用`top -Hp pid`命令查看线程列表，并找到占用cpu最高的线程
+```
+// `tid`表示线程`ID`，`time`表示线程已经运行的时间
+// 这个命令也一样使用ps -mp pid -o THREAD,tid,time | sort -rn
+top -Hp pid
+```
+![cgi](/images/linux-cpu-high/5.png)
+
+#### 将需要的线程`ID`转换为`16`进制格式，可以使用`printf "%x\n" tid`命令
 ```
 printf "%x\n" tid
 ```
-![avatar](4.png)
 
-+ 5. 打印线程堆栈信息，可以使用命令`jstack pid | grep tid -A line`
-```
-jstack pid | grep tid -A line
-```
-![avatar](5.png)
 
-### 附加知识
-1. 什么是Futex
-Futex 是Fast Userspace muTexes的缩写，按英文翻译过来就是快速用户空间互斥体。Futex是一种用户态和内核态混合的同步机制，首先，同步的进程间通过mmap共享一段内存，futex变量就位于这段共享的内存中且操作是原子的，当进程尝试进入互斥区或者退出互斥区的时候，先去查看共享内存中的futex变量，如果没有竞争发生，则只修改futex,而不用再执行系统调用了。当通过访问futex变量告诉进程有竞争发生，则还是得执行系统调用去完成相应的处理(wait 或者 wake up)。简单的说，futex就是通过在用户态的检查，（motivation）如果了解到没有竞争就不用陷入内核了，大大提高了low-contention时候的效率。 Linux从2.5.7开始支持Futex。
-```
-Manual FUTEX(2)
 
-NAME
-       futex - fast user-space locking
-
-SYNOPSIS
-       #include <linux/futex.h>
-       #include <sys/time.h>
-
-       int futex(int *uaddr, int op, int val, const struct timespec *timeout,
-                 int *uaddr2, int val3);
-```
-虽然参数有点长，其实常用的就是前面三个，后面的timeout大家都能理解，其他的也常被ignore。
-
-    uaddr就是用户态下共享内存的地址，里面存放的是一个对齐的整型计数器。
-    op存放着操作类型。定义的有5中，这里我简单的介绍一下两种，剩下的感兴趣的自己去man futex
- FUTEX_WAIT: 原子性的检查uaddr中计数器的值是否为val,如果是则让进程休眠，直到FUTEX_WAKE或者超时(time-out)。也就是把进程挂到uaddr相对应的等待队列上去。
- FUTEX_WAKE: 最多唤醒val个等待在uaddr上进程。

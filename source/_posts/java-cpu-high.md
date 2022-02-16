@@ -6,7 +6,7 @@ tags:
   - cpu
   - linux
 categories:
-  - devops
+  - sre
 ---
 ### 查询cpu的过程
 + 1. 查看应用的pid,我的应用名称是以dlap开头
@@ -47,7 +47,7 @@ jstack pid | grep tid
 ![avatar](/images/java_high_cpu/4.png)
 
 ### jmap命令介绍
-> jmap可以到处堆内容，然后使用jhat进行分析，语法如下  
+> jmap可以导出堆内容，然后使用jhat进行分析，语法如下  
 ```
 NAME
        jmap - Prints shared object memory maps or heap memory details for a process, core file, or remote debug server. This command is
