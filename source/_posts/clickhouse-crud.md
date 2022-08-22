@@ -1,5 +1,5 @@
 ---
-title: 使用clickhouse实现逻辑CRUD功能
+title: 使用clickhouse实现数据更新和删除
 date: 2022-02-03 22:57:11
 tags:
   - clickhouse
@@ -104,45 +104,70 @@ mutation和merge相互独立执行。看完本文前面的分析，大家应该�
 
 
 ### clickhouse逻辑CRUD
+[VersionedCollapsingMergeTree介绍](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/versionedcollapsingmergetree/)，引擎继承自 `MergeTree` 并将折叠行的逻辑添加到合并数据部分的算法中。 `VersionedCollapsingMergeTree` 用于相同的目的 折叠树 但使用不同的折叠算法，允许以多个线程的任何顺序插入数据。 特别是， `Version` 列有助于正确折叠行，即使它们以错误的顺序插入。 相比之下, `CollapsingMergeTree` 只允许严格连续插入。
+
+#### 创建VersionedCollapsingMergeTree表
+```
+create table test_version_collapsing(
+  time DateTime default now() comment '创建时间',
+  name String default '' comment '唯一标示',
+  alias String default '' comment '别名',
+  age UInt64 default 0 comment '年龄',
+  version UInt64 default 0 comment '版本号',
+  sign Int8 default 0 comment '是否删除，0否，1是'
+) 
+engine = VersionedCollapsingMergeTree(sign, version) 
+partition by toYYYYMMDD(time) 
+order by name
+
+```
 #### 插入数据
 ```
-insert into default.account(time, name, alias, age, version, is_delete) values ('2022-01-01 11:11:11', 'blanklin', 'superhero', 20, 1, 0)
+insert into default.test_version_collapsing(time, name, alias, age, version, sign) values ('2022-01-01 11:11:11', 'blanklin', 'superhero', 20, 1, 1)
 ```
 
 #### 更新数据
 + 1. 先找出要更新的这条数据
 ```
-select time, name, alias, age, version, is_delete from default.account
-where age = 'blanklin' and is_delete = 0
+select time, name, alias, age, version, sign from default.test_version_collapsing
+where name = 'blanklin' and sign = 1
 ```
 + 2. 假设要更新alias=update_super_hero，其他值不变，将version由1.捞出的值上+1，类似以下sql
 ```
-insert into default.account(time, name, alias, age, version, is_delete) values ('2022-01-01 11:11:11', 'blanklin', 'update_superhero', 20, 2, 0)
+# 先将旧行标示为删除，就是将sign = -1
+insert into default.test_version_collapsing(time, name, alias, age, version, sign) values ('2022-01-01 11:11:11', 'blanklin', 'superhero', 20, 1, -1);
+
+# 再去插入新行，包含要更新的列
+insert into default.test_version_collapsing(time, name, alias, age, version, sign) values ('2022-01-01 11:11:11', 'blanklin', 'update_superhero', 20, 2, 1).
 ```
 + 3. 捞出更新后的那条数据
 ```
-select time, name, alias, age, version, is_delete from default.account
-where age = 'blanklin' and is_delete = 0
-order by version desc
+select name, argMax(age, version), argMax(alias, version) from default.test_version_collapsing group by name having sum(sign) > 0;
 ```
 
 #### 删除数据
 + 1. 先找出要更新的这条数据
 ```
-select time, name, alias, age, version, is_delete from default.account
-where age = 'blanklin' and is_delete = 0
+select time, name, alias, age, version, sign from default.test_version_collapsing
+where name = 'blanklin' and sign = 1
 ```
-+ 2. 假设要删除alias=update_super_hero，其他值不变，将version由1.捞出的值上+1，将is_delete=1,类似以下sql
++ 2. 假设要删除alias=update_super_hero，其他值不变，将sign=1,类似以下sql
 ```
-insert into default.account(time, name, alias, age, version, is_delete) values ('2022-01-01 11:11:11', 'blanklin', 'update_superhero', 20, 2, 1)
+insert into default.test_version_collapsing(time, name, alias, age, version, sign) values ('2022-01-01 11:11:11', 'blanklin', 'update_superhero', 20, 2, -1)
 ```
 + 3. 捞出更新后的那条数据
 ```
-select time, name, alias, age, version, is_delete from default.account
-where age = 'blanklin' and is_delete = 0
-order by version desc
+select name, argMax(age, version), argMax(alias, version) from default.test_version_collapsing group by name having sum(sign) > 0;
 ```
 
 #### 注意项
-+ 1. 数据过期问题
-定期回收is_delete=1的数据
++ 1. 只有相同分区内的数据才能删除和更新
++ 2. 如果不使用 **having sum(sign) > 0**的方式去查询，则可以使用`final`方式查询
+```
+select * from test_version_collapsing final;
+```
++ 3. 也可以使用`optimize`方式强制合并分区，再查询，但是这个方式可能会造成集群cpu飙高，而且`optimize`一个大表需要时间很长，效率极低
+```
+optimize table test_version_collapsing final
+```
++ 4. sign必须要唯一，添加用1，则删除一定是-1，才可以被折叠处理

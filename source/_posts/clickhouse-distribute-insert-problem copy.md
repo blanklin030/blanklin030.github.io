@@ -8,7 +8,8 @@ categories:
 ---
 ### 背景介绍
 + 首先解释下为什么要写入分布式表，而不是`MergeTree`表
-[分布式表链接](https://clickhouse.com/docs/en/engines/table-engines/special/distributed/)，分布式表引擎不会存储任务数据，但是允许分布式查询可以路由到多台机器，读取都是并行的，每一个读操作，如果有配置的话，远程机器上的表索引都会被使用到，所以我们知道分布式表是不存储数据的，只是数据的搬运工而已，我们正常做法应该是直接写入数据到`MergeTree`引擎表，然后通过分布式做路由分发查询而已。那么问题来了，什么场景要写入到分布式表呢？都是因为分布式表建表语句支持指定分片索引`sharding_key`，这个`sharding_key`可以把通过分布式表写入的数据转发到同一个`shard`，那么在同一个shard里的数据才能满足**排序主键和去重**。
+[分布式表链接](https://clickhouse.com/docs/en/engines/table-engines/special/distributed/)，分布式表引擎不会存储任务数据，但是允许分布式查询可以路由到多台机器，读取都是并行的，每一个读操作，如果有配置的话，远程机器上的表索引都会被使用到，所以我们知道分布式表是不存储数据的，只是数据的搬运工而已，我们正常做法应该是直接写入数据到`MergeTree`引擎表，然后通过分布式做路由分发查询而已。那么问题来了，什么场景要写入到分布式表呢？
+因为分布式表建表语句支持指定分片索引`sharding_key`，这个`sharding_key`可以把通过分布式表写入的数据转发到同一个`shard`，那么在同一个shard里的数据才能满足**排序主键和去重**。
 ```
 CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
 (
@@ -67,7 +68,7 @@ select * from system.metrics where metric = 'DistributedFilesToInsert'
 select * from system.distribution_queue where data_files > 0
 ```
 ![clickhouse](/images/clickhouse/distribute/2.png)
-> 通过`data_files`可以看到当前在等待写入的文件数，通过`data_compressed_bytes`可以看到当前等待写入的总文件大小，通过`error_count`可以看到错误次数  
+> 通过`data_files`可以看到当前在等待写入的文件数，通过`data_compressed_bytes`可以看到当前等待写入的总文件大小，通过`error_count`可以看到错误次数，通过`last_exception`可以看到上次发生错误的内容
 
 ### 若是clickhosue19版本，则使用以下命令查询
 + 查出分布式表存储的路径配置

@@ -119,3 +119,72 @@ nohup java -jar xx.jar >/dev/null 2>&1 &
 ```
 rm -f nohup.out
 ```
+
+### 修改docker的根目录
+#### 安装过程
+1. 停止docker服务
+```
+systemctl stop docker
+```
+2. 创建新的docker工作目录
+```
+mkdir -p /data2/docker
+```
+这个目录可以自定义，但是一定要保证在/root里面
+
+3. 迁移/var/lib/docker
+```
+rsync -avz /var/lib/docker /data2/docker/
+```
+4. 配置devicemapper.conf
+```
+# 不存在就创建
+sudo mkdir -p /etc/systemd/system/docker.service.d/
+# 不存在就创建
+sudo vi /etc/systemd/system/docker.service.d/devicemapper.conf
+```
+5. 在devicemapper.conf中添加
+```
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd  --graph=/data2/docker
+```
+
+6. 重启docker服务
+```
+systemctl daemon-reload
+ 
+systemctl restart docker
+ 
+systemctl enable docker
+```
+
+7. 确认是否配置成功
+```
+docker info
+```
+![avatar](/images/linux/disk_full/5.png)
+
+重新启动所有容器后，确认无误。即可删除/var/lib/docker里面所有文件。
+#### 注意事项
+如果报错如下
+```
+Error response from daemon: Cannot restart container linyu: shim error: docker-runc not installed on system
+```
++ 1. 判断是否安装runc
+```
+ rpm -qi runc
+```
++ 2. 未安装则先安装
+```
+sudo yum install runc
+```
++ 3. 创建软连接
+```
+cd /usr/libexec/docker/
+sudo ln -s docker-runc-current docker-runc 
+```
++ 4. 重启服务
+```
+sudo docker restart container_id
+```
