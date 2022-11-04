@@ -196,7 +196,8 @@ bool ParserKeyword::parseImpl(Pos & pos, ASTPtr & /*node*/, Expected & expected)
 }
 ```
 #### 源码流程总结
-> 以下是ClickHouse中token的类型列表：
+> 以下是ClickHouse中token的类型列表：  
+
 | name              | description            |
 |  :----: |:----:|
 | Whitespace | {‘ ’&#124;‘\t’&#124;‘\n’&#124;‘\r’&#124;‘\f’&#124; ‘\v’}+ |

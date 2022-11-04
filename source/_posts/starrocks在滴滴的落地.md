@@ -1,0 +1,194 @@
+### 背景介绍
+#### ClickHouse介绍
+> `ClickHouse`是由俄罗斯的第一大搜索引擎`Yandex`公司开源的列存数据库。令人惊喜的是，`ClickHouse`相较于很多商业`MPP`数据库，比如`Vertica`，`InfiniDB`有着极大的性能提升。除了`Yandex`以外，越来越多的公司开始尝试使用`ClickHouse`等列存数据库。对于一般的分析业务，结构性较强且数据变更不频繁，可以考虑将需要进行关联的表打平成宽表，放入`ClickHouse`中。
++ 配置丰富，只依赖与`Zookeeper`
++ 线性可扩展性，可以通过添加服务器扩展集群
++ 容错性高，不同分片间采用异步多主复制
++ 单表性能极佳，采用向量计算，支持采样和近似计算等优化手段
++ 功能强大支持多种表引擎
+
+#### StarRocks介绍
+> `StarRocks`是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容`MySQL`协议和`MySQL`生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。`StarRocks`致力于在全场景`OLAP`业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。
++ 不依赖于大数据生态，同时外表的联邦查询可以兼容大数据生态
++ 提供多种不同的模型，支持不同维度的数据建模
++ 支持在线弹性扩缩容，可以自动负载均衡
++ 支持高并发分析查询
++ 实时性好，支持数据秒级写入
++ 兼容MySQL 5.7协议和MySQL生态
+
+#### 二者的对比
+**相似之处**
++ 都可以提供极致的性能
++ 都不依赖于`Hadoop`生态
++ 底层存储分片都提供了主主的复制高可用机制。
++ 都是`MPP`架构
++ 都是列式存储
++ 都支持表述SQL语法
++ 都提供了MOLAP库的预聚合能力
+
+**差异性**
++ `ClickHouse`在更适用于大宽表的场景，`TP`的数据通过`CDC`工具的，可以考虑在`Flink`中将需要关联的表打平，以大宽表的形式写入`ClickHouse`
++ `StarRocks`对于`join`的能力更强，`ClickHouse虽`然提供了`join`的语义，但使用上对大表关联的能力支撑较弱，复杂的关联查询经常会引起`OOM`
++ `ClickHouse`对高并发的业务并不友好，即使一个查询，也会用服务器一半的`CPU`去查询
++ `StarRocks`可以支撑数千用户同时进行分析查询，在部分场景下，高并发能力能够达到万级。`StarRocks`在数据存储层，采用先分区再分桶的策略，增加了数据的指向性，利用前缀索引可以快读对数据进行过滤和查找，减少磁盘的`I/O`操作，提升查询性能
++ 对于用户的原有的查询基表的 `SQL` 语句保持不变，`StarRocks` 会自动选择一个最优的物化视图，从物化视图中读取数据并计算。用户可以通过 `EXPLAIN` 命令来检查当前查询是否使用了物化视图。而`ClickHouse`则需要用户自行指定`SQL`中所需要使用的物化视图。
+
+#### 为什么推荐StarRocks
+1. 滴滴大数据`OLAP`团队目前在维护的引擎有`StarRocks`、`ClickHouse`、`Druid`，3个引擎各有各的特点，现有的OLAP引擎(Kylin、Druid、ClickHouse)多表Join时的性能都比较差，甚至不支持多表Join，现有的引擎`Druid`虽然有`lookup`表的能力，但经过实际测试后性能不佳。`Apache Kylin`实际上也不支持`Join`，多表的`Join`需要通过在`cube`构建的时候底层打成宽表来实现。`ClickHouse`只支持本地`Hash join`的模式，不支持分布式`Shuffle join`，多数情况下灵活性受限，性能表现不佳。
+2. `OLAP`引擎需要同时具备明细数据查询和数据聚合的能力。由于`Apache Kylin`、`Druid`不能较好支持明细数据查询，我们引入了`ClickHouse`，通过在明细表基础上创建相应聚合物化视图来处理，但是不够灵活，对于上层应用来说，查明细和查聚合需要切到不同的表去处理。
+3. 目前我们团队在有限人员情况下需要维护这3个引擎的稳定性，导致我们对每一个引擎的理解深度都不够，特别像`ClickHouse`，运维成本非常高，ClickHouse集群的分片、副本信息，都是通过静态的配置文件的方式进行配置。当整个集群需要扩缩容的时候，就必须通过修改配置文件的方式进行刷新，数据的均衡都需要运维人员介入。此外ClickHouse通过zookeeper来做副本管理，当集群规模变大时，副本数过多会导致zookeeper的压力变大，集群的稳定性也就会相应变差。
+为解决以上问题，滴滴大数据`OLAP`团队在2022年初开始调研`StarRocks`，在全面测试过从上面对`StarRocks`和`ClickHouse`的对比，我们也可以明显感受到`StarRocks`在多数场景下都是优于`ClickHouse`的，我们希望通过`StarRocks`来实现`OLAP`平台的多业务场景的查询引擎统一化。
+![1](/images/starrocks/helloworld/20.png)
+注：这是我们针对`Druid`、`ClickHouse`、`StarRocks`进行的测试对比，[链接](http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=799050659)。
+
+### StarRocks特性
+> `StarRocks`的架构设计融合了`MPP`数据库，以及分布式系统的设计思想，其特性如下所示。
+#### 架构精简
++ `StarRocks`内部通过`MPP`计算框架完成`SQL`的具体执行工作。`MPP`框架能够充分的利用多节点的计算能力，整个查询可以并行执行，从而实现良好的交互式分析体验。
++ `StarRocks`集群不需要依赖任何其他组件，易部署、易维护和极简的架构设计，降低了`StarRocks`系统的复杂度和维护成本，同时也提升了系统的可靠性和扩展性。管理员只需要专注于`StarRocks`系统，无需学习和管理任何其他外部系统。
+
+#### 全面向量化引擎
+`StarRocks`的计算层全面采用了向量化技术，将所有算子、函数、扫描过滤和导入导出模块进行了系统性优化。通过列式的内存布局、适配`CPU`的`SIMD`指令集等手段，充分发挥了现代`CPU`的并行计算能力，从而实现亚秒级别的多维分析能力。
+
+#### 智能查询优化
+`StarRocks`通过`CBO`优化器 **（Cost Based Optimizer）** 可以对复杂查询自动优化。无需人工干预，就可以通过统计信息合理估算执行成本，生成更优的执行计划，大大提高了`AdHoc`和`ETL`场景的数据分析效率。
+
+#### 联邦查询
+`StarRocks`支持使用外表的方式进行联邦查询，当前可以支持`Hive`、`MySQL`、`Elasticsearch`、`Iceberg`和`Hudi`类型的外表，您无需通过数据导入，可以直接进行数据查询加速。
+
+#### 高效更新
+`StarRocks`支持明细模型(DUPLICATE KEY)、聚合模型(AGGREGATE KEY)、主键模型(PRIMARY KEY)和更新模型(UNIQUE KEY)，其中主键模型可以按照主键进行`Upsert`或`Delete`操作，通过存储和索引的优化可以在并发更新的同时实现高效的查询优化，更好的服务实时数仓的场景。
+
+#### 智能物化视图
++ `StarRocks`支持智能的物化视图。您可以通过创建物化视图，预先计算生成预聚合表用于加速聚合类查询请求。
++ `StarRocks`的物化视图能够在数据导入时自动完成汇聚，与原始表数据保持一致。
++ 查询的时候，您无需指定物化视图，`StarRocks`能够自动选择最优的物化视图来满足查询请求。
+
+#### 标准SQL
++ `StarRocks`支持标准的`SQL`语法，包括聚合、`JOIN`、排序、窗口函数和自定义函数等功能。
++ `StarRocks`可以完整支持`TPC-H`的22个`SQL`和`TPC-DS`的99个`SQL`。
++ `StarRocks`兼容`MySQL`协议语法，可以使用现有的各种客户端工具、`BI`软件访问`StarRocks`，对`StarRocks`中的数据进行拖拽式分析。
+
+#### 流批一体
++ `StarRocks`支持实时和批量两种数据导入方式。
++ `StarRocks`支持的数据源有`Kafka`、`HDFS`和本地文件。
++ `StarRocks`支持的数据格式有`ORC`、`Parquet`和`CSV`等。
++ `StarRocks`可以实时消费`Kafka`数据来完成数据导入，保证数据不丢不重 **（exactly once）**。
++ `StarRocks`也可以从本地或者远程（HDFS）批量导入数据。
+
+#### 高可用易扩展
++ `StarRocks`的元数据和数据都是多副本存储，并且集群中服务有热备，多实例部署，避免了单点故障。
++ 集群具有自愈能力，可弹性恢复，节点的宕机、下线和异常都不会影响`StarRocks`集群服务的整体稳定性。
++ `StarRocks`采用分布式架构，存储容量和计算能力可近乎线性水平扩展。`StarRocks`单集群的节点规模可扩展到数百节点，数据规模可达到10 PB级别。
++ 扩缩容期间无需停服，可以正常提供查询服务。
++ `StarRocks`中表模式热变更，可通过一条简单`SQL`命令动态地修改表的定义，例如增加列、减少列和新建物化视图等。同时，处于模式变更中的表也可以正常导入和查询数据。
+
+### StarRocks应用场景
+> StarRocks可以满足企业级用户的多种分析需求，具体的业务场景如下所示：
+#### OLAP多维分析
++ 用户行为分析
++ 用户画像、标签分析、圈人
++ 高维业务指标报表
++ 自助式报表平台
++ 业务问题探查分析
++ 跨主题业务分析
++ 财务报表
++ 系统监控分析
+
+#### 实时数仓
++ 电商大促数据分析
++ 教育行业的直播质量分析
++ 物流行业的运单分析
++ 金融行业绩效分析、指标计算
++ 广告投放分析
++ 管理驾驶舱
++ 探针分析APM（Application Performance Management）
+
+#### 高并发查询
++ 广告主报表分析
++ 零售行业渠道人员分析
++ saas行业面向用户分析报表
++ dashboard多页面分析
+
+#### 统一分析
+通过使用一套系统解决多维分析、高并发查询、实时分析和Ad-Hoc查询等场景，降低系统复杂度和多技术栈开发与维护成本。
+
+### 如何使用StarRocks
+> 我们olap团队已经将`StarRocks`接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用`StarRocks`引擎。
+![1](/images/starrocks/helloworld/19.png)
+#### 创建库
+登陆[项目管理平台](https://pam.data.didichuxing.com/)，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：
+![1](/images/starrocks/helloworld/1.png)
+注意：[美东项目管理平台](https://pam.data.intra.didiglobal.com/)
+
+#### 创建表
+登陆[实时开发平台](https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit)，切换到您所在项目，可以自定义创建表。
+注意:[美东实时开发平台](https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit)
++ 根据schema创建sr表
+![1](/images/starrocks/helloworld/2.png)
+
++ 自定义创建sr表
+![1](/images/starrocks/helloworld/3.png)
+
++ 根据hive表创建sr表
+![1](/images/starrocks/helloworld/4.png)
+注意创建表时，请按照olap团队[推荐方式](http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=808788439)去建表！
+
+#### 创建离线导入任务
+登陆[同步中心](https://sync.data.didichuxing.com/)，切换到您所在项目，新增同步任务。
+注意：[美东同步中心](https://sync.data.intra.didiglobal.com/)
++ 配置基本信息
+![1](/images/starrocks/helloworld/5.png)
++ 配置来源去向
+![1](/images/starrocks/helloworld/7.png)
++ hive表和sr表的字段映射 
+![1](/images/starrocks/helloworld/6.png)
++ 任务配置
+![1](/images/starrocks/helloworld/8.png)
+
+#### 创建实时导入任务
+登陆[实时开发平台](https://studio.data.didichuxing.com/stream)，切换到您所在项目，可以创建实时导入任务。
+注意:[美东实时开发平台](https://studio.data.intra.didiglobal.com/stream)
+![1](/images/starrocks/helloworld/9.png)
++ 新建SQL任务
+![1](/images/starrocks/helloworld/10.png)
++ 再根据对应的source和sink选择后会自动创建flink SQL
+![1](/images/starrocks/helloworld/11.png)
+注意1：详细参数可参考[官方文档](https://docs.starrocks.io/zh-cn/latest/loading/Flink-connector-starrocks)
+注意2：常见配置说明
+![1](/images/starrocks/helloworld/12.png)
+
+#### 如何查询数据
++ 1. 通过[实时开发平台](https://studio.data.didichuxing.com/stream)进行临时查询  
+> 切换到您所在项目，可以使用临时查询功能，直接查询sr表。
+![1](/images/starrocks/helloworld/13.png)
+![1](/images/starrocks/helloworld/14.png)
+![1](/images/starrocks/helloworld/15.png)
+
++ 2. 通过数易平台进行报表开发
+> 通过登陆[数易平台](https://bigdata.xiaojukeji.com/datae/)，选择顶部工作台-》左侧数据集-》弹出框选择StarRocks，可自定义SQL或者拖拽方式创建实时看板，可视化图表数据分析等。
+![1](/images/starrocks/helloworld/16.png)
+
++ 3. 通过[数链平台](https://bigdata.xiaojukeji.com/dps_index/portal?projectName=datalink)进行api开发
+> 选择左侧服务开发-》API列表-》新建APi，可以快速将starrocks表生成数据api
+![1](/images/starrocks/helloworld/17.png)
+
++ 4. 通过[QueryEngine平台](http://datacenter.didichuxing.com/#/olapDataProduction/dataAccess)
+> 选择顶部数据接入-》左侧数据源管理-》StarRocks引擎，创建数据源，可直接创建数据服务，生成多维分析查询。
+![1](/images/starrocks/helloworld/18.png)
+
+
+### 已接入StarRocks业务
+1. 橙心业务
+2. 两轮车/资产画像/围栏画像
+3. 代驾业务
+4. 货运业务
+5. 能源业务
+6. 滴滴展厅大屏
+7. 金融业务
+8. 达芬奇/车联网
+9. 潮汐  
+
+欢迎大佬们加入`StarRocks`用户群，我们`OLAP`团队竭诚欢迎滴滴内部各项业务合作！
+
+![1](/images/starrocks/helloworld/21.png)
