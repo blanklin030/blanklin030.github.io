@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="say something about me">
+<meta property="og:type" content="website">
+<meta property="og:title" content="BlankLin">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="say something about me">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="lazy and boring">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/04/clickhouse-parser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/04/clickhouse-parser/" class="post-title-link" itemprop="url">ClickHouse解析器大揭秘</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-11-04 14:09:55 / 修改时间：17:01:49" itemprop="dateCreated datePublished" datetime="2022-11-04T14:09:55+08:00">2022-11-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>我们知道语法分析器的作用是根据给定的<a href="https://baike.baidu.com/item/%E5%BD%A2%E5%BC%8F%E6%96%87%E6%B3%95/2447403" target="_blank" rel="noopener">形式文法</a>对由词法单元（Token）序列构成的输入进行语法检查、并构建由输入的词法单元（Token）组成的数据结构（一般是<a href="https://baike.baidu.com/item/%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E6%A0%91/20452541" target="_blank" rel="noopener">语法分析树</a>、<a href="https://baike.baidu.com/item/%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91/6129952" target="_blank" rel="noopener">抽象语法树</a>等层次化的数据结构）。而一提到语法解析目前市面上有很多语法解析器，其中解析sql更是数不胜数，例如最为人所知的antlr和jflex，而本文的主人公ClickHouse却自己去纯手工打造实现了一套sql解析器，本篇文章就来聊聊 ClickHouse 的纯手工解析器，看看它们的底层工作机制。</p>
+<h2 id="简单入门"><a href="#简单入门" class="headerlink" title="简单入门"></a>简单入门</h2><blockquote>
+<p>首先来简单入门解决个小问题，那就是我们如何去连接ck，如何将query传递ck呢，如何设置传递给ck的query长度呢？   </p>
+</blockquote>
+<h3 id="通过TCP方式请求"><a href="#通过TCP方式请求" class="headerlink" title="通过TCP方式请求"></a>通过TCP方式请求</h3><blockquote>
+<p>通过tcp方式使用clickhouse自己的客户端，连接clickhouse，在会话session里先使用<strong>set max_query_size=xx</strong>的方式让当前这个会话修改query的长度，如下图：  </p>
+</blockquote>
+<p><img src="/images/clickhouse/maxquerysize/1.png" alt="clickhouse"></p>
+<h3 id="通过HTTP方式请求"><a href="#通过HTTP方式请求" class="headerlink" title="通过HTTP方式请求"></a>通过HTTP方式请求</h3><blockquote>
+<p>通过http方式请求，<a href="http://ip:port/database?user=xx&amp;password=yy&amp;max_query_size=xx，ck会传递这个参数给setting重写">http://ip:port/database?user=xx&amp;password=yy&amp;max_query_size=xx，ck会传递这个参数给setting重写</a><br>注意chproxy只允许最大max_query_size为512mb，超过此长度会直接报错  </p>
+</blockquote>
+<h3 id="通过sql创建setting授权给登陆用户"><a href="#通过sql创建setting授权给登陆用户" class="headerlink" title="通过sql创建setting授权给登陆用户"></a>通过sql创建setting授权给登陆用户</h3><ol>
+<li>创建setting profile<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create settings profile if not exists role_max_query_size SETTINGS max_query_size &#x3D; 100000000000;</span><br></pre></td></tr></table></figure></li>
+<li>将profile赋值给某个用户<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grant role_max_query_size to prod_voyager_stats_events;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="源码解析ck是如何处理max-query-size的"><a href="#源码解析ck是如何处理max-query-size的" class="headerlink" title="源码解析ck是如何处理max_query_size的"></a>源码解析ck是如何处理max_query_size的</h3><blockquote>
+<p>由于源码较多，只抽出具体实现函数进行源码讲解，本次讲解基于clickhouse v20.6.3.28-stable（该版本与最新版出入较大）。  </p>
+</blockquote>
+<p><img src="/images/clickhouse/maxquerysize/2.png" alt="clickhouse"></p>
+<ol>
+<li>如上图所示，在<code>HTTPHandler.cpp</code>下进行各种http的协议处理时，有一个变量叫<strong>HTMLForm</strong>类型的<code>params</code>，承载的是http请求里的<code>uri</code>，并且在代码的484行进行了此变量的处理，如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">for (const auto &amp; [key, value] : params)</span><br><span class="line">&#123;</span><br><span class="line">    if (key &#x3D;&#x3D; &quot;database&quot;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (database.empty())</span><br><span class="line">            database &#x3D; value;</span><br><span class="line">    &#125;</span><br><span class="line">    else if (key &#x3D;&#x3D; &quot;default_format&quot;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (default_format.empty())</span><br><span class="line">            default_format &#x3D; value;</span><br><span class="line">    &#125;</span><br><span class="line">    else if (param_could_be_skipped(key))</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F;&#x2F; Other than query parameters are treated as settings.</span><br><span class="line">        if (!customizeQueryParam(context, key, value))</span><br><span class="line">            settings_changes.push_back(&#123;key, value&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>而<code>customizeQueryParam</code>会判断该参数param是否等于query，如果是则不会进入setting的设置，再判断是否是param_开头的如果是则会传入context（理解为这次session会话中需要设置的各种上下文内容）则也不会进行setting处理，不是前面2个case则进行setting处理，重载系统默认的setting里的参数，如下图<br><img src="/images/clickhouse/maxquerysize/3.png" alt="clickhouse"></li>
+<li>虽然第二步已经设置了setting，但注意代码的512行，这行代码会走向<strong>SettingsConstraints.cpp</strong>类的<strong>checkImpl</strong>校验逻辑里，有一些配置是不允许修改的，例如<strong>profile</strong>，例如配置就是如果已经通过grant授权配置了<strong>setting profile</strong>了，会去看这个用户的相关权限，如果不符合则会直接抛出exception，不再进行处理，注意这里还有一个问题，抛了异常后，不再将此次请求写入到system.query_log中，之后我们会修复此问题<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;&#x2F; For external data we also want settings</span><br><span class="line">context.checkSettingsConstraints(settings_changes);</span><br><span class="line">context.applySettingsChanges(settings_changes);</span><br></pre></td></tr></table></figure></li>
+<li>做完setting的约束校验后，都符合条件，则我们已经重载了setting里的<strong>max_query_size</strong>，之后就走入了<strong>executeQuery.cpp</strong>执行query逻辑，在它的构造函数里我们就可以看到query是根据<strong>max_query_size</strong>来读取的，如下图<br><img src="/images/clickhouse/maxquerysize/4.png" alt="clickhouse"></li>
+</ol>
+<h2 id="深入探知"><a href="#深入探知" class="headerlink" title="深入探知"></a>深入探知</h2><p>介绍完了<strong>max_query_size</strong>的处理逻辑后，其实我们已经大致明白ck在query的处理流程是如何流转的，那么现在问题来了，我们知道可以通过<code>select xx from tb SETTINGS max_query_size=12112</code>这种方式传入自定义的setting参数，但是有些参数有生效，而select语法却对max_query_size不生效，原因是什么呢？好了，别着急现在我们就来解答ck是如何处理setting这层逻辑的。</p>
+<h3 id="为什么max-query-size的select中不生效？"><a href="#为什么max-query-size的select中不生效？" class="headerlink" title="为什么max_query_size的select中不生效？"></a>为什么max_query_size的select中不生效？</h3><p><img src="/images/clickhouse/maxquerysize/5.png" alt="clickhouse"><br>原因很简单，只要我们读过了上面的流转过程，就知道max_query_size这个参数的处理系统默认是256kb，那么如果未通过uri方式传入<strong>max_query_size</strong>，则在截取query长度前，默认都是256kb，注意截取query时是还未进行ck的parser逻辑处理的，我们可以看到query里的setting是需要经过ck的parser解析后，才会重载进去(如下图6)，所以呢如果你的select query在256kb范围内，则截取完整query后，经过ck的parser解析出ast树，是会带上新的setting，但此时已经没有意义了，而相反的如果你的query超过了256kb，则只截取到256kb前的query，此时setting也不会走到<strong>ParserSelectQuery</strong>里，同时因为你的query被不完整截取后，会直接报ast语法错误<br><img src="/images/clickhouse/maxquerysize/6.png" alt="图6"></p>
+<h2 id="源码看解析器"><a href="#源码看解析器" class="headerlink" title="源码看解析器"></a>源码看解析器</h2><h3 id="1-HTTPHandler-cpp-gt-processQuery"><a href="#1-HTTPHandler-cpp-gt-processQuery" class="headerlink" title="1. HTTPHandler.cpp =&gt; processQuery"></a>1. HTTPHandler.cpp =&gt; processQuery</h3><blockquote>
+<p>每一个http请求都在clickhouse都会起一个叫<strong>HTTPHandler</strong>的线程去处理，根据http请求header和body，初始化请求上下文环境：包括session、用户信息、当前database、响应信息等，另外还处理限流，用户权限，根据配置取到setting信息进行设置，本文重点是调用<code>executeQuery</code>方法处理<code>query</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">executeQuery(*in, *used_output.out_maybe_delayed_and_compressed, &#x2F;* allow_into_outfile &#x3D; *&#x2F; false, context,</span><br><span class="line">        [&amp;response] (const String &amp; current_query_id, const String &amp; content_type, const String &amp; format, const String &amp; timezone)</span><br><span class="line">        &#123;</span><br><span class="line">            response.setContentType(content_type);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Query-Id&quot;, current_query_id);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Format&quot;, format);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Timezone&quot;, timezone);</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="2-executeQuery-cpp-gt-executeQuery"><a href="#2-executeQuery-cpp-gt-executeQuery" class="headerlink" title="2. executeQuery.cpp =&gt; executeQuery"></a>2. executeQuery.cpp =&gt; executeQuery</h3><p>从流中读出字节到buffer里，根据设置的<code>max_query_size</code>判断buffer是否已满，复制到LimitReadBuffer里，重点是执行<strong>executeQueryImpl</strong>，返回tuple类型的(ast, stream)，从stream里提取出<strong>pipeline(流水线)</strong>，根据ast构造出<code>IBlockInputStream</code>或者<code>IBlockOutputStream</code>，传给pipeline后执行pipeline的execute方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::tie(ast, streams) &#x3D; executeQueryImpl(begin, end, context, false, QueryProcessingStage::Complete, may_have_tail, &amp;istr);</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-executeQuery-cpp-gt-executeQueryImpl"><a href="#2-executeQuery-cpp-gt-executeQueryImpl" class="headerlink" title="2. executeQuery.cpp =&gt; executeQueryImpl"></a>2. executeQuery.cpp =&gt; executeQueryImpl</h3><p>按照解析出的ast，构造出Interpreter，调用Interpreter的exec方法去执行后返回pipeline，执行结果记录到query_log里，最后把构造出对应的ast和pipeline返回<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里是实现了ParserQuery对象，继承了IParserBase，IParserBase继承自IParser，等下走到6时，才知道虚函数parseImpl会通过ParserQuery对象实现</span><br><span class="line">ParserQuery parser(end, settings.enable_debug_queries);</span><br><span class="line">.........</span><br><span class="line">ast &#x3D; parseQuery(parser, begin, end, &quot;&quot;, max_query_size, settings.max_parser_depth);</span><br><span class="line">.........</span><br><span class="line">auto interpreter &#x3D; InterpreterFactory::get(ast, context, stage);</span><br><span class="line">.........</span><br><span class="line">res &#x3D; interpreter-&gt;execute();</span><br><span class="line">QueryPipeline &amp; pipeline &#x3D; res.pipeline;</span><br><span class="line">.........</span><br><span class="line">return std::make_tuple(ast, std::move(res));</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-parseQuery-cpp-gt-parseQueryAndMovePosition"><a href="#3-parseQuery-cpp-gt-parseQueryAndMovePosition" class="headerlink" title="3. parseQuery.cpp =&gt; parseQueryAndMovePosition"></a>3. parseQuery.cpp =&gt; parseQueryAndMovePosition</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ASTPtr res &#x3D; tryParseQuery(parser, pos, end, error_message, false, query_description, allow_multi_statements, max_query_size, max_parser_depth);</span><br></pre></td></tr></table></figure>
+<h3 id="4-parseQuery-cpp-gt-tryParseQuery"><a href="#4-parseQuery-cpp-gt-tryParseQuery" class="headerlink" title="4. parseQuery.cpp =&gt; tryParseQuery"></a>4. parseQuery.cpp =&gt; tryParseQuery</h3><blockquote>
+<p>尝试解析SQL，将sql通过语法树规则装入TokenIterator，返回ASTPtr  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; ClickHouse词法分析器是由Tokens和Lexer类来实现，token是最基础的元祖，之间是没有任何关联的，只是一堆词组和符号，通过lexer语法进行解析后，把元祖里的token建立起关系。</span><br><span class="line">Tokens tokens(pos, end, max_query_size);</span><br><span class="line">IParser::Pos token_iterator(tokens, max_parser_depth);</span><br><span class="line">&#x2F;&#x2F; 注意这里，TokenIterator对-&gt;使用了重载，在重载函数里去初始化TOKEN，主要是从第一个字符开始使用pos++的方式进行判断，可以进入Token Lexer::nextTokenImpl()进行查看</span><br><span class="line">if (token_iterator-&gt;isEnd() || token_iterator-&gt;type &#x3D;&#x3D; TokenType::Semicolon) &#123;</span><br><span class="line">    out_error_message &#x3D; &quot;Empty query&quot;;</span><br><span class="line">    pos &#x3D; token_iterator-&gt;begin;</span><br><span class="line">    return nullptr;</span><br><span class="line">&#125;</span><br><span class="line">.....</span><br><span class="line">Expected expected;</span><br><span class="line">......</span><br><span class="line">ASTPtr res;</span><br><span class="line">bool parse_res &#x3D; parser.parse(token_iterator, res, expected);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：<code>IParser</code>的<code>parse</code>方法是<code>virtual</code>虚函数，<code>IParser</code>作为接口角色，被<code>IParserBase</code>继承，在<code>IParserBase</code>里实现了<code>parse</code>方法。</p>
+</blockquote>
+<h3 id="5-IParserBase-cpp-gt-parse"><a href="#5-IParserBase-cpp-gt-parse" class="headerlink" title="5. IParserBase.cpp =&gt; parse"></a>5. IParserBase.cpp =&gt; parse</h3><blockquote>
+<p>在解每个token时都会根据当前的token进行预判（parseImpl返回的结果），返回true才会进入下一个子token  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">bool IParserBase::parse(Pos &amp; pos, ASTPtr &amp; node, Expected &amp; expected)</span><br><span class="line">&#123;</span><br><span class="line">    expected.add(pos, getName());</span><br><span class="line"></span><br><span class="line">    return wrapParseImpl(pos, IncreaseDepthTag&#123;&#125;, [&amp;]</span><br><span class="line">    &#123;</span><br><span class="line">        bool res &#x3D; parseImpl(pos, node, expected);</span><br><span class="line">        if (!res)</span><br><span class="line">            node &#x3D; nullptr;</span><br><span class="line">        return res;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意到parseImpl在IParserBase中是一个虚函数，将被继承自IParserBase类的子类实现，而在 <strong><em> 第2步 </em></strong>中我们定义的子类是ParserQuery，所以此时是直接调用到ParserQuery子类的parseImpl方法</p>
+</blockquote>
+<h3 id="6-ParserQuery-cpp-gt-parseImpl"><a href="#6-ParserQuery-cpp-gt-parseImpl" class="headerlink" title="6. ParserQuery.cpp =&gt; parseImpl"></a>6. ParserQuery.cpp =&gt; parseImpl</h3><blockquote>
+<p>Parser的主要类（也都是继承自IParserBase）分别定义出来后，每个去尝试解析，如果都不在这几个主要Parser里，则返回false，否则返回true，clickhouse把query分类成以下14类，但本质上可以归纳为2类，第一类是有结果输出可对应show/select/desc/create等，第二类是无结果输出可对应insert/use/set等  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">bool ParserQuery::parseImpl(Pos &amp; pos, ASTPtr &amp; node, Expected &amp; expected)</span><br><span class="line">&#123;</span><br><span class="line">    ParserQueryWithOutput query_with_output_p(enable_explain);</span><br><span class="line">    ParserInsertQuery insert_p(end);</span><br><span class="line">    ParserUseQuery use_p;</span><br><span class="line">    ParserSetQuery set_p;</span><br><span class="line">    ParserSystemQuery system_p;</span><br><span class="line">    ParserCreateUserQuery create_user_p;</span><br><span class="line">    ParserCreateRoleQuery create_role_p;</span><br><span class="line">    ParserCreateQuotaQuery create_quota_p;</span><br><span class="line">    ParserCreateRowPolicyQuery create_row_policy_p;</span><br><span class="line">    ParserCreateSettingsProfileQuery create_settings_profile_p;</span><br><span class="line">    ParserDropAccessEntityQuery drop_access_entity_p;</span><br><span class="line">    ParserGrantQuery grant_p;</span><br><span class="line">    ParserSetRoleQuery set_role_p;</span><br><span class="line">    ParserExternalDDLQuery external_ddl_p;</span><br><span class="line"></span><br><span class="line">    bool res &#x3D; query_with_output_p.parse(pos, node, expected)</span><br><span class="line">        || insert_p.parse(pos, node, expected)</span><br><span class="line">        || use_p.parse(pos, node, expected)</span><br><span class="line">        || set_role_p.parse(pos, node, expected)</span><br><span class="line">        || set_p.parse(pos, node, expected)</span><br><span class="line">        || system_p.parse(pos, node, expected)</span><br><span class="line">        || create_user_p.parse(pos, node, expected)</span><br><span class="line">        || create_role_p.parse(pos, node, expected)</span><br><span class="line">        || create_quota_p.parse(pos, node, expected)</span><br><span class="line">        || create_row_policy_p.parse(pos, node, expected)</span><br><span class="line">        || create_settings_profile_p.parse(pos, node, expected)</span><br><span class="line">        || drop_access_entity_p.parse(pos, node, expected)</span><br><span class="line">        || grant_p.parse(pos, node, expected)</span><br><span class="line">        || external_ddl_p.parse(pos, node, expected);</span><br><span class="line"></span><br><span class="line">    return res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意看这个parseImpl方法，进来后都会先去接<code>ParserQueryWithOutput</code>类解析相关ast，这里类涉及到了<code>explain</code>、<code>select</code>、<code>show</code>，<code>create</code>、<code>alter</code>等相关语法的解析，如果解析不过，则直接报错，解析成功后会处理我们这篇文章中提到的<strong>SETTING</strong>，如下图7定义的，将setting传入的变量存入到<code>s_settings</code>指针中。<br><img src="/images/clickhouse/maxquerysize/7.png" alt="图7"></p>
+<h3 id="clcikhouse的parser总结："><a href="#clcikhouse的parser总结：" class="headerlink" title="clcikhouse的parser总结："></a>clcikhouse的parser总结：</h3><ul>
+<li><ol>
+<li>ClickHouse词法分析器<br>词法解析的主要任务是读入源程序的输入字符、将它们组成词素，生成并输出一个词法单元（Token）序列，每个词法单元对应于一个词素。<code>ClickHouse</code>中的每个词法单元（<code>Token</code>）使用一个<code>struct Tocken</code>结构体对象来进行存储，结构体中存储了词法单元的<code>type</code>和<code>value</code>。<br>ClickHouse词法分析器是由<code>Tokens</code>和<code>Lexer</code>类来实现， <strong><em>DB::Lexer::nextTokenImpl()</em></strong>函数用来对<code>SQL</code>语句进行词法分析的具体实现</li>
+</ol>
+</li>
+<li><ol>
+<li>ClickHouse语法解析器<br>ClickHouse中定义了不同的Parser用来对不同类型的SQL语句进行语法分析，例如：ParserInsertQuery（Insert语法分析器）、ParserCreateQuery（Create语法分析器）、ParserAlterQuery（Alter语法分析器）等等。<br>Parser首先判断输入的Token序列是否是该类型的SQL，若是该类型的SQL，则继续检查语法的正确性，正确则生成AST返回，语法错误的则抛出语法错误异常，否则直接返回空AST语法树</li>
+</ol>
+</li>
+</ul>
+<p><img src="/images/clickhouse/parser/1.png" alt="clickhouse"></p>
+<h3 id="解答setting生效问题"><a href="#解答setting生效问题" class="headerlink" title="解答setting生效问题"></a>解答setting生效问题</h3><p><img src="/images/clickhouse/maxquerysize/8.png" alt="图7"><br>如上图所示，当前原生ck只支持InterpreterSelectQuery和InterpreterInsertQuery对query传入setting进行了重载处理。<br>InterpreterSelectQuery是在自己的构造函数里初始化了setting到context里<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void InterpreterSelectQuery::initSettings()</span><br><span class="line">&#123;</span><br><span class="line">    auto &amp; query &#x3D; getSelectQuery();</span><br><span class="line">    if (query.settings())</span><br><span class="line">        InterpreterSetQuery(query.settings(), *context).executeForCurrentContext();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>InterpreterInsertQuery是在parser解析出ast后，在<code>executeQueryImpl</code>进行的setting重载context。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">auto * insert_query &#x3D; ast-&gt;as&lt;ASTInsertQuery&gt;();</span><br><span class="line"></span><br><span class="line">if (insert_query &amp;&amp; insert_query-&gt;settings_ast)</span><br><span class="line">    InterpreterSetQuery(insert_query-&gt;settings_ast, context).executeForCurrentContext();</span><br></pre></td></tr></table></figure><br>剩下的setting都已经是通过Interpreter执行结束后再处理的，对于我们需要在前置传入时没有效果了。</p>
+<h3 id="解决业务困扰"><a href="#解决业务困扰" class="headerlink" title="解决业务困扰"></a>解决业务困扰</h3><p>当前我们的离线导入hive2ck，其实是通过将数据写入到临时表，这张临时表是按照目标表的表结构重新创建了一个MergeTree表，通过spark任务将hive数据以流式方式写入到临时表分区，生产出分区对应的多个part，生产过程中我们会将part拉回到临时表对应的detach目录，这个过程叫<a href="http://way.xiaojukeji.com/article/29557" target="_blank" rel="noopener">离线构建</a>，再将再将part通过ck的attach命令激活，这时候临时表就对该分区可见了，然后再通过replace partition的方式，将临时表的分区替换到我们的目标表去，这整个过程，就是我们的hive2ck处理流程，如下图所示：<br><img src="/images/clickhouse/maxquerysize/9.png" alt="图10"></p>
+<blockquote>
+<p>我们将此离线构建继承到数梦的同步中心后，陆续遇到了业务方来咨询相关问题，下面是问题汇总及如何解决的  </p>
+</blockquote>
+<h4 id="如何在离线导入中将明细数据写入到关联的物化视图"><a href="#如何在离线导入中将明细数据写入到关联的物化视图" class="headerlink" title="如何在离线导入中将明细数据写入到关联的物化视图"></a>如何在离线导入中将明细数据写入到关联的物化视图</h4><p>熟悉clickhouse的同学们都知道，原生ck对于物化视图的写入，唯一的方式是在明细表通过insert写入时，才会将数据经过物化视图的触发器写入关联的物化视图，而在离线构建过程中，ck是不支持的，但很多业务方跟我们提出这个需求，希望离线构建可以支持将分区数据写入到关联物化视图去，于是我们对ck的replace partition 进行了改造。<br>改造前的语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221102&#39; FROM test.visits_basic_tmp;</span><br></pre></td></tr></table></figure><br>改造后的语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221101&#39; FROM test.visits_basic_tmp AND TRIGGER VIEW;</span><br></pre></td></tr></table></figure><br>在离线构建走到替换分区这一步时，我们改造了AstAlterQuery，让<code>ParserAlterQuery</code>增加了对<code>and trigger view</code>的语法解析，解析之后进入到<code>InterpreterAlterQuery</code>时，如果ast返回的trigger view是true，则程序流程会流转到取出明细表元数据，查询是否有关联物化视图，重新构造出类似下面的sql，交过pipeline进行执行，由此将该分区数据写入到物化视图去。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into 物化视图 select from 明细表 where 分区&#x3D;xx</span><br></pre></td></tr></table></figure></p>
+<h4 id="分区过大导入失败如何解决"><a href="#分区过大导入失败如何解决" class="headerlink" title="分区过大导入失败如何解决"></a>分区过大导入失败如何解决</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx has timed out! (120000ms) Possible deadlock avoided. Client should retry</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/maxquerysize/10.png" alt="图10"><br>如上图所示，替换分区前，会给该明细表加一把锁，并设定锁时间（lock_acquire_timeout），系统默认时120s，如果该分区过大，替换过程超过120s，则会爆上面错误，而本文最开始已经讲解过如何处理setting，考虑到ck原生只支持insert和select时interpreter对setting重载，由此进行改造让InterpreterAlterQuery也支持通过sql传入锁时间，如下面语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221108&#39; FROM test.visits_basic_tmp AND TRIGGER VIEW SETTINGS lock_acquire_timeout&#x3D;86400000;</span><br></pre></td></tr></table></figure><br>因为ParserQueryWithOutput已经对setting进行了解析，而AstAlterQuery其实是继承自ASTQueryWithOutput，所以我们已经获得了setting这一块的ast，无需再自己初始化新的ast，只要在InterpreterAlterQuery里把setting重载就行了，如图11<br><img src="/images/clickhouse/maxquerysize/11.png" alt="图10"></p>
+<h4 id="替换分区成功，物化视图数据写入报错如何解决"><a href="#替换分区成功，物化视图数据写入报错如何解决" class="headerlink" title="替换分区成功，物化视图数据写入报错如何解决"></a>替换分区成功，物化视图数据写入报错如何解决</h4><ol>
+<li>首先我们在数梦平台上控制了相关的ddl语句修改，如果用户要删明细表字段，则必须先去处理关联的物化视图字段，如果用户要删明细表，则必须先删物化视图</li>
+<li>遇到替换分区成功，而物化视图写入失败，报错都是锁明细表超时，对于这种case可直接解锁明细表的锁，让物化视图自己去写，不再锁明细表，所以只需要做简单的锁释放便可</li>
+</ol>
+<p>以上是对ck进行改造过程中遇到的3个问题，此改造过程主要是满足离线导入可写入物化视图，未来我们还将对ck进行更多改造，以满足不同业务需求，各个 业务线大佬们如果在使用ck过程中有遇到任何问题，欢迎加入ck用户群，和我们一起沟通解决。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/" class="post-title-link" itemprop="url">starrocks在滴滴的落地</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-17 14:48:24" itemprop="dateCreated datePublished" datetime="2022-10-17T14:48:24+08:00">2022-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-21 16:08:51" itemprop="dateModified" datetime="2022-10-21T16:08:51+08:00">2022-10-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><h4 id="ClickHouse介绍"><a href="#ClickHouse介绍" class="headerlink" title="ClickHouse介绍"></a>ClickHouse介绍</h4><blockquote>
+<p><code>ClickHouse</code>是由俄罗斯的第一大搜索引擎<code>Yandex</code>公司开源的列存数据库。令人惊喜的是，<code>ClickHouse</code>相较于很多商业<code>MPP</code>数据库，比如<code>Vertica</code>，<code>InfiniDB</code>有着极大的性能提升。除了<code>Yandex</code>以外，越来越多的公司开始尝试使用<code>ClickHouse</code>等列存数据库。对于一般的分析业务，结构性较强且数据变更不频繁，可以考虑将需要进行关联的表打平成宽表，放入<code>ClickHouse</code>中。</p>
+<ul>
+<li>配置丰富，只依赖与<code>Zookeeper</code></li>
+<li>线性可扩展性，可以通过添加服务器扩展集群</li>
+<li>容错性高，不同分片间采用异步多主复制</li>
+<li>单表性能极佳，采用向量计算，支持采样和近似计算等优化手段</li>
+<li>功能强大支持多种表引擎</li>
+</ul>
+</blockquote>
+<h4 id="StarRocks介绍"><a href="#StarRocks介绍" class="headerlink" title="StarRocks介绍"></a>StarRocks介绍</h4><blockquote>
+<p><code>StarRocks</code>是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容<code>MySQL</code>协议和<code>MySQL</code>生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。<code>StarRocks</code>致力于在全场景<code>OLAP</code>业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。</p>
+<ul>
+<li>不依赖于大数据生态，同时外表的联邦查询可以兼容大数据生态</li>
+<li>提供多种不同的模型，支持不同维度的数据建模</li>
+<li>支持在线弹性扩缩容，可以自动负载均衡</li>
+<li>支持高并发分析查询</li>
+<li>实时性好，支持数据秒级写入</li>
+<li>兼容MySQL 5.7协议和MySQL生态</li>
+</ul>
+</blockquote>
+<h4 id="二者的对比"><a href="#二者的对比" class="headerlink" title="二者的对比"></a>二者的对比</h4><p><strong>相似之处</strong></p>
+<ul>
+<li>都可以提供极致的性能</li>
+<li>都不依赖于<code>Hadoop</code>生态</li>
+<li>底层存储分片都提供了主主的复制高可用机制。</li>
+<li>都是<code>MPP</code>架构</li>
+<li>都是列式存储</li>
+<li>都支持表述SQL语法</li>
+<li>都提供了MOLAP库的预聚合能力</li>
+</ul>
+<p><strong>差异性</strong></p>
+<ul>
+<li><code>ClickHouse</code>在更适用于大宽表的场景，<code>TP</code>的数据通过<code>CDC</code>工具的，可以考虑在<code>Flink</code>中将需要关联的表打平，以大宽表的形式写入<code>ClickHouse</code></li>
+<li><code>StarRocks</code>对于<code>join</code>的能力更强，<code>ClickHouse虽</code>然提供了<code>join</code>的语义，但使用上对大表关联的能力支撑较弱，复杂的关联查询经常会引起<code>OOM</code></li>
+<li><code>ClickHouse</code>对高并发的业务并不友好，即使一个查询，也会用服务器一半的<code>CPU</code>去查询</li>
+<li><code>StarRocks</code>可以支撑数千用户同时进行分析查询，在部分场景下，高并发能力能够达到万级。<code>StarRocks</code>在数据存储层，采用先分区再分桶的策略，增加了数据的指向性，利用前缀索引可以快读对数据进行过滤和查找，减少磁盘的<code>I/O</code>操作，提升查询性能</li>
+<li>对于用户的原有的查询基表的 <code>SQL</code> 语句保持不变，<code>StarRocks</code> 会自动选择一个最优的物化视图，从物化视图中读取数据并计算。用户可以通过 <code>EXPLAIN</code> 命令来检查当前查询是否使用了物化视图。而<code>ClickHouse</code>则需要用户自行指定<code>SQL</code>中所需要使用的物化视图。</li>
+</ul>
+<h4 id="为什么推荐StarRocks"><a href="#为什么推荐StarRocks" class="headerlink" title="为什么推荐StarRocks"></a>为什么推荐StarRocks</h4><ol>
+<li>滴滴大数据<code>OLAP</code>团队目前在维护的引擎有<code>StarRocks</code>、<code>ClickHouse</code>、<code>Druid</code>，3个引擎各有各的特点，现有的OLAP引擎(Kylin、Druid、ClickHouse)多表Join时的性能都比较差，甚至不支持多表Join，现有的引擎<code>Druid</code>虽然有<code>lookup</code>表的能力，但经过实际测试后性能不佳。<code>Apache Kylin</code>实际上也不支持<code>Join</code>，多表的<code>Join</code>需要通过在<code>cube</code>构建的时候底层打成宽表来实现。<code>ClickHouse</code>只支持本地<code>Hash join</code>的模式，不支持分布式<code>Shuffle join</code>，多数情况下灵活性受限，性能表现不佳。</li>
+<li><code>OLAP</code>引擎需要同时具备明细数据查询和数据聚合的能力。由于<code>Apache Kylin</code>、<code>Druid</code>不能较好支持明细数据查询，我们引入了<code>ClickHouse</code>，通过在明细表基础上创建相应聚合物化视图来处理，但是不够灵活，对于上层应用来说，查明细和查聚合需要切到不同的表去处理。</li>
+<li>目前我们团队在有限人员情况下需要维护这3个引擎的稳定性，导致我们对每一个引擎的理解深度都不够，特别像<code>ClickHouse</code>，运维成本非常高，ClickHouse集群的分片、副本信息，都是通过静态的配置文件的方式进行配置。当整个集群需要扩缩容的时候，就必须通过修改配置文件的方式进行刷新，数据的均衡都需要运维人员介入。此外ClickHouse通过zookeeper来做副本管理，当集群规模变大时，副本数过多会导致zookeeper的压力变大，集群的稳定性也就会相应变差。<br>为解决以上问题，滴滴大数据<code>OLAP</code>团队在2022年初开始调研<code>StarRocks</code>，在全面测试过从上面对<code>StarRocks</code>和<code>ClickHouse</code>的对比，我们也可以明显感受到<code>StarRocks</code>在多数场景下都是优于<code>ClickHouse</code>的，我们希望通过<code>StarRocks</code>来实现<code>OLAP</code>平台的多业务场景的查询引擎统一化。<br><img src="/images/starrocks/helloworld/20.png" alt="1"><br>注：这是我们针对<code>Druid</code>、<code>ClickHouse</code>、<code>StarRocks</code>进行的测试对比，<a href="http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=799050659" target="_blank" rel="noopener">链接</a>。</li>
+</ol>
+<h3 id="StarRocks特性"><a href="#StarRocks特性" class="headerlink" title="StarRocks特性"></a>StarRocks特性</h3><blockquote>
+<p><code>StarRocks</code>的架构设计融合了<code>MPP</code>数据库，以及分布式系统的设计思想，其特性如下所示。</p>
+<h4 id="架构精简"><a href="#架构精简" class="headerlink" title="架构精简"></a>架构精简</h4><ul>
+<li><code>StarRocks</code>内部通过<code>MPP</code>计算框架完成<code>SQL</code>的具体执行工作。<code>MPP</code>框架能够充分的利用多节点的计算能力，整个查询可以并行执行，从而实现良好的交互式分析体验。</li>
+<li><code>StarRocks</code>集群不需要依赖任何其他组件，易部署、易维护和极简的架构设计，降低了<code>StarRocks</code>系统的复杂度和维护成本，同时也提升了系统的可靠性和扩展性。管理员只需要专注于<code>StarRocks</code>系统，无需学习和管理任何其他外部系统。</li>
+</ul>
+</blockquote>
+<h4 id="全面向量化引擎"><a href="#全面向量化引擎" class="headerlink" title="全面向量化引擎"></a>全面向量化引擎</h4><p><code>StarRocks</code>的计算层全面采用了向量化技术，将所有算子、函数、扫描过滤和导入导出模块进行了系统性优化。通过列式的内存布局、适配<code>CPU</code>的<code>SIMD</code>指令集等手段，充分发挥了现代<code>CPU</code>的并行计算能力，从而实现亚秒级别的多维分析能力。</p>
+<h4 id="智能查询优化"><a href="#智能查询优化" class="headerlink" title="智能查询优化"></a>智能查询优化</h4><p><code>StarRocks</code>通过<code>CBO</code>优化器 <strong>（Cost Based Optimizer）</strong> 可以对复杂查询自动优化。无需人工干预，就可以通过统计信息合理估算执行成本，生成更优的执行计划，大大提高了<code>AdHoc</code>和<code>ETL</code>场景的数据分析效率。</p>
+<h4 id="联邦查询"><a href="#联邦查询" class="headerlink" title="联邦查询"></a>联邦查询</h4><p><code>StarRocks</code>支持使用外表的方式进行联邦查询，当前可以支持<code>Hive</code>、<code>MySQL</code>、<code>Elasticsearch</code>、<code>Iceberg</code>和<code>Hudi</code>类型的外表，您无需通过数据导入，可以直接进行数据查询加速。</p>
+<h4 id="高效更新"><a href="#高效更新" class="headerlink" title="高效更新"></a>高效更新</h4><p><code>StarRocks</code>支持明细模型(DUPLICATE KEY)、聚合模型(AGGREGATE KEY)、主键模型(PRIMARY KEY)和更新模型(UNIQUE KEY)，其中主键模型可以按照主键进行<code>Upsert</code>或<code>Delete</code>操作，通过存储和索引的优化可以在并发更新的同时实现高效的查询优化，更好的服务实时数仓的场景。</p>
+<h4 id="智能物化视图"><a href="#智能物化视图" class="headerlink" title="智能物化视图"></a>智能物化视图</h4><ul>
+<li><code>StarRocks</code>支持智能的物化视图。您可以通过创建物化视图，预先计算生成预聚合表用于加速聚合类查询请求。</li>
+<li><code>StarRocks</code>的物化视图能够在数据导入时自动完成汇聚，与原始表数据保持一致。</li>
+<li>查询的时候，您无需指定物化视图，<code>StarRocks</code>能够自动选择最优的物化视图来满足查询请求。</li>
+</ul>
+<h4 id="标准SQL"><a href="#标准SQL" class="headerlink" title="标准SQL"></a>标准SQL</h4><ul>
+<li><code>StarRocks</code>支持标准的<code>SQL</code>语法，包括聚合、<code>JOIN</code>、排序、窗口函数和自定义函数等功能。</li>
+<li><code>StarRocks</code>可以完整支持<code>TPC-H</code>的22个<code>SQL</code>和<code>TPC-DS</code>的99个<code>SQL</code>。</li>
+<li><code>StarRocks</code>兼容<code>MySQL</code>协议语法，可以使用现有的各种客户端工具、<code>BI</code>软件访问<code>StarRocks</code>，对<code>StarRocks</code>中的数据进行拖拽式分析。</li>
+</ul>
+<h4 id="流批一体"><a href="#流批一体" class="headerlink" title="流批一体"></a>流批一体</h4><ul>
+<li><code>StarRocks</code>支持实时和批量两种数据导入方式。</li>
+<li><code>StarRocks</code>支持的数据源有<code>Kafka</code>、<code>HDFS</code>和本地文件。</li>
+<li><code>StarRocks</code>支持的数据格式有<code>ORC</code>、<code>Parquet</code>和<code>CSV</code>等。</li>
+<li><code>StarRocks</code>可以实时消费<code>Kafka</code>数据来完成数据导入，保证数据不丢不重 <strong>（exactly once）</strong>。</li>
+<li><code>StarRocks</code>也可以从本地或者远程（HDFS）批量导入数据。</li>
+</ul>
+<h4 id="高可用易扩展"><a href="#高可用易扩展" class="headerlink" title="高可用易扩展"></a>高可用易扩展</h4><ul>
+<li><code>StarRocks</code>的元数据和数据都是多副本存储，并且集群中服务有热备，多实例部署，避免了单点故障。</li>
+<li>集群具有自愈能力，可弹性恢复，节点的宕机、下线和异常都不会影响<code>StarRocks</code>集群服务的整体稳定性。</li>
+<li><code>StarRocks</code>采用分布式架构，存储容量和计算能力可近乎线性水平扩展。<code>StarRocks</code>单集群的节点规模可扩展到数百节点，数据规模可达到10 PB级别。</li>
+<li>扩缩容期间无需停服，可以正常提供查询服务。</li>
+<li><code>StarRocks</code>中表模式热变更，可通过一条简单<code>SQL</code>命令动态地修改表的定义，例如增加列、减少列和新建物化视图等。同时，处于模式变更中的表也可以正常导入和查询数据。</li>
+</ul>
+<h3 id="StarRocks应用场景"><a href="#StarRocks应用场景" class="headerlink" title="StarRocks应用场景"></a>StarRocks应用场景</h3><blockquote>
+<p>StarRocks可以满足企业级用户的多种分析需求，具体的业务场景如下所示：</p>
+<h4 id="OLAP多维分析"><a href="#OLAP多维分析" class="headerlink" title="OLAP多维分析"></a>OLAP多维分析</h4><ul>
+<li>用户行为分析</li>
+<li>用户画像、标签分析、圈人</li>
+<li>高维业务指标报表</li>
+<li>自助式报表平台</li>
+<li>业务问题探查分析</li>
+<li>跨主题业务分析</li>
+<li>财务报表</li>
+<li>系统监控分析</li>
+</ul>
+</blockquote>
+<h4 id="实时数仓"><a href="#实时数仓" class="headerlink" title="实时数仓"></a>实时数仓</h4><ul>
+<li>电商大促数据分析</li>
+<li>教育行业的直播质量分析</li>
+<li>物流行业的运单分析</li>
+<li>金融行业绩效分析、指标计算</li>
+<li>广告投放分析</li>
+<li>管理驾驶舱</li>
+<li>探针分析APM（Application Performance Management）</li>
+</ul>
+<h4 id="高并发查询"><a href="#高并发查询" class="headerlink" title="高并发查询"></a>高并发查询</h4><ul>
+<li>广告主报表分析</li>
+<li>零售行业渠道人员分析</li>
+<li>saas行业面向用户分析报表</li>
+<li>dashboard多页面分析</li>
+</ul>
+<h4 id="统一分析"><a href="#统一分析" class="headerlink" title="统一分析"></a>统一分析</h4><p>通过使用一套系统解决多维分析、高并发查询、实时分析和Ad-Hoc查询等场景，降低系统复杂度和多技术栈开发与维护成本。</p>
+<h3 id="如何使用StarRocks"><a href="#如何使用StarRocks" class="headerlink" title="如何使用StarRocks"></a>如何使用StarRocks</h3><blockquote>
+<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"></p>
+<h4 id="创建库"><a href="#创建库" class="headerlink" title="创建库"></a>创建库</h4><p>登陆<a href="https://pam.data.didichuxing.com/" target="_blank" rel="noopener">项目管理平台</a>，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：<br><img src="/images/starrocks/helloworld/1.png" alt="1"><br>注意：<a href="https://pam.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东项目管理平台</a></p>
+</blockquote>
+<h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><p>登陆<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以自定义创建表。<br>注意:<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">美东实时开发平台</a></p>
+<ul>
+<li><p>根据schema创建sr表<br><img src="/images/starrocks/helloworld/2.png" alt="1"></p>
+</li>
+<li><p>自定义创建sr表<br><img src="/images/starrocks/helloworld/3.png" alt="1"></p>
+</li>
+<li><p>根据hive表创建sr表<br><img src="/images/starrocks/helloworld/4.png" alt="1"><br>注意创建表时，请按照olap团队<a href="http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=808788439" target="_blank" rel="noopener">推荐方式</a>去建表！</p>
+</li>
+</ul>
+<h4 id="创建离线导入任务"><a href="#创建离线导入任务" class="headerlink" title="创建离线导入任务"></a>创建离线导入任务</h4><p>登陆<a href="https://sync.data.didichuxing.com/" target="_blank" rel="noopener">同步中心</a>，切换到您所在项目，新增同步任务。<br>注意：<a href="https://sync.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东同步中心</a></p>
+<ul>
+<li>配置基本信息<br><img src="/images/starrocks/helloworld/5.png" alt="1"></li>
+<li>配置来源去向<br><img src="/images/starrocks/helloworld/7.png" alt="1"></li>
+<li>hive表和sr表的字段映射<br><img src="/images/starrocks/helloworld/6.png" alt="1"></li>
+<li>任务配置<br><img src="/images/starrocks/helloworld/8.png" alt="1"></li>
+</ul>
+<h4 id="创建实时导入任务"><a href="#创建实时导入任务" class="headerlink" title="创建实时导入任务"></a>创建实时导入任务</h4><p>登陆<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以创建实时导入任务。<br>注意:<a href="https://studio.data.intra.didiglobal.com/stream" target="_blank" rel="noopener">美东实时开发平台</a><br><img src="/images/starrocks/helloworld/9.png" alt="1"></p>
+<ul>
+<li>新建SQL任务<br><img src="/images/starrocks/helloworld/10.png" alt="1"></li>
+<li>再根据对应的source和sink选择后会自动创建flink SQL<br><img src="/images/starrocks/helloworld/11.png" alt="1"><br>注意1：详细参数可参考<a href="https://docs.starrocks.io/zh-cn/latest/loading/Flink-connector-starrocks" target="_blank" rel="noopener">官方文档</a><br>注意2：常见配置说明<br><img src="/images/starrocks/helloworld/12.png" alt="1"></li>
+</ul>
+<h4 id="如何查询数据"><a href="#如何查询数据" class="headerlink" title="如何查询数据"></a>如何查询数据</h4><ul>
+<li><ol>
+<li>通过<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>进行临时查询  <blockquote>
+<p>切换到您所在项目，可以使用临时查询功能，直接查询sr表。<br><img src="/images/starrocks/helloworld/13.png" alt="1"><br><img src="/images/starrocks/helloworld/14.png" alt="1"><br><img src="/images/starrocks/helloworld/15.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过数易平台进行报表开发<blockquote>
+<p>通过登陆<a href="https://bigdata.xiaojukeji.com/datae/" target="_blank" rel="noopener">数易平台</a>，选择顶部工作台-》左侧数据集-》弹出框选择StarRocks，可自定义SQL或者拖拽方式创建实时看板，可视化图表数据分析等。<br><img src="/images/starrocks/helloworld/16.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过<a href="https://bigdata.xiaojukeji.com/dps_index/portal?projectName=datalink" target="_blank" rel="noopener">数链平台</a>进行api开发<blockquote>
+<p>选择左侧服务开发-》API列表-》新建APi，可以快速将starrocks表生成数据api<br><img src="/images/starrocks/helloworld/17.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过<a href="http://datacenter.didichuxing.com/#/olapDataProduction/dataAccess" target="_blank" rel="noopener">QueryEngine平台</a><blockquote>
+<p>选择顶部数据接入-》左侧数据源管理-》StarRocks引擎，创建数据源，可直接创建数据服务，生成多维分析查询。<br><img src="/images/starrocks/helloworld/18.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="已接入StarRocks业务"><a href="#已接入StarRocks业务" class="headerlink" title="已接入StarRocks业务"></a>已接入StarRocks业务</h3><ol>
+<li>橙心业务</li>
+<li>两轮车/资产画像/围栏画像</li>
+<li>代驾业务</li>
+<li>货运业务</li>
+<li>能源业务</li>
+<li>滴滴展厅大屏</li>
+<li>金融业务</li>
+<li>达芬奇/车联网</li>
+<li>潮汐  </li>
+</ol>
+<p>欢迎大佬们加入<code>StarRocks</code>用户群，我们<code>OLAP</code>团队竭诚欢迎滴滴内部各项业务合作！</p>
+<p><img src="/images/starrocks/helloworld/21.png" alt="1"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/09/26/replace-trigger/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/09/26/replace-trigger/" class="post-title-link" itemprop="url">clickhouse离线导入大揭秘</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-09-26 22:57:11" itemprop="dateCreated datePublished" datetime="2022-09-26T22:57:11+08:00">2022-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-28 14:01:34" itemprop="dateModified" datetime="2022-09-28T14:01:34+08:00">2022-09-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="如何按照hive表的表结构创建clickhouse表"><a href="#如何按照hive表的表结构创建clickhouse表" class="headerlink" title="如何按照hive表的表结构创建clickhouse表"></a>如何按照hive表的表结构创建clickhouse表</h3><p>点击<a href="http://studio.data.didichuxing.com/stream/create-table?tableType=clickHouse" target="_blank" rel="noopener">链接</a>通过数梦的实时平台可以快捷创建对应hive表结构的ck表，如下图所示：<br><img src="/images/clickhouse/hive2clickhouse/1.png" alt="clickhouse"></p>
+<h3 id="hive表的数据如何导入clickhouse表"><a href="#hive表的数据如何导入clickhouse表" class="headerlink" title="hive表的数据如何导入clickhouse表"></a>hive表的数据如何导入clickhouse表</h3><h4 id="创建同步任务"><a href="#创建同步任务" class="headerlink" title="创建同步任务"></a>创建同步任务</h4><p>点击<a href="http://sync.data-pre.didichuxing.com/job/offline/edit/818177?step=1" target="_blank" rel="noopener">链接</a>通过数梦的同步中心可以快捷创建hive表映射到ck表的同步任务，如下图所示<br><img src="/images/clickhouse/hive2clickhouse/2.png" alt="clickhouse"></p>
+<h4 id="同步任务流程"><a href="#同步任务流程" class="headerlink" title="同步任务流程"></a>同步任务流程</h4><p>如下图所示，我们按照这个流程处理hive数据导入到clickhouse<br><img src="/images/clickhouse/hive2clickhouse/3.png" alt="clickhouse"></p>
+<ul>
+<li><ol>
+<li>创建临时表<br>按照ck表的表结构，我们会在集群的所有写节点创建同样表结构的单机表（MergeTree）引擎</li>
+</ol>
+</li>
+<li><ol>
+<li>起spark任务，利用clickhouse-local工具将hive表导入到临时表<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cat data.orc | clickhouse-local \</span><br><span class="line">--format&#x3D;Native \</span><br><span class="line">--query&#x3D;&#39;CREATE TABLE input (col1 String, col2 String, col3 String) ENGINE &#x3D; File(ORC, stdin);CREATE TABLE target_table (col1 String, col2 String, col3 String) ENGINE &#x3D; MergeTree() partition by tuple() order by col1;insert into target_table select *,&quot;$year&quot; as year,&quot;$month&quot; as month, &quot;$day&quot; as day from input;optimize table target_table final&#39; \</span><br><span class="line">--config-file&#x3D;config.xmls</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/04/05/clickhouse-insert/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/05/clickhouse-insert/" class="post-title-link" itemprop="url">clickhouse的写入流程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-05 15:09:55" itemprop="dateCreated datePublished" datetime="2022-04-05T15:09:55+08:00">2022-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="请求处理"><a href="#请求处理" class="headerlink" title="请求处理"></a>请求处理</h3><p>ck请求处理过程<br><img src="/images/clickhouse/insert/1.png" alt="clickhouse"></p>
+<h4 id="客户端请求发给ck，ck接收到请求，放入请求队列"><a href="#客户端请求发给ck，ck接收到请求，放入请求队列" class="headerlink" title="客户端请求发给ck，ck接收到请求，放入请求队列"></a>客户端请求发给ck，ck接收到请求，放入请求队列</h4><h4 id="ck将请求队列的请求分发给Request-handler线程处理"><a href="#ck将请求队列的请求分发给Request-handler线程处理" class="headerlink" title="ck将请求队列的请求分发给Request handler线程处理"></a>ck将请求队列的请求分发给Request handler线程处理</h4><h4 id="Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。"><a href="#Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。" class="headerlink" title="Request handler线程处理请求，解析sql语句，执行sql语句逻辑。"></a>Request handler线程处理请求，解析sql语句，执行sql语句逻辑。</h4><h4 id="简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）"><a href="#简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）" class="headerlink" title="简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）"></a>简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）</h4><h4 id="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"><a href="#请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求" class="headerlink" title="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"></a>请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求</h4><h3 id="insert语句解析执行"><a href="#insert语句解析执行" class="headerlink" title="insert语句解析执行"></a>insert语句解析执行</h3><h4 id="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"><a href="#初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息" class="headerlink" title="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"></a>初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息</h4><h4 id="解析sql语句"><a href="#解析sql语句" class="headerlink" title="解析sql语句"></a>解析sql语句</h4><h4 id="检查被写入的表是否存在，是否有写入权限，是否被限流"><a href="#检查被写入的表是否存在，是否有写入权限，是否被限流" class="headerlink" title="检查被写入的表是否存在，是否有写入权限，是否被限流"></a>检查被写入的表是否存在，是否有写入权限，是否被限流</h4><h4 id="对insert数据校验，字段是否存在，是否满足约束"><a href="#对insert数据校验，字段是否存在，是否满足约束" class="headerlink" title="对insert数据校验，字段是否存在，是否满足约束"></a>对insert数据校验，字段是否存在，是否满足约束</h4><h4 id="根据默认值填充空字段和物化字段"><a href="#根据默认值填充空字段和物化字段" class="headerlink" title="根据默认值填充空字段和物化字段"></a>根据默认值填充空字段和物化字段</h4><h4 id="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"><a href="#缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。" class="headerlink" title="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"></a>缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。</h4><h4 id="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"><a href="#将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree" class="headerlink" title="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"></a>将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree</h4><h4 id="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"><a href="#检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表" class="headerlink" title="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"></a>检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表</h4><h3 id="分布式表写入"><a href="#分布式表写入" class="headerlink" title="分布式表写入"></a>分布式表写入</h3><blockquote>
+<p>分布式表数据写入一般情况下是异步写入，只有对使用 remote(‘addresses_expr’, db, table[, ‘user’[, ‘password’], sharding_key]) 定义的表的写入是同步的。如果分布式表中含有local表或replical的表local副本，直接写本地表。<br><img src="/images/clickhouse/insert/2.png" alt="clickhouse"></p>
+</blockquote>
+<h4 id="将写入block数据按sharding逻辑分成多个block"><a href="#将写入block数据按sharding逻辑分成多个block" class="headerlink" title="将写入block数据按sharding逻辑分成多个block"></a>将写入block数据按sharding逻辑分成多个block</h4><h4 id="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"><a href="#将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据" class="headerlink" title="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"></a>将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据</h4><h4 id="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"><a href="#检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎" class="headerlink" title="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"></a>检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎</h4><h4 id="shard在远程，将新insert语句写入远程shard本地缓存文件。"><a href="#shard在远程，将新insert语句写入远程shard本地缓存文件。" class="headerlink" title="shard在远程，将新insert语句写入远程shard本地缓存文件。"></a>shard在远程，将新insert语句写入远程shard本地缓存文件。</h4><h4 id="通知后台线程发送本地缓存中的数据"><a href="#通知后台线程发送本地缓存中的数据" class="headerlink" title="通知后台线程发送本地缓存中的数据"></a>通知后台线程发送本地缓存中的数据</h4><h4 id="后台执行过程"><a href="#后台执行过程" class="headerlink" title="后台执行过程"></a>后台执行过程</h4><h4 id="读远程shard本地缓存目录"><a href="#读远程shard本地缓存目录" class="headerlink" title="读远程shard本地缓存目录"></a>读远程shard本地缓存目录</h4><h4 id="逐个处理每个文件"><a href="#逐个处理每个文件" class="headerlink" title="逐个处理每个文件"></a>逐个处理每个文件</h4><h4 id="根据配置的loadbalance策略，选择合适的机器连接"><a href="#根据配置的loadbalance策略，选择合适的机器连接" class="headerlink" title="根据配置的loadbalance策略，选择合适的机器连接"></a>根据配置的loadbalance策略，选择合适的机器连接</h4><h4 id="将文件的insert语句通过上步连接发送给远程机器执行"><a href="#将文件的insert语句通过上步连接发送给远程机器执行" class="headerlink" title="将文件的insert语句通过上步连接发送给远程机器执行"></a>将文件的insert语句通过上步连接发送给远程机器执行</h4><h4 id="执行成功后删除对应文件"><a href="#执行成功后删除对应文件" class="headerlink" title="执行成功后删除对应文件"></a>执行成功后删除对应文件</h4><h3 id="本地表写入"><a href="#本地表写入" class="headerlink" title="本地表写入"></a>本地表写入</h3><blockquote>
+<p>本地表一般是StorageReplicatedXXMergeTree，其写入过程如下：<br><img src="/images/clickhouse/insert/3.png" alt="clickhouse"><br>本地表是以block为最小单元单次写入，一个block中的数据可能是一次insert的全部数据，也可以是部分数据。</p>
+</blockquote>
+<h4 id="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"><a href="#检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。" class="headerlink" title="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"></a>检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。</h4><h4 id="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"><a href="#检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。" class="headerlink" title="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"></a>检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。</h4><h4 id="将写入block数据按partition-by-逻辑分成多个block"><a href="#将写入block数据按partition-by-逻辑分成多个block" class="headerlink" title="将写入block数据按partition by 逻辑分成多个block"></a>将写入block数据按partition by 逻辑分成多个block</h4><h4 id="依次将每个分区的block数据写入表中"><a href="#依次将每个分区的block数据写入表中" class="headerlink" title="依次将每个分区的block数据写入表中"></a>依次将每个分区的block数据写入表中</h4><h4 id="创建分区的临时part"><a href="#创建分区的临时part" class="headerlink" title="创建分区的临时part"></a>创建分区的临时part</h4><h4 id="计算part数据的sha1生成part对应的blockid"><a href="#计算part数据的sha1生成part对应的blockid" class="headerlink" title="计算part数据的sha1生成part对应的blockid"></a>计算part数据的sha1生成part对应的blockid</h4><h4 id="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"><a href="#检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。" class="headerlink" title="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"></a>检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。</h4><h4 id="将part信息发布到ck，通知其他副本拉去新添加part"><a href="#将part信息发布到ck，通知其他副本拉去新添加part" class="headerlink" title="将part信息发布到ck，通知其他副本拉去新添加part"></a>将part信息发布到ck，通知其他副本拉去新添加part</h4><h4 id="将临时part加入到commit到mergetree表"><a href="#将临时part加入到commit到mergetree表" class="headerlink" title="将临时part加入到commit到mergetree表"></a>将临时part加入到commit到mergetree表</h4><h4 id="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"><a href="#如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件" class="headerlink" title="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"></a>如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件</h4><h4 id="临时part创建过程"><a href="#临时part创建过程" class="headerlink" title="临时part创建过程"></a>临时part创建过程</h4><ul>
+<li>创建block数据对应分区的临时part对象</li>
+<li>计算分区min_max索引</li>
+<li>处理排序和主键索引</li>
+<li>ttl处理</li>
+<li>其他二级索引处理</li>
+<li>将处理过的block数据和索引写入临时part，根据配置的压缩方式压缩</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/04/01/clickhouse-materialized-view/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/01/clickhouse-materialized-view/" class="post-title-link" itemprop="url">clickhouse物化视图在滴滴的实践</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-01 14:57:11" itemprop="dateCreated datePublished" datetime="2022-04-01T14:57:11+08:00">2022-04-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="什么是物化视图"><a href="#什么是物化视图" class="headerlink" title="什么是物化视图"></a>什么是物化视图</h3><ul>
+<li>普通视图（View）是从一张或者多张数据库表查询导出的虚拟表，可以反映出基础表之间的数据变化，但是本身是不存储数据的，每次的查询都会从基础表重新聚合出查询结果，所以普通视图查询其实等同于创建视图时的查询语句的查询效率。</li>
+<li>物化视图（Materialized View）是查询结果集的一份持久化存储，也称为底表的快照（snapshot），查询结果集的范围很宽泛，可以是基础表中部分数据的一份简单拷贝，也可以是多表join之后产生的结果或其子集，或者原始数据的聚合指标等等。物化视图不会随着基础表的变化而变化，如果要更新数据的话，需要用户手动进行，如周期性执行SQL，或利用触发器等机制。</li>
+</ul>
+<p><img src="/images/clickhouse/crud/5.png" alt="avatar"></p>
+<h3 id="如何创建物化视图"><a href="#如何创建物化视图" class="headerlink" title="如何创建物化视图"></a>如何创建物化视图</h3><blockquote>
+<h4 id="MergeTree排序引擎"><a href="#MergeTree排序引擎" class="headerlink" title="MergeTree排序引擎"></a>MergeTree排序引擎</h4></blockquote>
+<h4 id="ReplacingMergeTree去重引擎"><a href="#ReplacingMergeTree去重引擎" class="headerlink" title="ReplacingMergeTree去重引擎"></a>ReplacingMergeTree去重引擎</h4><h4 id="AggregatingMergeTree聚合引擎"><a href="#AggregatingMergeTree聚合引擎" class="headerlink" title="AggregatingMergeTree聚合引擎"></a>AggregatingMergeTree聚合引擎</h4><h4 id="UniqueMergeTree-实时去重引擎"><a href="#UniqueMergeTree-实时去重引擎" class="headerlink" title="UniqueMergeTree 实时去重引擎"></a>UniqueMergeTree 实时去重引擎</h4><h4 id="SummingMergeTree-求和引擎"><a href="#SummingMergeTree-求和引擎" class="headerlink" title="SummingMergeTree 求和引擎"></a>SummingMergeTree 求和引擎</h4><h4 id="CollapsingMergeTree-折叠引擎"><a href="#CollapsingMergeTree-折叠引擎" class="headerlink" title="CollapsingMergeTree 折叠引擎"></a>CollapsingMergeTree 折叠引擎</h4><h4 id="VersionedCollapsingMergeTree-版本折叠引擎"><a href="#VersionedCollapsingMergeTree-版本折叠引擎" class="headerlink" title="VersionedCollapsingMergeTree 版本折叠引擎"></a>VersionedCollapsingMergeTree 版本折叠引擎</h4><h3 id="如何写入物化视图"><a href="#如何写入物化视图" class="headerlink" title="如何写入物化视图"></a>如何写入物化视图</h3><h4 id="底表触发"><a href="#底表触发" class="headerlink" title="底表触发"></a>底表触发</h4><h4 id="同步任务触发"><a href="#同步任务触发" class="headerlink" title="同步任务触发"></a>同步任务触发</h4><h4 id="直接写入到分布式表"><a href="#直接写入到分布式表" class="headerlink" title="直接写入到分布式表"></a>直接写入到分布式表</h4><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/21/java-druid-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/21/java-druid-config/" class="post-title-link" itemprop="url">alibaba.druid配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-21 15:09:55" itemprop="dateCreated datePublished" datetime="2022-03-21T15:09:55+08:00">2022-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="两种思路"><a href="#两种思路" class="headerlink" title="两种思路"></a>两种思路</h4><ul>
+<li>后端服务主动淘汰空闲超时120s的连接，然后再主动创建连接。</li>
+<li>后端服务对空闲连接保活，周期小于120秒进行一次mysql.ping或select 1操作。（确认过dba两个操作均可使dbproxy保活连接）</li>
+</ul>
+<h4 id="hikari连接池能否支持上述方案："><a href="#hikari连接池能否支持上述方案：" class="headerlink" title="hikari连接池能否支持上述方案："></a>hikari连接池能否支持上述方案：</h4><ul>
+<li>idleTimeout：设置最大空闲时间小于120秒，空闲超时主动淘汰链接，并且hikari会自动创建新连接填充。实际发现该参数不能解决此问题，因为该参数优先级低于minimumIdle，若池中已经保持低于minimumIdle的连接数就不会再进行空闲连接淘汰。所以该参数不能解决问题。</li>
+<li>maxLifetime：设置最大生存时间小于120秒，生存超时主动淘汰连接，并且hikari会自动创建新连接填充。能够解决该问题，但是会每120s就要淘汰且新建连接。</li>
+</ul>
+<h4 id="druid连接池能否支持上述方案："><a href="#druid连接池能否支持上述方案：" class="headerlink" title="druid连接池能否支持上述方案："></a>druid连接池能否支持上述方案：</h4><ul>
+<li>testWhileIdle：设置true开启周期性健康检查 会主动淘汰掉失效的连接。</li>
+<li>maxEvictableIdleTimeMillis：最大空闲时间设置小于120s，该参数不受minIdle参数约束，只要超过最大空闲时间就会自动淘汰连接。<br>看似上面两个参数均能解决，但是由于durid默认不会主动创建新链接，所以上面两个参数使连接清空后 查询时仍旧会因创建连接而耗时增加。</li>
+<li>keepAlive：设置true开启保活机制，可解决该问题</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">druid:</span><br><span class="line"># 初始化大小</span><br><span class="line">initialSize: 10</span><br><span class="line"># 最大连接数</span><br><span class="line">maxActive: 30</span><br><span class="line"># 最小空闲数（周期性清除时保留的最小连接数）</span><br><span class="line">minIdle: 10</span><br><span class="line"># 最大空闲数（返还连接时若超过最大空闲连接数就丢弃）</span><br><span class="line">maxIdle: 20</span><br><span class="line"># 有效性校验</span><br><span class="line">validationQuery: select 1</span><br><span class="line"># 周期性check空闲连接</span><br><span class="line">testWhileIdle: true</span><br><span class="line"># 借出时check（影响性能）</span><br><span class="line">testOnBorrow: false</span><br><span class="line"># 返还时check（影响性能）</span><br><span class="line">testOnReturn: false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 周期性检查的间隔时间，单位是毫秒</span><br><span class="line">timeBetweenEvictionRunsMillis: 60000</span><br><span class="line"># 连接的最小空闲时间，小于该时间不会被周期性check清除。单位是毫秒</span><br><span class="line">minEvictableIdleTimeMillis: 50000</span><br><span class="line"># 连接的最大空闲时间，大于该时间会被周期性check清除，且优先级大于minIdle。单位是毫秒</span><br><span class="line">maxEvictableIdleTimeMillis: 100000</span><br><span class="line"># 开启连接保活策略。作用：https:&#x2F;&#x2F;www.bookstack.cn&#x2F;read&#x2F;Druid&#x2F;d90f9643acdca5c0.md</span><br><span class="line">keepAlive: true</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/21/java-why-need-close-connection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/21/java-why-need-close-connection/" class="post-title-link" itemprop="url">为什么需要关闭连接</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-21 15:09:55" itemprop="dateCreated datePublished" datetime="2022-03-21T15:09:55+08:00">2022-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a href="https://stackoverflow.com/questions/25864235/why-we-should-close-the-connection-in-jdbc-if-we-dont-do-it-what-will-happen" target="_blank" rel="noopener">链接</a></p>
+<h3 id="TCP标志"><a href="#TCP标志" class="headerlink" title="TCP标志"></a>TCP标志</h3><p>SYN: (同步序列编号,Synchronize Sequence Numbers)该标志仅在三次握手建立TCP连接时有效。表示一个新的TCP连接请求。</p>
+<p>ACK: (确认编号,Acknowledgement Number)是对TCP请求的确认标志,同时提示对端系统已经成功接收所有数据。</p>
+<p>FIN: (结束标志,FINish)用来结束一个TCP回话.但对应端口仍处于开放状态,准备接收后续数据。</p>
+<h3 id="TCP状态"><a href="#TCP状态" class="headerlink" title="TCP状态"></a>TCP状态</h3><blockquote>
+<p>TCP状态在系统里都有对应的解释或设置,可见<code>man tcp</code>，以下介绍主要常见的几种</p>
+</blockquote>
+<p>1)、LISTEN: 首先服务端需要打开一个socket进行监听，状态为LISTEN.<br>/<em> The socket is listening for incoming connections. 侦听来自远方TCP端口的连接请求 </em>/</p>
+<p>2)、SYN_SENT: 客户端通过应用程序调用connect进行active open.于是客户端tcp发送一个SYN以请求建立一个连接.之后状态置为SYN_SENT.<br>/<em>The socket is actively attempting to establish a connection. 在发送连接请求后等待匹配的连接请求 </em>/</p>
+<p>3)、SYN_RECV: 服务端应发出ACK确认客户端的SYN,同时自己向客户端发送一个SYN. 之后状态置为SYN_RECV<br>/<em> A connection request has been received from the network. 在收到和发送一个连接请求后等待对连接请求的确认 </em>/</p>
+<p>4)、ESTABLISHED: 代表一个打开的连接，双方可以进行或已经在数据交互了。<br>/<em> The socket has an established connection. 代表一个打开的连接，数据可以传送给用户 </em>/</p>
+<p>5)、FIN_WAIT1:主动关闭(active close)端应用程序调用close，于是其TCP发出FIN请求主动关闭连接，之后进入FIN_WAIT1状态.<br>/<em> The socket is closed, and the connection is shutting down. 等待远程TCP的连接中断请求，或先前的连接中断请求的确认 </em>/</p>
+<p>6)、CLOSE_WAIT: 被动关闭(passive close)端TCP接到FIN后，就发出ACK以回应FIN请求(它的接收也作为文件结束符传递给上层应用程序),并进入CLOSE_WAIT.<br>/<em> The remote end has shut down, waiting for the socket to close. 等待从本地用户发来的连接中断请求 </em>/</p>
+<p>7)、FIN_WAIT2: 主动关闭端接到ACK后，就进入了FIN-WAIT-2 .<br>/<em> Connection is closed, and the socket is waiting for a shutdown from the remote end. 从远程TCP等待连接中断请求 </em>/</p>
+<p>8)、LAST_ACK: 被动关闭端一段时间后，接收到文件结束符的应用程序将调用CLOSE关闭连接。这导致它的TCP也发送一个 FIN,等待对方的ACK.就进入了LAST-ACK .<br>/<em> The remote end has shut down, and the socket is closed. Waiting for acknowledgement. 等待原来发向远程TCP的连接中断请求的确认 </em>/</p>
+<p>9)、TIME_WAIT: 只发生在主动关闭连接的一方。主动关闭方在接收到被动关闭方的FIN请求后，发送成功给对方一个ACK后,将自己的状态由FIN_WAIT2修改为TIME_WAIT，而必须再等2倍 的MSL(Maximum Segment Lifetime,MSL是一个数据报在internetwork中能存在的时间)时间之后双方才能把状态 都改为CLOSED以关闭连接。目前RHEL里保持TIME_WAIT状态的时间为60秒。<br>/<em> The socket is waiting after close to handle packets still in the network.等待足够的时间以确保远程TCP接收到连接中断请求的确认 </em>/</p>
+<p>10)、CLOSING: 比较少见.<br>/<em> Both sockets are shut down but we still don’t have all our data sent. 等待远程TCP对连接中断的确认 </em>/</p>
+<p>11)、CLOSED: 被动关闭端在接受到ACK包后，就进入了closed的状态。连接结束.<br>/<em> The socket is not being used. 没有任何连接状态 </em>/</p>
+<h3 id="为什么创建的连接需要关闭？"><a href="#为什么创建的连接需要关闭？" class="headerlink" title="为什么创建的连接需要关闭？"></a>为什么创建的连接需要关闭？</h3><p>如果不关闭连接，这些系统资源将一直在内存中，等待下一次系统gc时才会被回收，而如果系统频繁的fgc将会导致你的程序明显卡顿，如果一直没有gc，也会导致你的内存泄漏</p>
+<h3 id="如果一定要关闭，那是不是可以使用单例模式在所有地方使用？"><a href="#如果一定要关闭，那是不是可以使用单例模式在所有地方使用？" class="headerlink" title="如果一定要关闭，那是不是可以使用单例模式在所有地方使用？"></a>如果一定要关闭，那是不是可以使用单例模式在所有地方使用？</h3><h3 id="是不是可以使用连接池，一次创建n个连接，用完归还到池子里等下次再被使用？"><a href="#是不是可以使用连接池，一次创建n个连接，用完归还到池子里等下次再被使用？" class="headerlink" title="是不是可以使用连接池，一次创建n个连接，用完归还到池子里等下次再被使用？"></a>是不是可以使用连接池，一次创建n个连接，用完归还到池子里等下次再被使用？</h3>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/21/clickhouse-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/21/clickhouse-index/" class="post-title-link" itemprop="url">使用clickhouse实现索引</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-21 14:57:11" itemprop="dateCreated datePublished" datetime="2022-02-21T14:57:11+08:00">2022-02-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="一级索引"><a href="#一级索引" class="headerlink" title="一级索引"></a>一级索引</h3><h4 id="index-granularity"><a href="#index-granularity" class="headerlink" title="index_granularity"></a>index_granularity</h4><p><img src="/images/clickhouse/crud/5.png" alt="avatar"></p>
+<h3 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h3><h4 id="granularity"><a href="#granularity" class="headerlink" title="granularity"></a>granularity</h4>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/16/linux-ln/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/16/linux-ln/" class="post-title-link" itemprop="url">聊聊linux下的软硬链接</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-16 15:48:18" itemprop="dateCreated datePublished" datetime="2022-02-16T15:48:18+08:00">2022-02-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="链接概念"><a href="#链接概念" class="headerlink" title="链接概念"></a>链接概念</h3><p>Linux链接分两种，一种被称为硬链接（Hard Link），另一种被称为符号链接（Symbolic Link）。<br>默认情况下，ln命令产生硬链接。</p>
+<h3 id="硬连接"><a href="#硬连接" class="headerlink" title="硬连接"></a>硬连接</h3><ul>
+<li>硬连接指通过索引节点来进行连接。在Linux的文件系统中，保存在磁盘分区中的文件不管是什么类型都给它分配一个编号，称为索引节点号(Inode Index)。在Linux中，多个文件名指向同一索引节点是存在的。一般这种连接就是硬连接。</li>
+<li>硬连接的作用是允许一个文件拥有多个有效路径名，这样用户就可以建立硬连接到重要文件，以防止“误删”的功能。其原因如上所述，因为对应该目录的索引节点有一个以上的连接。只删除一个连接并不影响索引节点本身和其它的连接，只有当最后一个连接被删除后，文件的数据块及目录的连接才会被释放。也就是说，文件真正删除的条件是与之相关的所有硬连接文件均被删除。</li>
+</ul>
+<h3 id="软连接"><a href="#软连接" class="headerlink" title="软连接"></a>软连接</h3><p>另外一种连接称之为符号连接（Symbolic Link），也叫软连接。软链接文件有类似于Windows的快捷方式。它实际上是一个特殊的文件。在符号连接中，文件实际上是一个文本文件，其中包含的有另一文件的位置信息。</p>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#创建一个测试文件f1</span><br><span class="line">[oracle@Linux]$ touch f1</span><br><span class="line"></span><br><span class="line">#创建f1的一个硬连接文件f2</span><br><span class="line">[oracle@Linux]$ ln f1 f2</span><br><span class="line"></span><br><span class="line">#创建f1的一个符号连接文件f3</span><br><span class="line">[oracle@Linux]$ ln -s f1 f3</span><br><span class="line"></span><br><span class="line"># -i参数显示文件的inode节点信息</span><br><span class="line">[oracle@Linux]$ ls -li   </span><br><span class="line">total 0</span><br><span class="line">9797648 -rw-r--r--  2 oracle oinstall 0 Apr 21 08:11 f1</span><br><span class="line">9797648 -rw-r--r--  2 oracle oinstall 0 Apr 21 08:11 f2</span><br><span class="line">9797649 lrwxrwxrwx  1 oracle oinstall 2 Apr 21 08:11 f3 -&gt; f1</span><br></pre></td></tr></table></figure>
+<p>从上面的结果中可以看出，硬连接文件f2与原文件f1的inode节点相同，均为9797648，然而符号连接文件的inode节点不同。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 修改文件内容</span><br><span class="line">[oracle@Linux]$ echo &quot;I am f1 file&quot; &gt;&gt;f1</span><br><span class="line"></span><br><span class="line"># 打印f1文件内容</span><br><span class="line">[oracle@Linux]$ cat f1</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f2文件内容</span><br><span class="line">[oracle@Linux]$ cat f2</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f3文件内容</span><br><span class="line">[oracle@Linux]$ cat f3</span><br><span class="line">I am f1 file</span><br><span class="line"># 删除f1</span><br><span class="line">[oracle@Linux]$ rm -f f1</span><br><span class="line"></span><br><span class="line"># 打印f2文件内容，未受到影响，所以硬链接未受源文件删除的影响</span><br><span class="line">[oracle@Linux]$ cat f2</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f3文件内容，提示找不到该文件或者目录，所以软连接会受到源文件删除的影响</span><br><span class="line">[oracle@Linux]$ cat f3</span><br><span class="line">cat: f3: No such file or directory</span><br></pre></td></tr></table></figure>
+<p>通过上面的测试可以看出：当删除原始文件f1后，硬连接f2不受影响，但是符号连接f1文件无效</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>1).删除符号连接f3,对f1,f2无影响；<br>2).删除硬连接f2，对f1,f3也无影响；<br>3).删除原文件f1，对硬连接f2没有影响，导致符号连接f3失效；<br>4).同时删除原文件f1,硬连接f2，整个文件会真正的被删除。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/15/linux-overlay-full/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/15/linux-overlay-full/" class="post-title-link" itemprop="url">由于overlay占用磁盘空间导致磁盘告警</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-15 15:09:08" itemprop="dateCreated datePublished" datetime="2022-02-15T15:09:08+08:00">2022-02-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>早上突然收到告警短信，xxx服务磁盘使用率超过80%，如下图，赶紧上机器进行排查，下面是排查的过程<br><img src="/images/linux/disk_full/1.png" alt="avatar"></p>
+<h3 id="查看机器整体磁盘使用情况"><a href="#查看机器整体磁盘使用情况" class="headerlink" title="查看机器整体磁盘使用情况"></a>查看机器整体磁盘使用情况</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">df -h</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是结果</span><br><span class="line">root@xxx.docker.ys:~&#x2F;dlap-manager$ df -h</span><br><span class="line">Filesystem      Size  Used Avail Use% Mounted on</span><br><span class="line">overlay          20G   18G  2.7G  87% &#x2F;</span><br><span class="line">tmpfs            64M     0   64M   0% &#x2F;dev</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;fs&#x2F;cgroup</span><br><span class="line">&#x2F;dev&#x2F;sda3       219G   15G  193G   8% &#x2F;etc&#x2F;hosts</span><br><span class="line">shm              64M     0   64M   0% &#x2F;dev&#x2F;shm</span><br><span class="line">&#x2F;dev&#x2F;sdb1       4.4T  949G  3.5T  22% &#x2F;etc&#x2F;hostname</span><br><span class="line">tmpfs            63G   12K   63G   1% &#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;acpi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;scsi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;firmware</span><br></pre></td></tr></table></figure>
+<p>看到overlay这个文件目录占了<code>87%</code>，仔细研究下这个文件夹是什么</p>
+<h4 id="overlay介绍"><a href="#overlay介绍" class="headerlink" title="overlay介绍"></a>overlay介绍</h4><p>OverlayFS是一种堆叠文件系统，它依赖并建立在其它的文件系统之上（例如ext4fs和xfs等等），并不直接参与磁盘空间结构的划分，仅仅将原来底层文件系统中不同的目录进行“合并”，然后向用户呈现，这也就是联合挂载技术，对比于AUFS，OverlayFS速度更快，实现更简单。 而Linux 内核为Docker提供的OverlayFS驱动有两种：overlay和overlay2。而overlay2是相对于overlay的一种改进，在inode利用率方面比overlay更有效。但是overlay有环境需求：docker版本17.06.02+，宿主机文件系统需要是ext4或xfs格式。<br>overlayfs通过三个目录：lower目录、upper目录、以及work目录实现，其中lower目录可以是多个，work目录为工作基础目录，挂载后内容会被清空，且在使用过程中其内容用户不可见，最后联合挂载完成给用户呈现的统一视图称为为merged目录<br><img src="/images/linux/disk_full/2.png" alt="avatar"><br>在上述图中可以看到三个层结构，即：lowerdir、uperdir、merged，其中lowerdir是只读的image layer，其实就是rootfs，对应的lowerdir是可以有多个目录。而upperdir则是在lowerdir之上的一层，这层是读写层，在启动一个容器时候会进行创建，所有的对容器数据更改都发生在这里层。最后merged目录是容器的挂载点，也就是给用户暴露的统一视角。</p>
+<h4 id="overlay如何工作"><a href="#overlay如何工作" class="headerlink" title="overlay如何工作"></a>overlay如何工作</h4><p>当容器中发生数据修改时候overlayfs存储驱动又是如何进行工作的？以下将阐述其读写过程：</p>
+<ul>
+<li><ol>
+<li>读：</li>
+</ol>
+<ul>
+<li>如果文件在容器层（upperdir），直接读取文件；</li>
+<li>如果文件不在容器层（upperdir），则从镜像层（lowerdir）读取；</li>
+</ul>
+</li>
+<li><ol>
+<li>写：</li>
+</ol>
+<ul>
+<li>首次写入： 如果在upperdir中不存在，overlay和overlay2执行copy_up操作，把文件从lowdir拷贝到upperdir，由于overlayfs是文件级别的（即使文件只有很少的一点修改，也会产生的copy_up的行为），后续对同一文件的在此写入操作将对已经复制到容器的文件的副本进行操作。这也就是常常说的写时复制（copy-on-write）</li>
+<li>删除文件和目录： 当文件在容器被删除时，在容器层（upperdir）创建whiteout文件，镜像层(lowerdir)的文件是不会被删除的，因为他们是只读的，但without文件会阻止他们显示，当目录在容器内被删除时，在容器层（upperdir）一个不透明的目录，这个和上面whiteout原理一样，阻止用户继续访问，即便镜像层仍然存在。 </li>
+</ul>
+</li>
+<li><ol>
+<li>注意事项</li>
+</ol>
+<ul>
+<li>copy_up操作只发生在文件首次写入，以后都是只修改副本,</li>
+<li>overlayfs只适用两层目录，相比于比AUFS，查找搜索都更快。</li>
+<li>容器层的文件删除只是一个“障眼法”，是靠whiteout文件将其遮挡，image层并没有删除，这也就是为什么使用docker commit 提交保存的镜像会越来越大，无论在容器层怎么删除数据，image层都不会改变。</li>
+</ul>
+</li>
+</ul>
+<h4 id="overlay镜像存储结构"><a href="#overlay镜像存储结构" class="headerlink" title="overlay镜像存储结构"></a>overlay镜像存储结构</h4><p>从仓库拉取ubuntu镜像，结果显示总共拉取了6层镜像如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@bigdata-xxx.ys ~]$ sudo docker pull ubuntu-test:xenial</span><br><span class="line">Trying to pull repository ubuntu-test ...</span><br><span class="line">xenial: Pulling from ubuntu-test</span><br><span class="line">58690f9b18fc: Pull complete</span><br><span class="line">b51569e7c507: Pull complete</span><br><span class="line">da8ef40b9eca: Pull complete</span><br><span class="line">fb15d46c38dc: Pull complete</span><br><span class="line">4c7a0de79adc: Pull complete</span><br><span class="line">5eff12cba838: Pull complete</span><br><span class="line">Digest: sha256:d21c70f1203a5b0fe1d8a1b60bd1924ca5458ba450828f6b88c4e973db84c8e8</span><br><span class="line">Status: Downloaded newer image for ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>此时6层镜像被存储在/var/lib/docker/overlay2下，将镜像运行起来一个容器，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -itd --name ubuntu-test ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>运行容器之后，查询出容器的元数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 获取容器ID</span><br><span class="line">sudo docker ps -a | grep ubuntu</span><br><span class="line">&#x2F;&#x2F; 通过容器ID查看元数据</span><br><span class="line">sudo docker inspect container-id</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/4.png" alt="avatar"></p>
+<p>进入容器创建一个文件，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker exec -it ubuntu-test bash</span><br><span class="line">echo &#39;xxxxxx&#39; &gt; helloworld.txt</span><br></pre></td></tr></table></figure></p>
+<p>通过tree命令查看新创建的文件出现在哪里<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tree -L 3 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;f90282cedadf6b7765ba06ea8983af306f78773baeca9ff1e418651d0b9d14f2&#x2F;diff</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/3.png" alt="avatar"></p>
+<h3 id="回到问题本身"><a href="#回到问题本身" class="headerlink" title="回到问题本身"></a>回到问题本身</h3><p>overlay目录使用了87%的存储，触发了磁盘告警，overlay目录是我们的弹性云容器运行的目录，发现通过nohup启动的jar包将所有stdout/stderr都输出到了nohup.out文件，该文件也持久化存在/var/lib/docker/overlay2下，所以需要对nohup.out进行处理，不可直接删除，因为jar启动后所有的输出流都会转存到nohup.out，这个文件句柄已经打开，所有的stdout/stderr仍然会输出，只是输出在/proc/pid/fd/1或者/proc/pid/fd/2这些目录下。</p>
+<blockquote>
+<p>0描述符 标准输入<br>1描述符 标注输出<br>2描述符 标注错误输出  </p>
+</blockquote>
+<p><strong>linux一切到可以看作文件</strong>，/proc/pid/fd/1 就是pid进程的标准输出，/proc/pid/fd/1 就是pid进程的标准错误输出，我们通过测试可以看到下面结果，就算我们删除了nohup.out文件，任何会将stdout/stderro输出到这个文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@xxx.ys ~]$ tree -L 3 &#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">&#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">├── 0 -&gt; &#x2F;dev&#x2F;null</span><br><span class="line">├── 1 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">├── 2 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">└── 3 -&gt; &#x2F;home&#x2F;hadoop&#x2F;test.txt</span><br><span class="line"></span><br><span class="line">0 directories, 4 files</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><ol>
+<li>重启jar包，将所有错误/标准输出忽略<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; &gt;&#x2F;dev&#x2F;null是表示linux的空设备，是一个特殊的文件，写入到它的内容都会被丢弃(等同于 1&gt;&#x2F;dev&#x2F;null)</span><br><span class="line">&#x2F;&#x2F; 2&gt;&amp;1表示所有错误输出都重定向到标准输出</span><br><span class="line">&#x2F;&#x2F; 所以就是将错误输出重定向到标准输出，将标准输出重定向到空设备，就是禁止所有输出&#x2F;错误</span><br><span class="line">nohup java -jar xx.jar &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>删除nohup.out文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -f nohup.out</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="修改docker的根目录"><a href="#修改docker的根目录" class="headerlink" title="修改docker的根目录"></a>修改docker的根目录</h3><h4 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h4><ol>
+<li>停止docker服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop docker</span><br></pre></td></tr></table></figure></li>
+<li><p>创建新的docker工作目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
+<p>这个目录可以自定义，但是一定要保证在/root里面</p>
+</li>
+<li><p>迁移/var/lib/docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -avz &#x2F;var&#x2F;lib&#x2F;docker &#x2F;data2&#x2F;docker&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>配置devicemapper.conf<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 不存在就创建</span><br><span class="line">sudo mkdir -p &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;</span><br><span class="line"># 不存在就创建</span><br><span class="line">sudo vi &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;devicemapper.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>在devicemapper.conf中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Service]</span><br><span class="line">ExecStart&#x3D;</span><br><span class="line">ExecStart&#x3D;&#x2F;usr&#x2F;bin&#x2F;dockerd  --graph&#x3D;&#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启docker服务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"> </span><br><span class="line">systemctl restart docker</span><br><span class="line"> </span><br><span class="line">systemctl enable docker</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>确认是否配置成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker info</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux/disk_full/5.png" alt="avatar"></p>
+</li>
+</ol>
+<p>重新启动所有容器后，确认无误。即可删除/var/lib/docker里面所有文件。</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>如果报错如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error response from daemon: Cannot restart container linyu: shim error: docker-runc not installed on system</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><ol>
+<li>判断是否安装runc<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -qi runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>未安装则先安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>创建软连接<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;usr&#x2F;libexec&#x2F;docker&#x2F;</span><br><span class="line">sudo ln -s docker-runc-current docker-runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>重启服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker restart container_id</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

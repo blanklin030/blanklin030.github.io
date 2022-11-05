@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景介绍我们知道语法分析器的作用是根据给定的形式文法对由词法单元（Token）序列构成的输入进行语法检查、并构建由输入的词法单元（Token）组成的数据结构（一般是语法分析树、抽象语法树等层次化的数据结构）。而一提到语法解析目前市面上有很多语法解析器，其中解析sql更是数不胜数，例如最为人所知的antlr和jflex，而本文的主人公ClickHouse却自己去纯手工打造实现了一套sql解析器，本篇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ClickHouse解析器大揭秘">
+<meta property="og:url" content="http://yoursite.com/2022/11/04/clickhouse-parser/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="背景介绍我们知道语法分析器的作用是根据给定的形式文法对由词法单元（Token）序列构成的输入进行语法检查、并构建由输入的词法单元（Token）组成的数据结构（一般是语法分析树、抽象语法树等层次化的数据结构）。而一提到语法解析目前市面上有很多语法解析器，其中解析sql更是数不胜数，例如最为人所知的antlr和jflex，而本文的主人公ClickHouse却自己去纯手工打造实现了一套sql解析器，本篇">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/2.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/3.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/4.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/5.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/6.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/7.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/parser/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/8.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/9.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/10.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/maxquerysize/11.png">
+<meta property="article:published_time" content="2022-11-04T06:09:55.000Z">
+<meta property="article:modified_time" content="2022-11-04T09:01:49.663Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/maxquerysize/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/11/04/clickhouse-parser/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ClickHouse解析器大揭秘 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/04/clickhouse-parser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ClickHouse解析器大揭秘
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-11-04 14:09:55 / 修改时间：17:01:49" itemprop="dateCreated datePublished" datetime="2022-11-04T14:09:55+08:00">2022-11-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>我们知道语法分析器的作用是根据给定的<a href="https://baike.baidu.com/item/%E5%BD%A2%E5%BC%8F%E6%96%87%E6%B3%95/2447403" target="_blank" rel="noopener">形式文法</a>对由词法单元（Token）序列构成的输入进行语法检查、并构建由输入的词法单元（Token）组成的数据结构（一般是<a href="https://baike.baidu.com/item/%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E6%A0%91/20452541" target="_blank" rel="noopener">语法分析树</a>、<a href="https://baike.baidu.com/item/%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91/6129952" target="_blank" rel="noopener">抽象语法树</a>等层次化的数据结构）。而一提到语法解析目前市面上有很多语法解析器，其中解析sql更是数不胜数，例如最为人所知的antlr和jflex，而本文的主人公ClickHouse却自己去纯手工打造实现了一套sql解析器，本篇文章就来聊聊 ClickHouse 的纯手工解析器，看看它们的底层工作机制。</p>
+<h2 id="简单入门"><a href="#简单入门" class="headerlink" title="简单入门"></a>简单入门</h2><blockquote>
+<p>首先来简单入门解决个小问题，那就是我们如何去连接ck，如何将query传递ck呢，如何设置传递给ck的query长度呢？   </p>
+</blockquote>
+<h3 id="通过TCP方式请求"><a href="#通过TCP方式请求" class="headerlink" title="通过TCP方式请求"></a>通过TCP方式请求</h3><blockquote>
+<p>通过tcp方式使用clickhouse自己的客户端，连接clickhouse，在会话session里先使用<strong>set max_query_size=xx</strong>的方式让当前这个会话修改query的长度，如下图：  </p>
+</blockquote>
+<p><img src="/images/clickhouse/maxquerysize/1.png" alt="clickhouse"></p>
+<h3 id="通过HTTP方式请求"><a href="#通过HTTP方式请求" class="headerlink" title="通过HTTP方式请求"></a>通过HTTP方式请求</h3><blockquote>
+<p>通过http方式请求，<a href="http://ip:port/database?user=xx&amp;password=yy&amp;max_query_size=xx，ck会传递这个参数给setting重写">http://ip:port/database?user=xx&amp;password=yy&amp;max_query_size=xx，ck会传递这个参数给setting重写</a><br>注意chproxy只允许最大max_query_size为512mb，超过此长度会直接报错  </p>
+</blockquote>
+<h3 id="通过sql创建setting授权给登陆用户"><a href="#通过sql创建setting授权给登陆用户" class="headerlink" title="通过sql创建setting授权给登陆用户"></a>通过sql创建setting授权给登陆用户</h3><ol>
+<li>创建setting profile<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create settings profile if not exists role_max_query_size SETTINGS max_query_size &#x3D; 100000000000;</span><br></pre></td></tr></table></figure></li>
+<li>将profile赋值给某个用户<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grant role_max_query_size to prod_voyager_stats_events;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="源码解析ck是如何处理max-query-size的"><a href="#源码解析ck是如何处理max-query-size的" class="headerlink" title="源码解析ck是如何处理max_query_size的"></a>源码解析ck是如何处理max_query_size的</h3><blockquote>
+<p>由于源码较多，只抽出具体实现函数进行源码讲解，本次讲解基于clickhouse v20.6.3.28-stable（该版本与最新版出入较大）。  </p>
+</blockquote>
+<p><img src="/images/clickhouse/maxquerysize/2.png" alt="clickhouse"></p>
+<ol>
+<li>如上图所示，在<code>HTTPHandler.cpp</code>下进行各种http的协议处理时，有一个变量叫<strong>HTMLForm</strong>类型的<code>params</code>，承载的是http请求里的<code>uri</code>，并且在代码的484行进行了此变量的处理，如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">for (const auto &amp; [key, value] : params)</span><br><span class="line">&#123;</span><br><span class="line">    if (key &#x3D;&#x3D; &quot;database&quot;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (database.empty())</span><br><span class="line">            database &#x3D; value;</span><br><span class="line">    &#125;</span><br><span class="line">    else if (key &#x3D;&#x3D; &quot;default_format&quot;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (default_format.empty())</span><br><span class="line">            default_format &#x3D; value;</span><br><span class="line">    &#125;</span><br><span class="line">    else if (param_could_be_skipped(key))</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F;&#x2F; Other than query parameters are treated as settings.</span><br><span class="line">        if (!customizeQueryParam(context, key, value))</span><br><span class="line">            settings_changes.push_back(&#123;key, value&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>而<code>customizeQueryParam</code>会判断该参数param是否等于query，如果是则不会进入setting的设置，再判断是否是param_开头的如果是则会传入context（理解为这次session会话中需要设置的各种上下文内容）则也不会进行setting处理，不是前面2个case则进行setting处理，重载系统默认的setting里的参数，如下图<br><img src="/images/clickhouse/maxquerysize/3.png" alt="clickhouse"></li>
+<li>虽然第二步已经设置了setting，但注意代码的512行，这行代码会走向<strong>SettingsConstraints.cpp</strong>类的<strong>checkImpl</strong>校验逻辑里，有一些配置是不允许修改的，例如<strong>profile</strong>，例如配置就是如果已经通过grant授权配置了<strong>setting profile</strong>了，会去看这个用户的相关权限，如果不符合则会直接抛出exception，不再进行处理，注意这里还有一个问题，抛了异常后，不再将此次请求写入到system.query_log中，之后我们会修复此问题<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;&#x2F; For external data we also want settings</span><br><span class="line">context.checkSettingsConstraints(settings_changes);</span><br><span class="line">context.applySettingsChanges(settings_changes);</span><br></pre></td></tr></table></figure></li>
+<li>做完setting的约束校验后，都符合条件，则我们已经重载了setting里的<strong>max_query_size</strong>，之后就走入了<strong>executeQuery.cpp</strong>执行query逻辑，在它的构造函数里我们就可以看到query是根据<strong>max_query_size</strong>来读取的，如下图<br><img src="/images/clickhouse/maxquerysize/4.png" alt="clickhouse"></li>
+</ol>
+<h2 id="深入探知"><a href="#深入探知" class="headerlink" title="深入探知"></a>深入探知</h2><p>介绍完了<strong>max_query_size</strong>的处理逻辑后，其实我们已经大致明白ck在query的处理流程是如何流转的，那么现在问题来了，我们知道可以通过<code>select xx from tb SETTINGS max_query_size=12112</code>这种方式传入自定义的setting参数，但是有些参数有生效，而select语法却对max_query_size不生效，原因是什么呢？好了，别着急现在我们就来解答ck是如何处理setting这层逻辑的。</p>
+<h3 id="为什么max-query-size的select中不生效？"><a href="#为什么max-query-size的select中不生效？" class="headerlink" title="为什么max_query_size的select中不生效？"></a>为什么max_query_size的select中不生效？</h3><p><img src="/images/clickhouse/maxquerysize/5.png" alt="clickhouse"><br>原因很简单，只要我们读过了上面的流转过程，就知道max_query_size这个参数的处理系统默认是256kb，那么如果未通过uri方式传入<strong>max_query_size</strong>，则在截取query长度前，默认都是256kb，注意截取query时是还未进行ck的parser逻辑处理的，我们可以看到query里的setting是需要经过ck的parser解析后，才会重载进去(如下图6)，所以呢如果你的select query在256kb范围内，则截取完整query后，经过ck的parser解析出ast树，是会带上新的setting，但此时已经没有意义了，而相反的如果你的query超过了256kb，则只截取到256kb前的query，此时setting也不会走到<strong>ParserSelectQuery</strong>里，同时因为你的query被不完整截取后，会直接报ast语法错误<br><img src="/images/clickhouse/maxquerysize/6.png" alt="图6"></p>
+<h2 id="源码看解析器"><a href="#源码看解析器" class="headerlink" title="源码看解析器"></a>源码看解析器</h2><h3 id="1-HTTPHandler-cpp-gt-processQuery"><a href="#1-HTTPHandler-cpp-gt-processQuery" class="headerlink" title="1. HTTPHandler.cpp =&gt; processQuery"></a>1. HTTPHandler.cpp =&gt; processQuery</h3><blockquote>
+<p>每一个http请求都在clickhouse都会起一个叫<strong>HTTPHandler</strong>的线程去处理，根据http请求header和body，初始化请求上下文环境：包括session、用户信息、当前database、响应信息等，另外还处理限流，用户权限，根据配置取到setting信息进行设置，本文重点是调用<code>executeQuery</code>方法处理<code>query</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">executeQuery(*in, *used_output.out_maybe_delayed_and_compressed, &#x2F;* allow_into_outfile &#x3D; *&#x2F; false, context,</span><br><span class="line">        [&amp;response] (const String &amp; current_query_id, const String &amp; content_type, const String &amp; format, const String &amp; timezone)</span><br><span class="line">        &#123;</span><br><span class="line">            response.setContentType(content_type);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Query-Id&quot;, current_query_id);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Format&quot;, format);</span><br><span class="line">            response.add(&quot;X-ClickHouse-Timezone&quot;, timezone);</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="2-executeQuery-cpp-gt-executeQuery"><a href="#2-executeQuery-cpp-gt-executeQuery" class="headerlink" title="2. executeQuery.cpp =&gt; executeQuery"></a>2. executeQuery.cpp =&gt; executeQuery</h3><p>从流中读出字节到buffer里，根据设置的<code>max_query_size</code>判断buffer是否已满，复制到LimitReadBuffer里，重点是执行<strong>executeQueryImpl</strong>，返回tuple类型的(ast, stream)，从stream里提取出<strong>pipeline(流水线)</strong>，根据ast构造出<code>IBlockInputStream</code>或者<code>IBlockOutputStream</code>，传给pipeline后执行pipeline的execute方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::tie(ast, streams) &#x3D; executeQueryImpl(begin, end, context, false, QueryProcessingStage::Complete, may_have_tail, &amp;istr);</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-executeQuery-cpp-gt-executeQueryImpl"><a href="#2-executeQuery-cpp-gt-executeQueryImpl" class="headerlink" title="2. executeQuery.cpp =&gt; executeQueryImpl"></a>2. executeQuery.cpp =&gt; executeQueryImpl</h3><p>按照解析出的ast，构造出Interpreter，调用Interpreter的exec方法去执行后返回pipeline，执行结果记录到query_log里，最后把构造出对应的ast和pipeline返回<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里是实现了ParserQuery对象，继承了IParserBase，IParserBase继承自IParser，等下走到6时，才知道虚函数parseImpl会通过ParserQuery对象实现</span><br><span class="line">ParserQuery parser(end, settings.enable_debug_queries);</span><br><span class="line">.........</span><br><span class="line">ast &#x3D; parseQuery(parser, begin, end, &quot;&quot;, max_query_size, settings.max_parser_depth);</span><br><span class="line">.........</span><br><span class="line">auto interpreter &#x3D; InterpreterFactory::get(ast, context, stage);</span><br><span class="line">.........</span><br><span class="line">res &#x3D; interpreter-&gt;execute();</span><br><span class="line">QueryPipeline &amp; pipeline &#x3D; res.pipeline;</span><br><span class="line">.........</span><br><span class="line">return std::make_tuple(ast, std::move(res));</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-parseQuery-cpp-gt-parseQueryAndMovePosition"><a href="#3-parseQuery-cpp-gt-parseQueryAndMovePosition" class="headerlink" title="3. parseQuery.cpp =&gt; parseQueryAndMovePosition"></a>3. parseQuery.cpp =&gt; parseQueryAndMovePosition</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ASTPtr res &#x3D; tryParseQuery(parser, pos, end, error_message, false, query_description, allow_multi_statements, max_query_size, max_parser_depth);</span><br></pre></td></tr></table></figure>
+<h3 id="4-parseQuery-cpp-gt-tryParseQuery"><a href="#4-parseQuery-cpp-gt-tryParseQuery" class="headerlink" title="4. parseQuery.cpp =&gt; tryParseQuery"></a>4. parseQuery.cpp =&gt; tryParseQuery</h3><blockquote>
+<p>尝试解析SQL，将sql通过语法树规则装入TokenIterator，返回ASTPtr  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; ClickHouse词法分析器是由Tokens和Lexer类来实现，token是最基础的元祖，之间是没有任何关联的，只是一堆词组和符号，通过lexer语法进行解析后，把元祖里的token建立起关系。</span><br><span class="line">Tokens tokens(pos, end, max_query_size);</span><br><span class="line">IParser::Pos token_iterator(tokens, max_parser_depth);</span><br><span class="line">&#x2F;&#x2F; 注意这里，TokenIterator对-&gt;使用了重载，在重载函数里去初始化TOKEN，主要是从第一个字符开始使用pos++的方式进行判断，可以进入Token Lexer::nextTokenImpl()进行查看</span><br><span class="line">if (token_iterator-&gt;isEnd() || token_iterator-&gt;type &#x3D;&#x3D; TokenType::Semicolon) &#123;</span><br><span class="line">    out_error_message &#x3D; &quot;Empty query&quot;;</span><br><span class="line">    pos &#x3D; token_iterator-&gt;begin;</span><br><span class="line">    return nullptr;</span><br><span class="line">&#125;</span><br><span class="line">.....</span><br><span class="line">Expected expected;</span><br><span class="line">......</span><br><span class="line">ASTPtr res;</span><br><span class="line">bool parse_res &#x3D; parser.parse(token_iterator, res, expected);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：<code>IParser</code>的<code>parse</code>方法是<code>virtual</code>虚函数，<code>IParser</code>作为接口角色，被<code>IParserBase</code>继承，在<code>IParserBase</code>里实现了<code>parse</code>方法。</p>
+</blockquote>
+<h3 id="5-IParserBase-cpp-gt-parse"><a href="#5-IParserBase-cpp-gt-parse" class="headerlink" title="5. IParserBase.cpp =&gt; parse"></a>5. IParserBase.cpp =&gt; parse</h3><blockquote>
+<p>在解每个token时都会根据当前的token进行预判（parseImpl返回的结果），返回true才会进入下一个子token  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">bool IParserBase::parse(Pos &amp; pos, ASTPtr &amp; node, Expected &amp; expected)</span><br><span class="line">&#123;</span><br><span class="line">    expected.add(pos, getName());</span><br><span class="line"></span><br><span class="line">    return wrapParseImpl(pos, IncreaseDepthTag&#123;&#125;, [&amp;]</span><br><span class="line">    &#123;</span><br><span class="line">        bool res &#x3D; parseImpl(pos, node, expected);</span><br><span class="line">        if (!res)</span><br><span class="line">            node &#x3D; nullptr;</span><br><span class="line">        return res;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意到parseImpl在IParserBase中是一个虚函数，将被继承自IParserBase类的子类实现，而在 <strong><em> 第2步 </em></strong>中我们定义的子类是ParserQuery，所以此时是直接调用到ParserQuery子类的parseImpl方法</p>
+</blockquote>
+<h3 id="6-ParserQuery-cpp-gt-parseImpl"><a href="#6-ParserQuery-cpp-gt-parseImpl" class="headerlink" title="6. ParserQuery.cpp =&gt; parseImpl"></a>6. ParserQuery.cpp =&gt; parseImpl</h3><blockquote>
+<p>Parser的主要类（也都是继承自IParserBase）分别定义出来后，每个去尝试解析，如果都不在这几个主要Parser里，则返回false，否则返回true，clickhouse把query分类成以下14类，但本质上可以归纳为2类，第一类是有结果输出可对应show/select/desc/create等，第二类是无结果输出可对应insert/use/set等  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">bool ParserQuery::parseImpl(Pos &amp; pos, ASTPtr &amp; node, Expected &amp; expected)</span><br><span class="line">&#123;</span><br><span class="line">    ParserQueryWithOutput query_with_output_p(enable_explain);</span><br><span class="line">    ParserInsertQuery insert_p(end);</span><br><span class="line">    ParserUseQuery use_p;</span><br><span class="line">    ParserSetQuery set_p;</span><br><span class="line">    ParserSystemQuery system_p;</span><br><span class="line">    ParserCreateUserQuery create_user_p;</span><br><span class="line">    ParserCreateRoleQuery create_role_p;</span><br><span class="line">    ParserCreateQuotaQuery create_quota_p;</span><br><span class="line">    ParserCreateRowPolicyQuery create_row_policy_p;</span><br><span class="line">    ParserCreateSettingsProfileQuery create_settings_profile_p;</span><br><span class="line">    ParserDropAccessEntityQuery drop_access_entity_p;</span><br><span class="line">    ParserGrantQuery grant_p;</span><br><span class="line">    ParserSetRoleQuery set_role_p;</span><br><span class="line">    ParserExternalDDLQuery external_ddl_p;</span><br><span class="line"></span><br><span class="line">    bool res &#x3D; query_with_output_p.parse(pos, node, expected)</span><br><span class="line">        || insert_p.parse(pos, node, expected)</span><br><span class="line">        || use_p.parse(pos, node, expected)</span><br><span class="line">        || set_role_p.parse(pos, node, expected)</span><br><span class="line">        || set_p.parse(pos, node, expected)</span><br><span class="line">        || system_p.parse(pos, node, expected)</span><br><span class="line">        || create_user_p.parse(pos, node, expected)</span><br><span class="line">        || create_role_p.parse(pos, node, expected)</span><br><span class="line">        || create_quota_p.parse(pos, node, expected)</span><br><span class="line">        || create_row_policy_p.parse(pos, node, expected)</span><br><span class="line">        || create_settings_profile_p.parse(pos, node, expected)</span><br><span class="line">        || drop_access_entity_p.parse(pos, node, expected)</span><br><span class="line">        || grant_p.parse(pos, node, expected)</span><br><span class="line">        || external_ddl_p.parse(pos, node, expected);</span><br><span class="line"></span><br><span class="line">    return res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意看这个parseImpl方法，进来后都会先去接<code>ParserQueryWithOutput</code>类解析相关ast，这里类涉及到了<code>explain</code>、<code>select</code>、<code>show</code>，<code>create</code>、<code>alter</code>等相关语法的解析，如果解析不过，则直接报错，解析成功后会处理我们这篇文章中提到的<strong>SETTING</strong>，如下图7定义的，将setting传入的变量存入到<code>s_settings</code>指针中。<br><img src="/images/clickhouse/maxquerysize/7.png" alt="图7"></p>
+<h3 id="clcikhouse的parser总结："><a href="#clcikhouse的parser总结：" class="headerlink" title="clcikhouse的parser总结："></a>clcikhouse的parser总结：</h3><ul>
+<li><ol>
+<li>ClickHouse词法分析器<br>词法解析的主要任务是读入源程序的输入字符、将它们组成词素，生成并输出一个词法单元（Token）序列，每个词法单元对应于一个词素。<code>ClickHouse</code>中的每个词法单元（<code>Token</code>）使用一个<code>struct Tocken</code>结构体对象来进行存储，结构体中存储了词法单元的<code>type</code>和<code>value</code>。<br>ClickHouse词法分析器是由<code>Tokens</code>和<code>Lexer</code>类来实现， <strong><em>DB::Lexer::nextTokenImpl()</em></strong>函数用来对<code>SQL</code>语句进行词法分析的具体实现</li>
+</ol>
+</li>
+<li><ol>
+<li>ClickHouse语法解析器<br>ClickHouse中定义了不同的Parser用来对不同类型的SQL语句进行语法分析，例如：ParserInsertQuery（Insert语法分析器）、ParserCreateQuery（Create语法分析器）、ParserAlterQuery（Alter语法分析器）等等。<br>Parser首先判断输入的Token序列是否是该类型的SQL，若是该类型的SQL，则继续检查语法的正确性，正确则生成AST返回，语法错误的则抛出语法错误异常，否则直接返回空AST语法树</li>
+</ol>
+</li>
+</ul>
+<p><img src="/images/clickhouse/parser/1.png" alt="clickhouse"></p>
+<h3 id="解答setting生效问题"><a href="#解答setting生效问题" class="headerlink" title="解答setting生效问题"></a>解答setting生效问题</h3><p><img src="/images/clickhouse/maxquerysize/8.png" alt="图7"><br>如上图所示，当前原生ck只支持InterpreterSelectQuery和InterpreterInsertQuery对query传入setting进行了重载处理。<br>InterpreterSelectQuery是在自己的构造函数里初始化了setting到context里<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void InterpreterSelectQuery::initSettings()</span><br><span class="line">&#123;</span><br><span class="line">    auto &amp; query &#x3D; getSelectQuery();</span><br><span class="line">    if (query.settings())</span><br><span class="line">        InterpreterSetQuery(query.settings(), *context).executeForCurrentContext();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>InterpreterInsertQuery是在parser解析出ast后，在<code>executeQueryImpl</code>进行的setting重载context。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">auto * insert_query &#x3D; ast-&gt;as&lt;ASTInsertQuery&gt;();</span><br><span class="line"></span><br><span class="line">if (insert_query &amp;&amp; insert_query-&gt;settings_ast)</span><br><span class="line">    InterpreterSetQuery(insert_query-&gt;settings_ast, context).executeForCurrentContext();</span><br></pre></td></tr></table></figure><br>剩下的setting都已经是通过Interpreter执行结束后再处理的，对于我们需要在前置传入时没有效果了。</p>
+<h3 id="解决业务困扰"><a href="#解决业务困扰" class="headerlink" title="解决业务困扰"></a>解决业务困扰</h3><p>当前我们的离线导入hive2ck，其实是通过将数据写入到临时表，这张临时表是按照目标表的表结构重新创建了一个MergeTree表，通过spark任务将hive数据以流式方式写入到临时表分区，生产出分区对应的多个part，生产过程中我们会将part拉回到临时表对应的detach目录，这个过程叫<a href="http://way.xiaojukeji.com/article/29557" target="_blank" rel="noopener">离线构建</a>，再将再将part通过ck的attach命令激活，这时候临时表就对该分区可见了，然后再通过replace partition的方式，将临时表的分区替换到我们的目标表去，这整个过程，就是我们的hive2ck处理流程，如下图所示：<br><img src="/images/clickhouse/maxquerysize/9.png" alt="图10"></p>
+<blockquote>
+<p>我们将此离线构建继承到数梦的同步中心后，陆续遇到了业务方来咨询相关问题，下面是问题汇总及如何解决的  </p>
+</blockquote>
+<h4 id="如何在离线导入中将明细数据写入到关联的物化视图"><a href="#如何在离线导入中将明细数据写入到关联的物化视图" class="headerlink" title="如何在离线导入中将明细数据写入到关联的物化视图"></a>如何在离线导入中将明细数据写入到关联的物化视图</h4><p>熟悉clickhouse的同学们都知道，原生ck对于物化视图的写入，唯一的方式是在明细表通过insert写入时，才会将数据经过物化视图的触发器写入关联的物化视图，而在离线构建过程中，ck是不支持的，但很多业务方跟我们提出这个需求，希望离线构建可以支持将分区数据写入到关联物化视图去，于是我们对ck的replace partition 进行了改造。<br>改造前的语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221102&#39; FROM test.visits_basic_tmp;</span><br></pre></td></tr></table></figure><br>改造后的语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221101&#39; FROM test.visits_basic_tmp AND TRIGGER VIEW;</span><br></pre></td></tr></table></figure><br>在离线构建走到替换分区这一步时，我们改造了AstAlterQuery，让<code>ParserAlterQuery</code>增加了对<code>and trigger view</code>的语法解析，解析之后进入到<code>InterpreterAlterQuery</code>时，如果ast返回的trigger view是true，则程序流程会流转到取出明细表元数据，查询是否有关联物化视图，重新构造出类似下面的sql，交过pipeline进行执行，由此将该分区数据写入到物化视图去。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into 物化视图 select from 明细表 where 分区&#x3D;xx</span><br></pre></td></tr></table></figure></p>
+<h4 id="分区过大导入失败如何解决"><a href="#分区过大导入失败如何解决" class="headerlink" title="分区过大导入失败如何解决"></a>分区过大导入失败如何解决</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx has timed out! (120000ms) Possible deadlock avoided. Client should retry</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/maxquerysize/10.png" alt="图10"><br>如上图所示，替换分区前，会给该明细表加一把锁，并设定锁时间（lock_acquire_timeout），系统默认时120s，如果该分区过大，替换过程超过120s，则会爆上面错误，而本文最开始已经讲解过如何处理setting，考虑到ck原生只支持insert和select时interpreter对setting重载，由此进行改造让InterpreterAlterQuery也支持通过sql传入锁时间，如下面语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE test.visits_basic REPLACE PARTITION &#39;20221108&#39; FROM test.visits_basic_tmp AND TRIGGER VIEW SETTINGS lock_acquire_timeout&#x3D;86400000;</span><br></pre></td></tr></table></figure><br>因为ParserQueryWithOutput已经对setting进行了解析，而AstAlterQuery其实是继承自ASTQueryWithOutput，所以我们已经获得了setting这一块的ast，无需再自己初始化新的ast，只要在InterpreterAlterQuery里把setting重载就行了，如图11<br><img src="/images/clickhouse/maxquerysize/11.png" alt="图10"></p>
+<h4 id="替换分区成功，物化视图数据写入报错如何解决"><a href="#替换分区成功，物化视图数据写入报错如何解决" class="headerlink" title="替换分区成功，物化视图数据写入报错如何解决"></a>替换分区成功，物化视图数据写入报错如何解决</h4><ol>
+<li>首先我们在数梦平台上控制了相关的ddl语句修改，如果用户要删明细表字段，则必须先去处理关联的物化视图字段，如果用户要删明细表，则必须先删物化视图</li>
+<li>遇到替换分区成功，而物化视图写入失败，报错都是锁明细表超时，对于这种case可直接解锁明细表的锁，让物化视图自己去写，不再锁明细表，所以只需要做简单的锁释放便可</li>
+</ol>
+<p>以上是对ck进行改造过程中遇到的3个问题，此改造过程主要是满足离线导入可写入物化视图，未来我们还将对ck进行更多改造，以满足不同业务需求，各个 业务线大佬们如果在使用ck过程中有遇到任何问题，欢迎加入ck用户群，和我们一起沟通解决。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/" rel="prev" title="starrocks在滴滴的落地">
+      <i class="fa fa-chevron-left"></i> starrocks在滴滴的落地
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单入门"><span class="nav-number">2.</span> <span class="nav-text">简单入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过TCP方式请求"><span class="nav-number">2.1.</span> <span class="nav-text">通过TCP方式请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过HTTP方式请求"><span class="nav-number">2.2.</span> <span class="nav-text">通过HTTP方式请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过sql创建setting授权给登陆用户"><span class="nav-number">2.3.</span> <span class="nav-text">通过sql创建setting授权给登陆用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码解析ck是如何处理max-query-size的"><span class="nav-number">2.4.</span> <span class="nav-text">源码解析ck是如何处理max_query_size的</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#深入探知"><span class="nav-number">3.</span> <span class="nav-text">深入探知</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么max-query-size的select中不生效？"><span class="nav-number">3.1.</span> <span class="nav-text">为什么max_query_size的select中不生效？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码看解析器"><span class="nav-number">4.</span> <span class="nav-text">源码看解析器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-HTTPHandler-cpp-gt-processQuery"><span class="nav-number">4.1.</span> <span class="nav-text">1. HTTPHandler.cpp &#x3D;&gt; processQuery</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-executeQuery-cpp-gt-executeQuery"><span class="nav-number">4.2.</span> <span class="nav-text">2. executeQuery.cpp &#x3D;&gt; executeQuery</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-executeQuery-cpp-gt-executeQueryImpl"><span class="nav-number">4.3.</span> <span class="nav-text">2. executeQuery.cpp &#x3D;&gt; executeQueryImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-parseQuery-cpp-gt-parseQueryAndMovePosition"><span class="nav-number">4.4.</span> <span class="nav-text">3. parseQuery.cpp &#x3D;&gt; parseQueryAndMovePosition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-parseQuery-cpp-gt-tryParseQuery"><span class="nav-number">4.5.</span> <span class="nav-text">4. parseQuery.cpp &#x3D;&gt; tryParseQuery</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-IParserBase-cpp-gt-parse"><span class="nav-number">4.6.</span> <span class="nav-text">5. IParserBase.cpp &#x3D;&gt; parse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-ParserQuery-cpp-gt-parseImpl"><span class="nav-number">4.7.</span> <span class="nav-text">6. ParserQuery.cpp &#x3D;&gt; parseImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clcikhouse的parser总结："><span class="nav-number">4.8.</span> <span class="nav-text">clcikhouse的parser总结：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解答setting生效问题"><span class="nav-number">4.9.</span> <span class="nav-text">解答setting生效问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决业务困扰"><span class="nav-number">4.10.</span> <span class="nav-text">解决业务困扰</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何在离线导入中将明细数据写入到关联的物化视图"><span class="nav-number">4.10.1.</span> <span class="nav-text">如何在离线导入中将明细数据写入到关联的物化视图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分区过大导入失败如何解决"><span class="nav-number">4.10.2.</span> <span class="nav-text">分区过大导入失败如何解决</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#替换分区成功，物化视图数据写入报错如何解决"><span class="nav-number">4.10.3.</span> <span class="nav-text">替换分区成功，物化视图数据写入报错如何解决</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

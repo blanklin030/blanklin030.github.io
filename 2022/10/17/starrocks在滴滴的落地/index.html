@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景介绍ClickHouse介绍 ClickHouse是由俄罗斯的第一大搜索引擎Yandex公司开源的列存数据库。令人惊喜的是，ClickHouse相较于很多商业MPP数据库，比如Vertica，InfiniDB有着极大的性能提升。除了Yandex以外，越来越多的公司开始尝试使用ClickHouse等列存数据库。对于一般的分析业务，结构性较强且数据变更不频繁，可以考虑将需要进行关联的表打平成宽表，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="starrocks在滴滴的落地">
+<meta property="og:url" content="http://yoursite.com/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="背景介绍ClickHouse介绍 ClickHouse是由俄罗斯的第一大搜索引擎Yandex公司开源的列存数据库。令人惊喜的是，ClickHouse相较于很多商业MPP数据库，比如Vertica，InfiniDB有着极大的性能提升。除了Yandex以外，越来越多的公司开始尝试使用ClickHouse等列存数据库。对于一般的分析业务，结构性较强且数据变更不频繁，可以考虑将需要进行关联的表打平成宽表，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/20.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/19.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/1.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/2.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/3.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/4.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/5.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/7.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/6.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/8.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/9.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/10.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/11.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/12.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/13.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/14.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/15.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/16.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/17.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/18.png">
+<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/21.png">
+<meta property="article:published_time" content="2022-10-17T06:48:24.803Z">
+<meta property="article:modified_time" content="2022-10-21T08:08:51.876Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="lazy and boring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/starrocks/helloworld/20.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>starrocks在滴滴的落地 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/10/17/starrocks%E5%9C%A8%E6%BB%B4%E6%BB%B4%E7%9A%84%E8%90%BD%E5%9C%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          starrocks在滴滴的落地
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-17 14:48:24" itemprop="dateCreated datePublished" datetime="2022-10-17T14:48:24+08:00">2022-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-21 16:08:51" itemprop="dateModified" datetime="2022-10-21T16:08:51+08:00">2022-10-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><h4 id="ClickHouse介绍"><a href="#ClickHouse介绍" class="headerlink" title="ClickHouse介绍"></a>ClickHouse介绍</h4><blockquote>
+<p><code>ClickHouse</code>是由俄罗斯的第一大搜索引擎<code>Yandex</code>公司开源的列存数据库。令人惊喜的是，<code>ClickHouse</code>相较于很多商业<code>MPP</code>数据库，比如<code>Vertica</code>，<code>InfiniDB</code>有着极大的性能提升。除了<code>Yandex</code>以外，越来越多的公司开始尝试使用<code>ClickHouse</code>等列存数据库。对于一般的分析业务，结构性较强且数据变更不频繁，可以考虑将需要进行关联的表打平成宽表，放入<code>ClickHouse</code>中。</p>
+<ul>
+<li>配置丰富，只依赖与<code>Zookeeper</code></li>
+<li>线性可扩展性，可以通过添加服务器扩展集群</li>
+<li>容错性高，不同分片间采用异步多主复制</li>
+<li>单表性能极佳，采用向量计算，支持采样和近似计算等优化手段</li>
+<li>功能强大支持多种表引擎</li>
+</ul>
+</blockquote>
+<h4 id="StarRocks介绍"><a href="#StarRocks介绍" class="headerlink" title="StarRocks介绍"></a>StarRocks介绍</h4><blockquote>
+<p><code>StarRocks</code>是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容<code>MySQL</code>协议和<code>MySQL</code>生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。<code>StarRocks</code>致力于在全场景<code>OLAP</code>业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。</p>
+<ul>
+<li>不依赖于大数据生态，同时外表的联邦查询可以兼容大数据生态</li>
+<li>提供多种不同的模型，支持不同维度的数据建模</li>
+<li>支持在线弹性扩缩容，可以自动负载均衡</li>
+<li>支持高并发分析查询</li>
+<li>实时性好，支持数据秒级写入</li>
+<li>兼容MySQL 5.7协议和MySQL生态</li>
+</ul>
+</blockquote>
+<h4 id="二者的对比"><a href="#二者的对比" class="headerlink" title="二者的对比"></a>二者的对比</h4><p><strong>相似之处</strong></p>
+<ul>
+<li>都可以提供极致的性能</li>
+<li>都不依赖于<code>Hadoop</code>生态</li>
+<li>底层存储分片都提供了主主的复制高可用机制。</li>
+<li>都是<code>MPP</code>架构</li>
+<li>都是列式存储</li>
+<li>都支持表述SQL语法</li>
+<li>都提供了MOLAP库的预聚合能力</li>
+</ul>
+<p><strong>差异性</strong></p>
+<ul>
+<li><code>ClickHouse</code>在更适用于大宽表的场景，<code>TP</code>的数据通过<code>CDC</code>工具的，可以考虑在<code>Flink</code>中将需要关联的表打平，以大宽表的形式写入<code>ClickHouse</code></li>
+<li><code>StarRocks</code>对于<code>join</code>的能力更强，<code>ClickHouse虽</code>然提供了<code>join</code>的语义，但使用上对大表关联的能力支撑较弱，复杂的关联查询经常会引起<code>OOM</code></li>
+<li><code>ClickHouse</code>对高并发的业务并不友好，即使一个查询，也会用服务器一半的<code>CPU</code>去查询</li>
+<li><code>StarRocks</code>可以支撑数千用户同时进行分析查询，在部分场景下，高并发能力能够达到万级。<code>StarRocks</code>在数据存储层，采用先分区再分桶的策略，增加了数据的指向性，利用前缀索引可以快读对数据进行过滤和查找，减少磁盘的<code>I/O</code>操作，提升查询性能</li>
+<li>对于用户的原有的查询基表的 <code>SQL</code> 语句保持不变，<code>StarRocks</code> 会自动选择一个最优的物化视图，从物化视图中读取数据并计算。用户可以通过 <code>EXPLAIN</code> 命令来检查当前查询是否使用了物化视图。而<code>ClickHouse</code>则需要用户自行指定<code>SQL</code>中所需要使用的物化视图。</li>
+</ul>
+<h4 id="为什么推荐StarRocks"><a href="#为什么推荐StarRocks" class="headerlink" title="为什么推荐StarRocks"></a>为什么推荐StarRocks</h4><ol>
+<li>滴滴大数据<code>OLAP</code>团队目前在维护的引擎有<code>StarRocks</code>、<code>ClickHouse</code>、<code>Druid</code>，3个引擎各有各的特点，现有的OLAP引擎(Kylin、Druid、ClickHouse)多表Join时的性能都比较差，甚至不支持多表Join，现有的引擎<code>Druid</code>虽然有<code>lookup</code>表的能力，但经过实际测试后性能不佳。<code>Apache Kylin</code>实际上也不支持<code>Join</code>，多表的<code>Join</code>需要通过在<code>cube</code>构建的时候底层打成宽表来实现。<code>ClickHouse</code>只支持本地<code>Hash join</code>的模式，不支持分布式<code>Shuffle join</code>，多数情况下灵活性受限，性能表现不佳。</li>
+<li><code>OLAP</code>引擎需要同时具备明细数据查询和数据聚合的能力。由于<code>Apache Kylin</code>、<code>Druid</code>不能较好支持明细数据查询，我们引入了<code>ClickHouse</code>，通过在明细表基础上创建相应聚合物化视图来处理，但是不够灵活，对于上层应用来说，查明细和查聚合需要切到不同的表去处理。</li>
+<li>目前我们团队在有限人员情况下需要维护这3个引擎的稳定性，导致我们对每一个引擎的理解深度都不够，特别像<code>ClickHouse</code>，运维成本非常高，ClickHouse集群的分片、副本信息，都是通过静态的配置文件的方式进行配置。当整个集群需要扩缩容的时候，就必须通过修改配置文件的方式进行刷新，数据的均衡都需要运维人员介入。此外ClickHouse通过zookeeper来做副本管理，当集群规模变大时，副本数过多会导致zookeeper的压力变大，集群的稳定性也就会相应变差。<br>为解决以上问题，滴滴大数据<code>OLAP</code>团队在2022年初开始调研<code>StarRocks</code>，在全面测试过从上面对<code>StarRocks</code>和<code>ClickHouse</code>的对比，我们也可以明显感受到<code>StarRocks</code>在多数场景下都是优于<code>ClickHouse</code>的，我们希望通过<code>StarRocks</code>来实现<code>OLAP</code>平台的多业务场景的查询引擎统一化。<br><img src="/images/starrocks/helloworld/20.png" alt="1"><br>注：这是我们针对<code>Druid</code>、<code>ClickHouse</code>、<code>StarRocks</code>进行的测试对比，<a href="http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=799050659" target="_blank" rel="noopener">链接</a>。</li>
+</ol>
+<h3 id="StarRocks特性"><a href="#StarRocks特性" class="headerlink" title="StarRocks特性"></a>StarRocks特性</h3><blockquote>
+<p><code>StarRocks</code>的架构设计融合了<code>MPP</code>数据库，以及分布式系统的设计思想，其特性如下所示。</p>
+<h4 id="架构精简"><a href="#架构精简" class="headerlink" title="架构精简"></a>架构精简</h4><ul>
+<li><code>StarRocks</code>内部通过<code>MPP</code>计算框架完成<code>SQL</code>的具体执行工作。<code>MPP</code>框架能够充分的利用多节点的计算能力，整个查询可以并行执行，从而实现良好的交互式分析体验。</li>
+<li><code>StarRocks</code>集群不需要依赖任何其他组件，易部署、易维护和极简的架构设计，降低了<code>StarRocks</code>系统的复杂度和维护成本，同时也提升了系统的可靠性和扩展性。管理员只需要专注于<code>StarRocks</code>系统，无需学习和管理任何其他外部系统。</li>
+</ul>
+</blockquote>
+<h4 id="全面向量化引擎"><a href="#全面向量化引擎" class="headerlink" title="全面向量化引擎"></a>全面向量化引擎</h4><p><code>StarRocks</code>的计算层全面采用了向量化技术，将所有算子、函数、扫描过滤和导入导出模块进行了系统性优化。通过列式的内存布局、适配<code>CPU</code>的<code>SIMD</code>指令集等手段，充分发挥了现代<code>CPU</code>的并行计算能力，从而实现亚秒级别的多维分析能力。</p>
+<h4 id="智能查询优化"><a href="#智能查询优化" class="headerlink" title="智能查询优化"></a>智能查询优化</h4><p><code>StarRocks</code>通过<code>CBO</code>优化器 <strong>（Cost Based Optimizer）</strong> 可以对复杂查询自动优化。无需人工干预，就可以通过统计信息合理估算执行成本，生成更优的执行计划，大大提高了<code>AdHoc</code>和<code>ETL</code>场景的数据分析效率。</p>
+<h4 id="联邦查询"><a href="#联邦查询" class="headerlink" title="联邦查询"></a>联邦查询</h4><p><code>StarRocks</code>支持使用外表的方式进行联邦查询，当前可以支持<code>Hive</code>、<code>MySQL</code>、<code>Elasticsearch</code>、<code>Iceberg</code>和<code>Hudi</code>类型的外表，您无需通过数据导入，可以直接进行数据查询加速。</p>
+<h4 id="高效更新"><a href="#高效更新" class="headerlink" title="高效更新"></a>高效更新</h4><p><code>StarRocks</code>支持明细模型(DUPLICATE KEY)、聚合模型(AGGREGATE KEY)、主键模型(PRIMARY KEY)和更新模型(UNIQUE KEY)，其中主键模型可以按照主键进行<code>Upsert</code>或<code>Delete</code>操作，通过存储和索引的优化可以在并发更新的同时实现高效的查询优化，更好的服务实时数仓的场景。</p>
+<h4 id="智能物化视图"><a href="#智能物化视图" class="headerlink" title="智能物化视图"></a>智能物化视图</h4><ul>
+<li><code>StarRocks</code>支持智能的物化视图。您可以通过创建物化视图，预先计算生成预聚合表用于加速聚合类查询请求。</li>
+<li><code>StarRocks</code>的物化视图能够在数据导入时自动完成汇聚，与原始表数据保持一致。</li>
+<li>查询的时候，您无需指定物化视图，<code>StarRocks</code>能够自动选择最优的物化视图来满足查询请求。</li>
+</ul>
+<h4 id="标准SQL"><a href="#标准SQL" class="headerlink" title="标准SQL"></a>标准SQL</h4><ul>
+<li><code>StarRocks</code>支持标准的<code>SQL</code>语法，包括聚合、<code>JOIN</code>、排序、窗口函数和自定义函数等功能。</li>
+<li><code>StarRocks</code>可以完整支持<code>TPC-H</code>的22个<code>SQL</code>和<code>TPC-DS</code>的99个<code>SQL</code>。</li>
+<li><code>StarRocks</code>兼容<code>MySQL</code>协议语法，可以使用现有的各种客户端工具、<code>BI</code>软件访问<code>StarRocks</code>，对<code>StarRocks</code>中的数据进行拖拽式分析。</li>
+</ul>
+<h4 id="流批一体"><a href="#流批一体" class="headerlink" title="流批一体"></a>流批一体</h4><ul>
+<li><code>StarRocks</code>支持实时和批量两种数据导入方式。</li>
+<li><code>StarRocks</code>支持的数据源有<code>Kafka</code>、<code>HDFS</code>和本地文件。</li>
+<li><code>StarRocks</code>支持的数据格式有<code>ORC</code>、<code>Parquet</code>和<code>CSV</code>等。</li>
+<li><code>StarRocks</code>可以实时消费<code>Kafka</code>数据来完成数据导入，保证数据不丢不重 <strong>（exactly once）</strong>。</li>
+<li><code>StarRocks</code>也可以从本地或者远程（HDFS）批量导入数据。</li>
+</ul>
+<h4 id="高可用易扩展"><a href="#高可用易扩展" class="headerlink" title="高可用易扩展"></a>高可用易扩展</h4><ul>
+<li><code>StarRocks</code>的元数据和数据都是多副本存储，并且集群中服务有热备，多实例部署，避免了单点故障。</li>
+<li>集群具有自愈能力，可弹性恢复，节点的宕机、下线和异常都不会影响<code>StarRocks</code>集群服务的整体稳定性。</li>
+<li><code>StarRocks</code>采用分布式架构，存储容量和计算能力可近乎线性水平扩展。<code>StarRocks</code>单集群的节点规模可扩展到数百节点，数据规模可达到10 PB级别。</li>
+<li>扩缩容期间无需停服，可以正常提供查询服务。</li>
+<li><code>StarRocks</code>中表模式热变更，可通过一条简单<code>SQL</code>命令动态地修改表的定义，例如增加列、减少列和新建物化视图等。同时，处于模式变更中的表也可以正常导入和查询数据。</li>
+</ul>
+<h3 id="StarRocks应用场景"><a href="#StarRocks应用场景" class="headerlink" title="StarRocks应用场景"></a>StarRocks应用场景</h3><blockquote>
+<p>StarRocks可以满足企业级用户的多种分析需求，具体的业务场景如下所示：</p>
+<h4 id="OLAP多维分析"><a href="#OLAP多维分析" class="headerlink" title="OLAP多维分析"></a>OLAP多维分析</h4><ul>
+<li>用户行为分析</li>
+<li>用户画像、标签分析、圈人</li>
+<li>高维业务指标报表</li>
+<li>自助式报表平台</li>
+<li>业务问题探查分析</li>
+<li>跨主题业务分析</li>
+<li>财务报表</li>
+<li>系统监控分析</li>
+</ul>
+</blockquote>
+<h4 id="实时数仓"><a href="#实时数仓" class="headerlink" title="实时数仓"></a>实时数仓</h4><ul>
+<li>电商大促数据分析</li>
+<li>教育行业的直播质量分析</li>
+<li>物流行业的运单分析</li>
+<li>金融行业绩效分析、指标计算</li>
+<li>广告投放分析</li>
+<li>管理驾驶舱</li>
+<li>探针分析APM（Application Performance Management）</li>
+</ul>
+<h4 id="高并发查询"><a href="#高并发查询" class="headerlink" title="高并发查询"></a>高并发查询</h4><ul>
+<li>广告主报表分析</li>
+<li>零售行业渠道人员分析</li>
+<li>saas行业面向用户分析报表</li>
+<li>dashboard多页面分析</li>
+</ul>
+<h4 id="统一分析"><a href="#统一分析" class="headerlink" title="统一分析"></a>统一分析</h4><p>通过使用一套系统解决多维分析、高并发查询、实时分析和Ad-Hoc查询等场景，降低系统复杂度和多技术栈开发与维护成本。</p>
+<h3 id="如何使用StarRocks"><a href="#如何使用StarRocks" class="headerlink" title="如何使用StarRocks"></a>如何使用StarRocks</h3><blockquote>
+<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"></p>
+<h4 id="创建库"><a href="#创建库" class="headerlink" title="创建库"></a>创建库</h4><p>登陆<a href="https://pam.data.didichuxing.com/" target="_blank" rel="noopener">项目管理平台</a>，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：<br><img src="/images/starrocks/helloworld/1.png" alt="1"><br>注意：<a href="https://pam.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东项目管理平台</a></p>
+</blockquote>
+<h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><p>登陆<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以自定义创建表。<br>注意:<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">美东实时开发平台</a></p>
+<ul>
+<li><p>根据schema创建sr表<br><img src="/images/starrocks/helloworld/2.png" alt="1"></p>
+</li>
+<li><p>自定义创建sr表<br><img src="/images/starrocks/helloworld/3.png" alt="1"></p>
+</li>
+<li><p>根据hive表创建sr表<br><img src="/images/starrocks/helloworld/4.png" alt="1"><br>注意创建表时，请按照olap团队<a href="http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=808788439" target="_blank" rel="noopener">推荐方式</a>去建表！</p>
+</li>
+</ul>
+<h4 id="创建离线导入任务"><a href="#创建离线导入任务" class="headerlink" title="创建离线导入任务"></a>创建离线导入任务</h4><p>登陆<a href="https://sync.data.didichuxing.com/" target="_blank" rel="noopener">同步中心</a>，切换到您所在项目，新增同步任务。<br>注意：<a href="https://sync.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东同步中心</a></p>
+<ul>
+<li>配置基本信息<br><img src="/images/starrocks/helloworld/5.png" alt="1"></li>
+<li>配置来源去向<br><img src="/images/starrocks/helloworld/7.png" alt="1"></li>
+<li>hive表和sr表的字段映射<br><img src="/images/starrocks/helloworld/6.png" alt="1"></li>
+<li>任务配置<br><img src="/images/starrocks/helloworld/8.png" alt="1"></li>
+</ul>
+<h4 id="创建实时导入任务"><a href="#创建实时导入任务" class="headerlink" title="创建实时导入任务"></a>创建实时导入任务</h4><p>登陆<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以创建实时导入任务。<br>注意:<a href="https://studio.data.intra.didiglobal.com/stream" target="_blank" rel="noopener">美东实时开发平台</a><br><img src="/images/starrocks/helloworld/9.png" alt="1"></p>
+<ul>
+<li>新建SQL任务<br><img src="/images/starrocks/helloworld/10.png" alt="1"></li>
+<li>再根据对应的source和sink选择后会自动创建flink SQL<br><img src="/images/starrocks/helloworld/11.png" alt="1"><br>注意1：详细参数可参考<a href="https://docs.starrocks.io/zh-cn/latest/loading/Flink-connector-starrocks" target="_blank" rel="noopener">官方文档</a><br>注意2：常见配置说明<br><img src="/images/starrocks/helloworld/12.png" alt="1"></li>
+</ul>
+<h4 id="如何查询数据"><a href="#如何查询数据" class="headerlink" title="如何查询数据"></a>如何查询数据</h4><ul>
+<li><ol>
+<li>通过<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>进行临时查询  <blockquote>
+<p>切换到您所在项目，可以使用临时查询功能，直接查询sr表。<br><img src="/images/starrocks/helloworld/13.png" alt="1"><br><img src="/images/starrocks/helloworld/14.png" alt="1"><br><img src="/images/starrocks/helloworld/15.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过数易平台进行报表开发<blockquote>
+<p>通过登陆<a href="https://bigdata.xiaojukeji.com/datae/" target="_blank" rel="noopener">数易平台</a>，选择顶部工作台-》左侧数据集-》弹出框选择StarRocks，可自定义SQL或者拖拽方式创建实时看板，可视化图表数据分析等。<br><img src="/images/starrocks/helloworld/16.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过<a href="https://bigdata.xiaojukeji.com/dps_index/portal?projectName=datalink" target="_blank" rel="noopener">数链平台</a>进行api开发<blockquote>
+<p>选择左侧服务开发-》API列表-》新建APi，可以快速将starrocks表生成数据api<br><img src="/images/starrocks/helloworld/17.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>通过<a href="http://datacenter.didichuxing.com/#/olapDataProduction/dataAccess" target="_blank" rel="noopener">QueryEngine平台</a><blockquote>
+<p>选择顶部数据接入-》左侧数据源管理-》StarRocks引擎，创建数据源，可直接创建数据服务，生成多维分析查询。<br><img src="/images/starrocks/helloworld/18.png" alt="1"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="已接入StarRocks业务"><a href="#已接入StarRocks业务" class="headerlink" title="已接入StarRocks业务"></a>已接入StarRocks业务</h3><ol>
+<li>橙心业务</li>
+<li>两轮车/资产画像/围栏画像</li>
+<li>代驾业务</li>
+<li>货运业务</li>
+<li>能源业务</li>
+<li>滴滴展厅大屏</li>
+<li>金融业务</li>
+<li>达芬奇/车联网</li>
+<li>潮汐  </li>
+</ol>
+<p>欢迎大佬们加入<code>StarRocks</code>用户群，我们<code>OLAP</code>团队竭诚欢迎滴滴内部各项业务合作！</p>
+<p><img src="/images/starrocks/helloworld/21.png" alt="1"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/26/replace-trigger/" rel="prev" title="clickhouse离线导入大揭秘">
+      <i class="fa fa-chevron-left"></i> clickhouse离线导入大揭秘
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/04/clickhouse-parser/" rel="next" title="ClickHouse解析器大揭秘">
+      ClickHouse解析器大揭秘 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ClickHouse介绍"><span class="nav-number">1.1.</span> <span class="nav-text">ClickHouse介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StarRocks介绍"><span class="nav-number">1.2.</span> <span class="nav-text">StarRocks介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二者的对比"><span class="nav-number">1.3.</span> <span class="nav-text">二者的对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么推荐StarRocks"><span class="nav-number">1.4.</span> <span class="nav-text">为什么推荐StarRocks</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks特性"><span class="nav-number">2.</span> <span class="nav-text">StarRocks特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#架构精简"><span class="nav-number">2.1.</span> <span class="nav-text">架构精简</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全面向量化引擎"><span class="nav-number">2.2.</span> <span class="nav-text">全面向量化引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能查询优化"><span class="nav-number">2.3.</span> <span class="nav-text">智能查询优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#联邦查询"><span class="nav-number">2.4.</span> <span class="nav-text">联邦查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高效更新"><span class="nav-number">2.5.</span> <span class="nav-text">高效更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能物化视图"><span class="nav-number">2.6.</span> <span class="nav-text">智能物化视图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标准SQL"><span class="nav-number">2.7.</span> <span class="nav-text">标准SQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流批一体"><span class="nav-number">2.8.</span> <span class="nav-text">流批一体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高可用易扩展"><span class="nav-number">2.9.</span> <span class="nav-text">高可用易扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks应用场景"><span class="nav-number">3.</span> <span class="nav-text">StarRocks应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OLAP多维分析"><span class="nav-number">3.1.</span> <span class="nav-text">OLAP多维分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实时数仓"><span class="nav-number">3.2.</span> <span class="nav-text">实时数仓</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高并发查询"><span class="nav-number">3.3.</span> <span class="nav-text">高并发查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#统一分析"><span class="nav-number">3.4.</span> <span class="nav-text">统一分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用StarRocks"><span class="nav-number">4.</span> <span class="nav-text">如何使用StarRocks</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建库"><span class="nav-number">4.1.</span> <span class="nav-text">创建库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建表"><span class="nav-number">4.2.</span> <span class="nav-text">创建表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建离线导入任务"><span class="nav-number">4.3.</span> <span class="nav-text">创建离线导入任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建实时导入任务"><span class="nav-number">4.4.</span> <span class="nav-text">创建实时导入任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何查询数据"><span class="nav-number">4.5.</span> <span class="nav-text">如何查询数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已接入StarRocks业务"><span class="nav-number">5.</span> <span class="nav-text">已接入StarRocks业务</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

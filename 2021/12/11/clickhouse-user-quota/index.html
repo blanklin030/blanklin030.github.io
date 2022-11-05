@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景介绍大数据架构olap团队对clickhouse的使用是从2019年5月开始，最开始我们只在国内永顺机房落地了4台机器做共享集群，就是最开始的cluster01集群，4台机器做2个shard，每个shard2个replica，而用户对集群的访问只是通过一个vip做简单的负载均衡，关于权限这一块，我们在当时只做到了库级别的管控，简单说就是通过同步dpp_v3.hadoop_account和dpp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ClickHouse用户资源隔离在滴滴的实践">
+<meta property="og:url" content="http://yoursite.com/2021/12/11/clickhouse-user-quota/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="背景介绍大数据架构olap团队对clickhouse的使用是从2019年5月开始，最开始我们只在国内永顺机房落地了4台机器做共享集群，就是最开始的cluster01集群，4台机器做2个shard，每个shard2个replica，而用户对集群的访问只是通过一个vip做简单的负载均衡，关于权限这一块，我们在当时只做到了库级别的管控，简单说就是通过同步dpp_v3.hadoop_account和dpp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/2.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/3.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/4.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/5.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/6.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/7.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/8.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/authority/9.png">
+<meta property="article:published_time" content="2021-12-11T10:09:40.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.257Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="ClickHouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/authority/2.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/12/11/clickhouse-user-quota/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ClickHouse用户资源隔离在滴滴的实践 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/11/clickhouse-user-quota/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ClickHouse用户资源隔离在滴滴的实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-11 18:09:40" itemprop="dateCreated datePublished" datetime="2021-12-11T18:09:40+08:00">2021-12-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>大数据架构<code>olap</code>团队对<code>clickhouse</code>的使用是从2019年5月开始，最开始我们只在国内永顺机房落地了4台机器做共享集群，就是最开始的<code>cluster01</code>集群，4台机器做2个<code>shard</code>，每个<code>shard</code>2个<code>replica</code>，而用户对集群的访问只是通过一个<code>vip</code>做简单的负载均衡，关于权限这一块，我们在当时只做到了库级别的管控，简单说就是通过同步<code>dpp_v3</code>.<code>hadoop_account</code>和<code>dpp_v3</code>.<code>hive_database</code>库去更新<code>user.xml</code>文件，如下图所示，我们并未对租户资源做任何隔离，虽然最开始我们就是使用的多租户模型，但每个租户可以有权限去操作自己名下的所有库，包括读和写，且无限制的进行大量耗资源（<code>cpu</code>和<code>memory</code>）写入和查询后就会影响到<code>cluster01</code>集群下其他的租户，因为<code>cpu</code>和<code>memory</code>是固定的，而租户的分摊并未做限制。<br><img src="/images/clickhouse/authority/2.png" alt="avatar"></p>
+<h3 id="clickhouse配置详解"><a href="#clickhouse配置详解" class="headerlink" title="clickhouse配置详解"></a>clickhouse配置详解</h3><h4 id="config-xml文件介绍"><a href="#config-xml文件介绍" class="headerlink" title="config.xml文件介绍"></a>config.xml文件介绍</h4><p><code>clickhouse</code>的启动方式是通过以下命令处理的，就让 <code>ClickHouse</code> 按照<code>config.xml</code>配置文件运行，同时 <code>ClickHouse</code> 监听配置文件，如有变化，不需要重启就能按新的配置运行。具体介绍可以参考<a href="https://clickhouse.com/docs/en/operations/configuration-files/#implementation-details" target="_blank" rel="noopener">链接</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;bin&#x2F;clickhouse-server --config&#x3D;.&#x2F;conf&#x2F;config.xml</span><br></pre></td></tr></table></figure><br>我们在生产环境下<code>config.xml</code>文件主要是如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt; </span><br><span class="line">&lt;yandex&gt; </span><br><span class="line">    &lt;!-- 日志配置 --&gt;</span><br><span class="line">    &lt;logger&gt; </span><br><span class="line">        &lt;level&gt;trace&lt;&#x2F;level&gt; </span><br><span class="line">        &lt;log&gt;&#x2F;tmp&#x2F;log&#x2F;clickhouse-server.log&lt;&#x2F;log&gt; </span><br><span class="line">        &lt;errorlog&gt;&#x2F;tmp&#x2F;log&#x2F;clickhouse-server.err.log&lt;&#x2F;errorlog&gt; </span><br><span class="line">        &lt;size&gt;1000M&lt;&#x2F;size&gt; </span><br><span class="line">        &lt;count&gt;10&lt;&#x2F;count&gt; </span><br><span class="line">    &lt;&#x2F;logger&gt; </span><br><span class="line">    &lt;!-- 开启查询和写入相关日志配置 --&gt;</span><br><span class="line">    &lt;query_log&gt; </span><br><span class="line">        &lt;database&gt;system&lt;&#x2F;database&gt; </span><br><span class="line">        &lt;table&gt;query_log&lt;&#x2F;table&gt; </span><br><span class="line">        &lt;partition_by&gt;toYYYYMM(event_date)&lt;&#x2F;partition_by&gt; </span><br><span class="line">        &lt;flush_interval_milliseconds&gt;1000&lt;&#x2F;flush_interval_milliseconds&gt; </span><br><span class="line">    &lt;&#x2F;query_log&gt; </span><br><span class="line">    &lt;!-- tcp端口 --&gt;</span><br><span class="line">    &lt;tcp_port&gt;9000&lt;&#x2F;tcp_port&gt; </span><br><span class="line">    &lt;!-- 运行所有ip访问 --&gt;</span><br><span class="line">    &lt;listen_host&gt;0.0.0.0&lt;&#x2F;listen_host&gt; </span><br><span class="line">    &lt;!-- 最大连接数 --&gt;</span><br><span class="line">    &lt;max_connections&gt;4096&lt;&#x2F;max_connections&gt;</span><br><span class="line">    &lt;!-- 连接超时时间 --&gt;</span><br><span class="line">    &lt;keep_alive_timeout&gt;90&lt;&#x2F;keep_alive_timeout&gt;</span><br><span class="line">    &lt;!-- 最大并发查询数 --&gt;</span><br><span class="line">    &lt;max_concurrent_queries&gt;1000&lt;&#x2F;max_concurrent_queries&gt;</span><br><span class="line">    &lt;!-- 用户配置文件 --&gt;</span><br><span class="line">    &lt;users_config&gt;users.xml&lt;&#x2F;users_config&gt;</span><br><span class="line">    &lt;!-- 默认配置名称 --&gt;</span><br><span class="line">    &lt;default_profile&gt;default&lt;&#x2F;default_profile&gt;</span><br><span class="line">    &lt;!-- 默认数据库名称 --&gt;</span><br><span class="line">    &lt;default_database&gt;default&lt;&#x2F;default_database&gt;</span><br><span class="line">    &lt;!-- zookeeper配置 --&gt;</span><br><span class="line">    &lt;zookeeper incl&#x3D;&quot;zookeeper-servers&quot; optional&#x3D;&quot;true&quot; &#x2F;&gt;</span><br><span class="line">    &lt;!-- 宏配置 --&gt;</span><br><span class="line">    &lt;macros incl&#x3D;&quot;macros&quot; optional&#x3D;&quot;true&quot; &#x2F;&gt;</span><br><span class="line">    &lt;!-- 权限相关的sql存储路径 --&gt;</span><br><span class="line">    &lt;access_control_path&gt;&#x2F;var&#x2F;lib&#x2F;clickhouse&#x2F;access&lt;&#x2F;access_control_path&gt;</span><br><span class="line">&lt;&#x2F;yandex&gt;</span><br></pre></td></tr></table></figure><br>我们应该注意到 <code>&lt;users_config&gt;users.xml&lt;/users_config&gt;</code> 绑定了 <code>config.xml</code> 当前目录的 <code>users.xml</code>,而 <code>users.xml</code>就是我们最初版本的用户配置文件</p>
+<h4 id="users-xml文件介绍"><a href="#users-xml文件介绍" class="headerlink" title="users.xml文件介绍"></a>users.xml文件介绍</h4><p><code>ClickHouse</code>支持基于 <a href="https://en.wikipedia.org/wiki/Role-based_access_control" target="_blank" rel="noopener">RBAC</a>（基于角色的访问控制权限）方法的访问控制管理。作为一个分析类型（<code>OLAP</code>）的数据库系统，相对于<code>MySQL</code>数据库在用户管理方面有很大不同，<code>clickhouse</code>支持使用两种方式配置访问实体：</p>
+<ul>
+<li>通过<code>sql</code>直接设置，这也是官方推荐的，但是需要至少一个用户帐户启用<code>SQL</code>驱动的访问控制和帐户管理，这需要使用第二种方式设置<code>access_management</code></li>
+<li>通过配置文件<code>users.xml</code>，默认位置在<code>/etc/clickhouse-server</code>目录下，<code>ClickHouse</code>使用它来定义用户相关的配置项。<blockquote>
+<p>注意，您不能同时通过两种配置方法来管理同一访问实体。（You can’t manage the same access entity by both configuration methods simultaneously.）<br><code>users.xml</code>有三大块进行说明，分别为：<code>profiles</code>，<code>quotas</code>，<code>users</code>，主要配置如下所示：</p>
+</blockquote>
+</li>
+<li>profiles介绍<br><a href="https://clickhouse.com/docs/en/operations/settings/settings-profiles/" target="_blank" rel="noopener">官方链接</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- profiles相当于role角色配置 --&gt;</span><br><span class="line">&lt;profiles&gt; </span><br><span class="line">    &lt;!-- 角色名称，可配置多个 --&gt;</span><br><span class="line">    &lt;default&gt; </span><br><span class="line">        &lt;!-- 单个服务器 最大可使用内存 --&gt;</span><br><span class="line">        &lt;max_memory_usage&gt;10G&lt;&#x2F;max_memory_usage&gt; </span><br><span class="line">        &lt;!-- 单个服务器 用户查询最大可使用内存 --&gt;</span><br><span class="line">        &lt;max_memory_usage_for_user&gt;10G&lt;&#x2F;max_memory_usage_for_user&gt; </span><br><span class="line">        &lt;!-- 所有查询可使用的最大内存 --&gt;</span><br><span class="line">        &lt;max_memory_usage_for_all_queries&gt;10G&lt;&#x2F;max_memory_usage_for_all_queries&gt; </span><br><span class="line">        &lt;!-- 最大查询长度 --&gt;</span><br><span class="line">        &lt;max_query_size&gt;1073741824&lt;&#x2F;max_query_size&gt; </span><br><span class="line">        &lt;!-- DDL查询：CREATE，ALTER，RENAME，ATTACH，DETACH，DROP TRUNCATE,0:禁止，1:允许 --&gt;</span><br><span class="line">        &lt;allow_ddl&gt;0&lt;&#x2F;allow_ddl&gt;</span><br><span class="line">    &lt;&#x2F;default&gt; </span><br><span class="line">    &lt;readonly&gt;</span><br><span class="line">      &lt;!-- 只读角色，枚举0:允许所有查询，1:只允许读数据的查询，3:运行读取数据和更改配置 --&gt;</span><br><span class="line">      &lt;readonly&gt;2&lt;&#x2F;readonly&gt;</span><br><span class="line">    &lt;&#x2F;readonly&gt;</span><br><span class="line">&lt;&#x2F;profiles&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>quotas介绍<br><a href="https://clickhouse.com/docs/en/operations/quotas/" target="_blank" rel="noopener">官方链接</a>，截取部分代码实现细节如下,从源码中我们能看出，每次查询的时候，都去检查(<code>checkExceeded()</code>)是否超过配额<br><img src="/images/clickhouse/authority/3.png" alt="avatar">，每个 interval 都有多种资源(<code>resource_type</code>), 比如 <code>`&lt;query&gt;1&lt;/query&gt;</code> 是一种 <code>type</code>, 检查最大库存 <code>max</code>，检查已经使用的配额 <code>used</code>, 如果 <code>used</code> &gt; <code>max</code>, 则报错。<br><img src="/images/clickhouse/authority/4.png" alt="avatar"><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 配额，限制用户一段时间内的资源使用，即对一段时间内运行的一组查询施加限制，而不是限制单个查询。 --&gt;</span><br><span class="line">&lt;quotas&gt; </span><br><span class="line">    &lt;!-- 配额名称 --&gt;</span><br><span class="line">    &lt;default&gt; </span><br><span class="line">        &lt;!-- 时间间隔 --&gt;</span><br><span class="line">        &lt;interval&gt; </span><br><span class="line">            &lt;!-- 时间周期 以秒为单位 --&gt; </span><br><span class="line">            &lt;duration&gt;10&lt;&#x2F;duration&gt; </span><br><span class="line">            &lt;!-- 10 秒内只能查询一次 --&gt; </span><br><span class="line">            &lt;queries&gt;2&lt;&#x2F;queries&gt; </span><br><span class="line">            &lt;errors&gt;0&lt;&#x2F;errors&gt; </span><br><span class="line">            &lt;!-- 时间周期内允许返回的行数，0表示不限制 --&gt;</span><br><span class="line">            &lt;result_rows&gt;0&lt;&#x2F;result_rows&gt; </span><br><span class="line">            &lt;!-- 时间周期内运行读取的行数，0表示不限制 --&gt;</span><br><span class="line">            &lt;read_rows&gt;0&lt;&#x2F;read_rows&gt; </span><br><span class="line">            &lt;!-- 时间周期内查询的可执行时间，0表示不限制 --&gt;</span><br><span class="line">            &lt;execution_time&gt;0&lt;&#x2F;execution_time&gt; </span><br><span class="line">        &lt;&#x2F;interval&gt;</span><br><span class="line">    &lt;&#x2F;default&gt; </span><br><span class="line">&lt;&#x2F;quotas&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>users介绍<br><a href="https://clickhouse.com/docs/en/operations/quotas/" target="_blank" rel="noopener">官方链接</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 用户配置,定义一个新用户，必须包含以下几项属性：用户名、密码、访问ip、数据库、表等等。它还可以应用上面的profile、quota --&gt;</span><br><span class="line">&lt;users&gt; </span><br><span class="line">    &lt;!-- 用户名 --&gt;</span><br><span class="line">    &lt;default&gt; </span><br><span class="line">        &lt;!-- 此设置为用户启用或禁用SQL驱动的访问控制和帐户管理。可能的值：0-禁用。1-启用。默认为0 --&gt;</span><br><span class="line">        &lt;access_management&gt;1&lt;&#x2F;access_management&gt;</span><br><span class="line">        &lt;!-- 密码 --&gt;</span><br><span class="line">        &lt;password&gt;password&lt;&#x2F;password&gt; </span><br><span class="line">        &lt;!-- 用户可以从中连接到ClickHouse服务器的网络列表 --&gt;</span><br><span class="line">        &lt;networks&gt; </span><br><span class="line">            &lt;!-- 要为来自任何网络的用户打开访问权限 --&gt;</span><br><span class="line">            &lt;ip&gt;::&#x2F;0&lt;&#x2F;ip&gt; </span><br><span class="line">        &lt;&#x2F;networks&gt; </span><br><span class="line">        &lt;!-- 指定用户的角色 --&gt;</span><br><span class="line">        &lt;profile&gt;default&lt;&#x2F;profile&gt; </span><br><span class="line">        &lt;!-- 指定用户的配额 --&gt;</span><br><span class="line">        &lt;quota&gt;default&lt;&#x2F;quota&gt; </span><br><span class="line">    &lt;&#x2F;default&gt; </span><br><span class="line">&lt;&#x2F;users&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="常见的权限报错"><a href="#常见的权限报错" class="headerlink" title="常见的权限报错"></a>常见的权限报错</h4></li>
+<li>超过quota限制<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Code: 201. DB::Exception: Received from localhost:9000. DB::Exception: Quota for user &#96;default&#96; for 10s has been exceeded: queries &#x3D; 4&#x2F;3. Interval will end at 2020-04-02 11:29:40. Name of quota template: &#96;default&#96;.</span><br></pre></td></tr></table></figure>
+如果在至少一个时间间隔内超过了限制，则将引发一个异常，并显示一条文本：是对于哪一个间隔的，何时新间隔可以开始（何时可以再次发送查询）。</li>
+<li>超过profile限制<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Code: 452, e.displayText() &#x3D; DB::Exception: Setting max_memory_usage should not be greater than 20000000000.</span><br><span class="line">Code: 452, e.displayText() &#x3D; DB::Exception: Setting max_memory_usage should not be less than 5000000000.</span><br></pre></td></tr></table></figure>
+查询超过了最大使用内存</li>
+<li>user限制<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Code: 516, e.displayText() &#x3D; DB::Exception: prod_dlap_manager: Authentication failed: password is incorrect or there is no user with such name (version 206.1.1)</span><br></pre></td></tr></table></figure>
+用户不存在，或者用户的密码错误<h3 id="改进方案"><a href="#改进方案" class="headerlink" title="改进方案"></a>改进方案</h3>经过对<code>clickhouse</code>的权限相关了解之后，我们在2021年8月进行了一次权限升级方案改造，通过default用户创建出超级管理员super_admin及普通管理员admin（如果在user.xml里定义了super_admin用户，之后就无法修改，若修改则直接报错<code>Cannot update user admin in users.xml because this storage is readonly</code>），以超级管理员的身份给超级租户和普通租户赋权，可以通过SQL的方式进行权限的<code>CRUD</code>，以达到动态分配集群资源的目的。<br><img src="/images/clickhouse/authority/5.png" alt="avatar"><br>经过拆分后，我们单独自研了<code>DlapManager</code>组件，用以管控<code>Clickhouse</code>集群读写节点、<code>zookeeper</code>组件、<code>CHProxy</code>组件（采用开源工具快速接入以实现读写ck角色的区分，达到数据写入均衡查询均衡的 目的，<a href="https://github.com/Vertamedia/chproxy" target="_blank" rel="noopener">链接</a>），而<code>CHProxy</code>组件需要的集群读写资源则通过<code>DlapManager</code>角色进行实时更新和生产，而外部平台业务方直接调用<code>DlapManager</code>组件对外开放的<code>api</code>进行库表的所有<code>DDL</code>操作，目前我们的所有普通租户均是用户通过数据梦工厂的创建项目开通实时权限后，我们会自动创建一个租户在<code>Clickhouse</code>这边，当该租户进行库表<code>DDL</code>后，<code>DlapManager</code>组件就会生成相应的<code>DDL</code>任务队列，队列以异步线程方式实时发往对应的集群，以下的<code>DlapManager</code>组件的系统架构设计图：<br><img src="/images/clickhouse/authority/6.png" alt="avatar"><h3 id="赋权过程"><a href="#赋权过程" class="headerlink" title="赋权过程"></a>赋权过程</h3>按照<a href="https://clickhouse.com/docs/en/operations/access-rights/#enabling-access-control" target="_blank" rel="noopener">官方推荐</a>的方式进行赋权过程，以达到不同租户使用相应的配额，实现集群内的资源隔离，保障集群的稳定性。</li>
+<li>创建超级租户<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE USER super_admin; </span><br><span class="line">GRANT ALL ON *.* TO super_admin WITH GRANT OPTION; </span><br><span class="line">CREATE USER admin;</span><br></pre></td></tr></table></figure></li>
+<li>创建profiles设置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE SETTINGS PROFILE IF NOT EXISTS didi_profile SETTINGS readonly &#x3D; 2 READONLY</span><br></pre></td></tr></table></figure></li>
+<li>创建quota配额<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE QUOTA IF NOT EXISTS didi_quota </span><br><span class="line">FOR INTERVAL 10 second </span><br><span class="line">MAX queries 1</span><br></pre></td></tr></table></figure></li>
+<li>创建角色<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE ROLE IF NOT EXISTS didi_role</span><br></pre></td></tr></table></figure></li>
+<li>赋予 Role 权限<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 允许didi_role这个角色可以访问库名叫db的所有表的查询权限</span><br><span class="line">GRANT SELECT ON db.* TO didi_role</span><br></pre></td></tr></table></figure></li>
+<li>创建一个回收角色，用以回收不使用的profile、quota<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">REATE ROLE IF NOT EXISTS gc_role</span><br></pre></td></tr></table></figure></li>
+<li>Role 绑定 Profile, Quota<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ALTER SETTINGS PROFILE didi_profile TO didi_role;</span><br><span class="line">ALTER QUOTA didi_quota TO didi_role;</span><br></pre></td></tr></table></figure></li>
+<li>应用到租户<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRANT didi_role TO super_admin</span><br></pre></td></tr></table></figure></li>
+<li>验证租户角色<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM system.role_grants WHERE user_name LIKE &#39;admin&#39;</span><br></pre></td></tr></table></figure></li>
+<li>修改用户的quota(当用户的读/写超过了限额后需要给用户扩容)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 先创建新quota</span><br><span class="line">CREATE QUOTA IF NOT EXISTS new_quota FOR INTERVAL 5 second MAX queries 1;</span><br><span class="line"># 将原先的didi_quota绑定到gc_role</span><br><span class="line">ALTER QUOTA didi_quota TO gc_role;</span><br><span class="line"># 绑定新quota</span><br><span class="line">ALTER QUOTA new_quota TO didi_role; </span><br><span class="line"># 刷新admin的角色</span><br><span class="line">revoke didi_role from admin; </span><br><span class="line">grant didi_role to admin;</span><br><span class="line"># double check检查</span><br><span class="line">SELECT name, apply_to_list FROM system.quotas WHERE name LIKE &#39;new_quota&#39;</span><br></pre></td></tr></table></figure></li>
+<li>修改用户的profile(当用户的读/写超过了限额后需要给用户扩容)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 先创建新profile</span><br><span class="line">CREATE SETTINGS PROFILE IF NOT EXISTS new_profile SETTINGS readonly &#x3D; 0 READONLY;</span><br><span class="line"># 将原先的didi_profile绑定到gc_role</span><br><span class="line">ALTER SETTINGS PROFILE didi_profile TO gc_role</span><br><span class="line"># 绑定新profile</span><br><span class="line">ALTER SETTINGS PROFILE new_profile TO didi_role;</span><br><span class="line"># 刷新admin的角色</span><br><span class="line">revoke didi_role from admin; </span><br><span class="line">grant didi_role to admin;</span><br><span class="line"># double check检查</span><br><span class="line">SELECT name, apply_to_list FROM system.settings_profiles WHERE name LIKE &#39;new_quota&#39;</span><br></pre></td></tr></table></figure>
+<h3 id="权限持久化"><a href="#权限持久化" class="headerlink" title="权限持久化"></a>权限持久化</h3></li>
+<li>存放目录配置<br>根据<a href="https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings/#access_control_path" target="_blank" rel="noopener">官方文档</a>介绍，通过<code>sql</code>进行的权限相关配置，可以通过<code>config.xml</code>里的<code>access_control_path</code>属性进行路径配置，若未配置则默认是<code>/var/lib/clickhouse/access/</code>目录，如下图所示，当<code>clickhouse</code>重启后，都会先从<code>access_control_path</code>配置的目录里根据<code>sql</code>恢复所有权限，如果这些文件被删除，则重启<code>clickhouse</code>后之前通过<code>sql</code>创建的这些<code>setting</code>都会消失，所以注意文件的备份，目前<code>DlapManager</code>组件是使用<code>mysql</code>数据存储引擎单独存储了这份<code>RBAC</code>数据，再发送给<code>clickhouse</code>进行权限相关的<code>CRUD</code>，这个方式也相当于是<code>clickhouse</code>的备份地址，如果<code>clickhouse</code>重启后无法刷新这些权限，则仍然可以通过<code>DlapManager</code>组件写的脚本工具去重新生产出新的<code>sql</code>给<code>clickhouse</code>使用。<br><img src="/images/clickhouse/authority/7.png" alt="avatar"></li>
+<li>users.list介绍<br>每创建一个用户，则会在<code>users.list</code>文件里记录到用户名对应的一串<code>uuid</code>，可通过<code>uuid</code>找到创建该用户的<code>sql</code>语句，如下图：<br><img src="/images/clickhouse/authority/8.png" alt="avatar"></li>
+<li>uuid.sql介绍<br>包含了创建用户（create user）的sql，赋权（GRANT）的sql等<br><img src="/images/clickhouse/authority/9.png" alt="avatar"></li>
+<li>quotas.list介绍<br>每创建一个<code>quota</code>，都会在<code>quotas.list</code>文件记录quota名称及对应的一个<code>uuid</code>，可通过<code>uuid</code>找到创建该<code>quota</code>的<code>sql</code>语句</li>
+<li>roles.list介绍<br>每创建一个<code>role</code>，都会在<code>roles.list</code>文件记录quota名称及对应的一个<code>uuid</code>，可通过<code>uuid</code>找到创建该<code>role</code>的<code>sql</code>语句</li>
+<li>row_policies.list介绍<br>每创建一个<code>row_policy</code>，都会在<code>row_policies.list</code>文件记录quota名称及对应的一个<code>uuid</code>，可通过<code>uuid</code>找到创建该<code>row_policy</code>的<code>sql</code>语句</li>
+<li>settings_profiles.list介绍<br>每创建一个<code>profile</code>，都会在<code>settings_profiles.list</code>文件记录quota名称及对应的一个<code>uuid</code>，可通过<code>uuid</code>找到创建该<code>profile</code>的<code>sql</code>语句<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3>本文从<code>clickhouse</code>的用户资源角度来简单介绍了<code>clickhouse</code>的相关配置及如何使用，而我们自研的<code>DlapManager</code>组件则承担起了 <code>ClickHouse</code> 用户管理的角色，通过对<code>clickhouse</code>的<code>profle</code>、<code>quota</code>、<code>role</code>等抽象层的配置来达到对<code>clickhouse</code>使用资源的租户隔离目的，中心思想是我们不是直接给租户赋予相关权限，而是在租户之上创建了角色的维度，和<code>RBAC</code>思想一致，可以达到对租户进行灵活的扩缩容配额，最终来保障我们目前200+<code>clickhouse</code>节点的稳定性。最后笔者从2019年6月开始接触<code>clickhouse</code>，到现在也已经2年+的时间，但仍然只学到了<code>clickhouse</code>的冰山一角，所以以上文字也只能做到抛砖引玉，但仍然希望对阅读的各位有所帮助。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ClickHouse/" rel="tag"># ClickHouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/29/jvm-interview/" rel="prev" title="jvm面试常见问题">
+      <i class="fa fa-chevron-left"></i> jvm面试常见问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/17/mysql-lock/" rel="next" title="mysql锁相关">
+      mysql锁相关 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse配置详解"><span class="nav-number">2.</span> <span class="nav-text">clickhouse配置详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#config-xml文件介绍"><span class="nav-number">2.1.</span> <span class="nav-text">config.xml文件介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#users-xml文件介绍"><span class="nav-number">2.2.</span> <span class="nav-text">users.xml文件介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见的权限报错"><span class="nav-number">2.3.</span> <span class="nav-text">常见的权限报错</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进方案"><span class="nav-number">3.</span> <span class="nav-text">改进方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#赋权过程"><span class="nav-number">4.</span> <span class="nav-text">赋权过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权限持久化"><span class="nav-number">5.</span> <span class="nav-text">权限持久化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">6.</span> <span class="nav-text">结论</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

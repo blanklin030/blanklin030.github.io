@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="请求处理ck请求处理过程 客户端请求发给ck，ck接收到请求，放入请求队列ck将请求队列的请求分发给Request handler线程处理Request handler线程处理请求，解析sql语句，执行sql语句逻辑。简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="clickhouse的写入流程">
+<meta property="og:url" content="http://yoursite.com/2022/04/05/clickhouse-insert/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="请求处理ck请求处理过程 客户端请求发给ck，ck接收到请求，放入请求队列ck将请求队列的请求分发给Request handler线程处理Request handler线程处理请求，解析sql语句，执行sql语句逻辑。简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/insert/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/insert/2.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/insert/3.png">
+<meta property="article:published_time" content="2022-04-05T07:09:55.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.256Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/insert/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/04/05/clickhouse-insert/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>clickhouse的写入流程 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/04/05/clickhouse-insert/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          clickhouse的写入流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-05 15:09:55" itemprop="dateCreated datePublished" datetime="2022-04-05T15:09:55+08:00">2022-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="请求处理"><a href="#请求处理" class="headerlink" title="请求处理"></a>请求处理</h3><p>ck请求处理过程<br><img src="/images/clickhouse/insert/1.png" alt="clickhouse"></p>
+<h4 id="客户端请求发给ck，ck接收到请求，放入请求队列"><a href="#客户端请求发给ck，ck接收到请求，放入请求队列" class="headerlink" title="客户端请求发给ck，ck接收到请求，放入请求队列"></a>客户端请求发给ck，ck接收到请求，放入请求队列</h4><h4 id="ck将请求队列的请求分发给Request-handler线程处理"><a href="#ck将请求队列的请求分发给Request-handler线程处理" class="headerlink" title="ck将请求队列的请求分发给Request handler线程处理"></a>ck将请求队列的请求分发给Request handler线程处理</h4><h4 id="Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。"><a href="#Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。" class="headerlink" title="Request handler线程处理请求，解析sql语句，执行sql语句逻辑。"></a>Request handler线程处理请求，解析sql语句，执行sql语句逻辑。</h4><h4 id="简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）"><a href="#简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）" class="headerlink" title="简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）"></a>简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）</h4><h4 id="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"><a href="#请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求" class="headerlink" title="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"></a>请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求</h4><h3 id="insert语句解析执行"><a href="#insert语句解析执行" class="headerlink" title="insert语句解析执行"></a>insert语句解析执行</h3><h4 id="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"><a href="#初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息" class="headerlink" title="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"></a>初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息</h4><h4 id="解析sql语句"><a href="#解析sql语句" class="headerlink" title="解析sql语句"></a>解析sql语句</h4><h4 id="检查被写入的表是否存在，是否有写入权限，是否被限流"><a href="#检查被写入的表是否存在，是否有写入权限，是否被限流" class="headerlink" title="检查被写入的表是否存在，是否有写入权限，是否被限流"></a>检查被写入的表是否存在，是否有写入权限，是否被限流</h4><h4 id="对insert数据校验，字段是否存在，是否满足约束"><a href="#对insert数据校验，字段是否存在，是否满足约束" class="headerlink" title="对insert数据校验，字段是否存在，是否满足约束"></a>对insert数据校验，字段是否存在，是否满足约束</h4><h4 id="根据默认值填充空字段和物化字段"><a href="#根据默认值填充空字段和物化字段" class="headerlink" title="根据默认值填充空字段和物化字段"></a>根据默认值填充空字段和物化字段</h4><h4 id="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"><a href="#缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。" class="headerlink" title="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"></a>缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。</h4><h4 id="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"><a href="#将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree" class="headerlink" title="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"></a>将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree</h4><h4 id="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"><a href="#检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表" class="headerlink" title="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"></a>检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表</h4><h3 id="分布式表写入"><a href="#分布式表写入" class="headerlink" title="分布式表写入"></a>分布式表写入</h3><blockquote>
+<p>分布式表数据写入一般情况下是异步写入，只有对使用 remote(‘addresses_expr’, db, table[, ‘user’[, ‘password’], sharding_key]) 定义的表的写入是同步的。如果分布式表中含有local表或replical的表local副本，直接写本地表。<br><img src="/images/clickhouse/insert/2.png" alt="clickhouse"></p>
+</blockquote>
+<h4 id="将写入block数据按sharding逻辑分成多个block"><a href="#将写入block数据按sharding逻辑分成多个block" class="headerlink" title="将写入block数据按sharding逻辑分成多个block"></a>将写入block数据按sharding逻辑分成多个block</h4><h4 id="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"><a href="#将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据" class="headerlink" title="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"></a>将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据</h4><h4 id="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"><a href="#检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎" class="headerlink" title="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"></a>检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎</h4><h4 id="shard在远程，将新insert语句写入远程shard本地缓存文件。"><a href="#shard在远程，将新insert语句写入远程shard本地缓存文件。" class="headerlink" title="shard在远程，将新insert语句写入远程shard本地缓存文件。"></a>shard在远程，将新insert语句写入远程shard本地缓存文件。</h4><h4 id="通知后台线程发送本地缓存中的数据"><a href="#通知后台线程发送本地缓存中的数据" class="headerlink" title="通知后台线程发送本地缓存中的数据"></a>通知后台线程发送本地缓存中的数据</h4><h4 id="后台执行过程"><a href="#后台执行过程" class="headerlink" title="后台执行过程"></a>后台执行过程</h4><h4 id="读远程shard本地缓存目录"><a href="#读远程shard本地缓存目录" class="headerlink" title="读远程shard本地缓存目录"></a>读远程shard本地缓存目录</h4><h4 id="逐个处理每个文件"><a href="#逐个处理每个文件" class="headerlink" title="逐个处理每个文件"></a>逐个处理每个文件</h4><h4 id="根据配置的loadbalance策略，选择合适的机器连接"><a href="#根据配置的loadbalance策略，选择合适的机器连接" class="headerlink" title="根据配置的loadbalance策略，选择合适的机器连接"></a>根据配置的loadbalance策略，选择合适的机器连接</h4><h4 id="将文件的insert语句通过上步连接发送给远程机器执行"><a href="#将文件的insert语句通过上步连接发送给远程机器执行" class="headerlink" title="将文件的insert语句通过上步连接发送给远程机器执行"></a>将文件的insert语句通过上步连接发送给远程机器执行</h4><h4 id="执行成功后删除对应文件"><a href="#执行成功后删除对应文件" class="headerlink" title="执行成功后删除对应文件"></a>执行成功后删除对应文件</h4><h3 id="本地表写入"><a href="#本地表写入" class="headerlink" title="本地表写入"></a>本地表写入</h3><blockquote>
+<p>本地表一般是StorageReplicatedXXMergeTree，其写入过程如下：<br><img src="/images/clickhouse/insert/3.png" alt="clickhouse"><br>本地表是以block为最小单元单次写入，一个block中的数据可能是一次insert的全部数据，也可以是部分数据。</p>
+</blockquote>
+<h4 id="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"><a href="#检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。" class="headerlink" title="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"></a>检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。</h4><h4 id="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"><a href="#检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。" class="headerlink" title="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"></a>检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。</h4><h4 id="将写入block数据按partition-by-逻辑分成多个block"><a href="#将写入block数据按partition-by-逻辑分成多个block" class="headerlink" title="将写入block数据按partition by 逻辑分成多个block"></a>将写入block数据按partition by 逻辑分成多个block</h4><h4 id="依次将每个分区的block数据写入表中"><a href="#依次将每个分区的block数据写入表中" class="headerlink" title="依次将每个分区的block数据写入表中"></a>依次将每个分区的block数据写入表中</h4><h4 id="创建分区的临时part"><a href="#创建分区的临时part" class="headerlink" title="创建分区的临时part"></a>创建分区的临时part</h4><h4 id="计算part数据的sha1生成part对应的blockid"><a href="#计算part数据的sha1生成part对应的blockid" class="headerlink" title="计算part数据的sha1生成part对应的blockid"></a>计算part数据的sha1生成part对应的blockid</h4><h4 id="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"><a href="#检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。" class="headerlink" title="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"></a>检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。</h4><h4 id="将part信息发布到ck，通知其他副本拉去新添加part"><a href="#将part信息发布到ck，通知其他副本拉去新添加part" class="headerlink" title="将part信息发布到ck，通知其他副本拉去新添加part"></a>将part信息发布到ck，通知其他副本拉去新添加part</h4><h4 id="将临时part加入到commit到mergetree表"><a href="#将临时part加入到commit到mergetree表" class="headerlink" title="将临时part加入到commit到mergetree表"></a>将临时part加入到commit到mergetree表</h4><h4 id="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"><a href="#如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件" class="headerlink" title="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"></a>如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件</h4><h4 id="临时part创建过程"><a href="#临时part创建过程" class="headerlink" title="临时part创建过程"></a>临时part创建过程</h4><ul>
+<li>创建block数据对应分区的临时part对象</li>
+<li>计算分区min_max索引</li>
+<li>处理排序和主键索引</li>
+<li>ttl处理</li>
+<li>其他二级索引处理</li>
+<li>将处理过的block数据和索引写入临时part，根据配置的压缩方式压缩</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/04/01/clickhouse-materialized-view/" rel="prev" title="clickhouse物化视图在滴滴的实践">
+      <i class="fa fa-chevron-left"></i> clickhouse物化视图在滴滴的实践
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/09/26/replace-trigger/" rel="next" title="clickhouse离线导入大揭秘">
+      clickhouse离线导入大揭秘 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#请求处理"><span class="nav-number">1.</span> <span class="nav-text">请求处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端请求发给ck，ck接收到请求，放入请求队列"><span class="nav-number">1.1.</span> <span class="nav-text">客户端请求发给ck，ck接收到请求，放入请求队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ck将请求队列的请求分发给Request-handler线程处理"><span class="nav-number">1.2.</span> <span class="nav-text">ck将请求队列的请求分发给Request handler线程处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。"><span class="nav-number">1.3.</span> <span class="nav-text">Request handler线程处理请求，解析sql语句，执行sql语句逻辑。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）"><span class="nav-number">1.4.</span> <span class="nav-text">简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"><span class="nav-number">1.5.</span> <span class="nav-text">请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#insert语句解析执行"><span class="nav-number">2.</span> <span class="nav-text">insert语句解析执行</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"><span class="nav-number">2.1.</span> <span class="nav-text">初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解析sql语句"><span class="nav-number">2.2.</span> <span class="nav-text">解析sql语句</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查被写入的表是否存在，是否有写入权限，是否被限流"><span class="nav-number">2.3.</span> <span class="nav-text">检查被写入的表是否存在，是否有写入权限，是否被限流</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对insert数据校验，字段是否存在，是否满足约束"><span class="nav-number">2.4.</span> <span class="nav-text">对insert数据校验，字段是否存在，是否满足约束</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#根据默认值填充空字段和物化字段"><span class="nav-number">2.5.</span> <span class="nav-text">根据默认值填充空字段和物化字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"><span class="nav-number">2.6.</span> <span class="nav-text">缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"><span class="nav-number">2.7.</span> <span class="nav-text">将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"><span class="nav-number">2.8.</span> <span class="nav-text">检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式表写入"><span class="nav-number">3.</span> <span class="nav-text">分布式表写入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#将写入block数据按sharding逻辑分成多个block"><span class="nav-number">3.1.</span> <span class="nav-text">将写入block数据按sharding逻辑分成多个block</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"><span class="nav-number">3.2.</span> <span class="nav-text">将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"><span class="nav-number">3.3.</span> <span class="nav-text">检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#shard在远程，将新insert语句写入远程shard本地缓存文件。"><span class="nav-number">3.4.</span> <span class="nav-text">shard在远程，将新insert语句写入远程shard本地缓存文件。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通知后台线程发送本地缓存中的数据"><span class="nav-number">3.5.</span> <span class="nav-text">通知后台线程发送本地缓存中的数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后台执行过程"><span class="nav-number">3.6.</span> <span class="nav-text">后台执行过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#读远程shard本地缓存目录"><span class="nav-number">3.7.</span> <span class="nav-text">读远程shard本地缓存目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#逐个处理每个文件"><span class="nav-number">3.8.</span> <span class="nav-text">逐个处理每个文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#根据配置的loadbalance策略，选择合适的机器连接"><span class="nav-number">3.9.</span> <span class="nav-text">根据配置的loadbalance策略，选择合适的机器连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将文件的insert语句通过上步连接发送给远程机器执行"><span class="nav-number">3.10.</span> <span class="nav-text">将文件的insert语句通过上步连接发送给远程机器执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行成功后删除对应文件"><span class="nav-number">3.11.</span> <span class="nav-text">执行成功后删除对应文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地表写入"><span class="nav-number">4.</span> <span class="nav-text">本地表写入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"><span class="nav-number">4.1.</span> <span class="nav-text">检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"><span class="nav-number">4.2.</span> <span class="nav-text">检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将写入block数据按partition-by-逻辑分成多个block"><span class="nav-number">4.3.</span> <span class="nav-text">将写入block数据按partition by 逻辑分成多个block</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依次将每个分区的block数据写入表中"><span class="nav-number">4.4.</span> <span class="nav-text">依次将每个分区的block数据写入表中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建分区的临时part"><span class="nav-number">4.5.</span> <span class="nav-text">创建分区的临时part</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算part数据的sha1生成part对应的blockid"><span class="nav-number">4.6.</span> <span class="nav-text">计算part数据的sha1生成part对应的blockid</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"><span class="nav-number">4.7.</span> <span class="nav-text">检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将part信息发布到ck，通知其他副本拉去新添加part"><span class="nav-number">4.8.</span> <span class="nav-text">将part信息发布到ck，通知其他副本拉去新添加part</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将临时part加入到commit到mergetree表"><span class="nav-number">4.9.</span> <span class="nav-text">将临时part加入到commit到mergetree表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"><span class="nav-number">4.10.</span> <span class="nav-text">如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#临时part创建过程"><span class="nav-number">4.11.</span> <span class="nav-text">临时part创建过程</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

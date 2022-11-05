@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="问题背景接收到告警短信，web应用登陆无响应，请求api均为504 影响范围平台无法正常使用 排查过程一般情况下，cpp应用占用cpu较高的原因大部分分为以下两个情况：  应用属于计算密集型应用使用大量 CPU 会导致平均负载升高，此时system load和cpu使用数率值上是一致的 应用中出现了IO密集型应用等待 I&#x2F;O 也会导致平均负载升高，但 CPU 使用率不一定很高，所以system l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux机器cpu打满排查过程">
+<meta property="og:url" content="http://yoursite.com/2021/07/13/linux-cpu-high/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="问题背景接收到告警短信，web应用登陆无响应，请求api均为504 影响范围平台无法正常使用 排查过程一般情况下，cpp应用占用cpu较高的原因大部分分为以下两个情况：  应用属于计算密集型应用使用大量 CPU 会导致平均负载升高，此时system load和cpu使用数率值上是一致的 应用中出现了IO密集型应用等待 I&#x2F;O 也会导致平均负载升高，但 CPU 使用率不一定很高，所以system l">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/linux-cpu-high/6.png">
+<meta property="og:image" content="http://yoursite.com/images/linux-cpu-high/1.png">
+<meta property="og:image" content="http://yoursite.com/images/linux-cpu-high/2.png">
+<meta property="og:image" content="http://yoursite.com/images/linux-cpu-high/4.png">
+<meta property="og:image" content="http://yoursite.com/images/linux-cpu-high/5.png">
+<meta property="article:published_time" content="2021-07-13T02:09:55.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.260Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="cpu">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/linux-cpu-high/6.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/07/13/linux-cpu-high/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>linux机器cpu打满排查过程 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/13/linux-cpu-high/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux机器cpu打满排查过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-13 10:09:55" itemprop="dateCreated datePublished" datetime="2021-07-13T10:09:55+08:00">2021-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>接收到告警短信，web应用登陆无响应，请求api均为504</p>
+<h3 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h3><p>平台无法正常使用</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><p>一般情况下，<code>cpp</code>应用占用<code>cpu</code>较高的原因大部分分为以下两个情况：</p>
+<ul>
+<li>应用属于计算密集型应用<br>使用大量 <code>CPU</code> 会导致平均负载升高，此时<code>system load</code>和<code>cpu</code>使用数率值上是一致的</li>
+<li>应用中出现了<code>IO</code>密集型应用<br>等待 <code>I/O</code> 也会导致平均负载升高，但 <code>CPU</code> 使用率不一定很高，所以<code>system load</code>和<code>cpu</code>使用率并不会一致</li>
+</ul>
+<h4 id="查询该机器的系统负载-system-load"><a href="#查询该机器的系统负载-system-load" class="headerlink" title="查询该机器的系统负载(system load)"></a>查询该机器的系统负载(system load)</h4><ul>
+<li><p>1.系统负载：<br>是指系统cpu繁忙程度的度量指标，即有多少个进程在等待被cpu调度，就是进程等待cpu的队列长度</p>
+</li>
+<li><p>2.平均负载：<br>是指单位时间内，处于可运行状态和不可中断状态的进程数。所以，它不仅包括了正在使用 <code>CPU</code> 的进程，还包括等待 <code>CPU</code> 和等待 <code>I/O</code> 的进程，实际上是系统的平均活跃进程数统计</p>
+</li>
+<li><p>3.uptime详解</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 观察uptime刷新，w命令&#x2F;top命令皆可查询到系统的平均负载</span><br><span class="line">watch -D uptime</span><br><span class="line">&#x2F;&#x2F; 得到结果</span><br><span class="line"> 11:10:17 up 628 days, 14:06,  2 users,  load average: 0.05, 3.53, 6.59</span><br><span class="line"> &#x2F;&#x2F; 11:10:17是指当前系统时间</span><br><span class="line"> &#x2F;&#x2F; up 628 days, 14:06 是指机器运行时间</span><br><span class="line"> &#x2F;&#x2F; 2 users：是指当前登陆有2个用户</span><br><span class="line"> &#x2F;&#x2F; load average: 0.05, 3.53, 6.59：是指当前1分钟&#x2F;5分钟&#x2F;15分钟的平均负载指</span><br></pre></td></tr></table></figure>
+<p>假设平均负载是<code>2</code>，当前<code>cpu</code>数是<code>2cores</code>则说明<code>cpu</code>被<code>100%</code>使用，如果是<code>4cores</code>则说明<code>cpu</code>利用率是<code>50%</code>，如果是<code>1cores</code>，则说明有一半的进程都竞争得不到<code>cpu</code></p>
+</li>
+<li><p>3.如何查看机器的核心(core)呢</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep cores | wc -l</span><br></pre></td></tr></table></figure></li>
+<li>4.如何查看机器是否开启超线程呢？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 如何得到的值和grep cores后得到的核心数一致，则说明未开启</span><br><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep processor | wc -l</span><br></pre></td></tr></table></figure>
+比如我们的机器2颗物理cpu，在每颗物理cpu上又做了6颗逻辑CPU，之后在每颗逻辑CPU上又实现了超线程后，假如此时你在系统中使用<strong>cat /proc/cpuinfo |grep ‘processor’|wc –l</strong>返回24颗，如果load值（15分钟的返回值作为参考依据）长期在24以上，说明系统已经很繁忙了。</li>
+</ul>
+<h4 id="具体分析系统瓶颈"><a href="#具体分析系统瓶颈" class="headerlink" title="具体分析系统瓶颈"></a>具体分析系统瓶颈</h4><blockquote>
+<p>结合平均负载分析，假如我们当前已经知道load很高，但是仍然无法判断是cpu占用率高，还是系统I/O繁忙，又或者是内存不足导致的？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vmstat 1</span><br></pre></td></tr></table></figure><br><img src="/images/linux-cpu-high/6.png" alt="cgi"></p>
+<ul>
+<li>1、procs列<br><strong>r</strong> 列表示运行和等待cpu时间片的进程数，如果长期大于cpu核心数，说明cpu不足，需要增加cpu。<br><strong>b</strong> 列表示在等待资源的进程数，比如正在等待I/O、或者内存交换等。</li>
+</ul>
+</blockquote>
+<ul>
+<li><p>2、system 显示采集间隔内发生的中断数<br><strong>in</strong> 列表示在某一时间间隔中观测到的每秒设备中断数。<br><strong>cs</strong> 列表示每秒产生的上下文切换次数，如当 cs 比磁盘 I/O 和网络信息包速率高得多，都应进行进一步调查。</p>
+</li>
+<li><p>3、memory列<br><strong>swpd</strong> 切换到内存交换区的内存数量(k表示)。如果swpd的值不为0，或者比较大，比如超过了100m，只要<br><strong>free</strong> 当前的空闲页面列表中内存数量(k表示)<br><strong>buff</strong> 作为buffer cache的内存数量，一般对块设备的读写才需要缓冲。<br><strong>cache</strong> 作为page cache的内存数量，一般作为文件系统的cache，如果cache较大，说明用到cache的文件较多，如果此时IO中bi比较小，说明文件系统效率比较好。</p>
+</li>
+<li><p>4、swap列<br><strong>si</strong> 由内存进入内存交换区数量。<br><strong>so</strong> 由内存交换区进入内存数量。<br><strong>si</strong>、<strong>so</strong>的值长期为0，系统性能还是正常</p>
+</li>
+<li><p>5、IO列<br><strong>bi</strong> 从块设备读入数据的总量（读磁盘）（每秒kb）。<br><strong>bo</strong> 块设备写入数据的总量（写磁盘）（每秒kb）<br>这里我们设置的bi+bo参考值为1000，如果超过1000，而且wa值较大应该考虑均衡磁盘负载，可以结合iostat输出来分析。</p>
+</li>
+<li><p>6、cpu列<br><strong>cs</strong> 表示cpu的使用状态<br><strong>us</strong> 列显示了用户方式下所花费 CPU 时间的百分比。us的值比较高时，说明用户进程消耗的cpu时间多，但是如果长期大于50%，需要考虑优化用户的程序。<br><strong>sy</strong> 列显示了内核进程所花费的cpu时间的百分比。这里us + sy的参考值为80%，如果us+sy 大于 80%说明可能存在CPU不足<br><strong>id</strong> 列显示了cpu处在空闲状态的时间百分比<br><strong>wa</strong> 列显示了IO等待所占用的CPU时间的百分比。这里wa的参考值为30%，如果wa超过30%，说明IO等待严重，这可能是磁盘大量随机访问造成的，也可能磁盘或者磁盘访问控制器的带宽瓶颈造成的(主要是块操作)。</p>
+</li>
+</ul>
+<blockquote>
+<p>通过以上分析，可以知道当前机器的瓶颈是cpu负载过高，那么如何知道哪个进程占用cpu资源呢？</p>
+</blockquote>
+<h4 id="查询该机器cpu占用最高的进程"><a href="#查询该机器cpu占用最高的进程" class="headerlink" title="查询该机器cpu占用最高的进程"></a>查询该机器<code>cpu</code>占用最高的进程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 每5秒统计一次</span><br><span class="line">pidstat -u 5 1</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/1.png" alt="cgi"></p>
+<blockquote>
+<p>也可以使用<code>top</code>命令查询到<code>cpu</code>占用最高的进程</p>
+</blockquote>
+<h4 id="查询该机器的cpu使用情况"><a href="#查询该机器的cpu使用情况" class="headerlink" title="查询该机器的cpu使用情况"></a>查询该机器的<code>cpu</code>使用情况</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 每5秒刷新一次查看所有cpu的统计情况</span><br><span class="line">mpstat -P ALL 5</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/2.png" alt="cgi"></p>
+<h4 id="查看到进程ID后，可以通过ps-aux-grep-pid查看进程的详情"><a href="#查看到进程ID后，可以通过ps-aux-grep-pid查看进程的详情" class="headerlink" title="查看到进程ID后，可以通过ps aux | grep pid查看进程的详情"></a>查看到进程<code>ID</code>后，可以通过<code>ps aux | grep pid</code>查看进程的详情</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/4.png" alt="cgi"></p>
+<h4 id="定位到最耗cpu的进程后，使用top-Hp-pid命令查看线程列表，并找到占用cpu最高的线程"><a href="#定位到最耗cpu的进程后，使用top-Hp-pid命令查看线程列表，并找到占用cpu最高的线程" class="headerlink" title="定位到最耗cpu的进程后，使用top -Hp pid命令查看线程列表，并找到占用cpu最高的线程"></a>定位到最耗<code>cpu</code>的进程后，使用<code>top -Hp pid</code>命令查看线程列表，并找到占用cpu最高的线程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; &#96;tid&#96;表示线程&#96;ID&#96;，&#96;time&#96;表示线程已经运行的时间</span><br><span class="line">&#x2F;&#x2F; 这个命令也一样使用ps -mp pid -o THREAD,tid,time | sort -rn</span><br><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/5.png" alt="cgi"></p>
+<h4 id="将需要的线程ID转换为16进制格式，可以使用printf-quot-x-n-quot-tid命令"><a href="#将需要的线程ID转换为16进制格式，可以使用printf-quot-x-n-quot-tid命令" class="headerlink" title="将需要的线程ID转换为16进制格式，可以使用printf &quot;%x\n&quot; tid命令"></a>将需要的线程<code>ID</code>转换为<code>16</code>进制格式，可以使用<code>printf &quot;%x\n&quot; tid</code>命令</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf &quot;%x\n&quot; tid</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cpp/" rel="tag"># cpp</a>
+              <a href="/tags/cpu/" rel="tag"># cpu</a>
+              <a href="/tags/linux/" rel="tag"># linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/21/docker-ipv4-forword/" rel="prev" title="docker ipv4 forwarding is disabled">
+      <i class="fa fa-chevron-left"></i> docker ipv4 forwarding is disabled
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/13/java-cpu-high/" rel="next" title="java应用cpu打满排查过程">
+      java应用cpu打满排查过程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题背景"><span class="nav-number">1.</span> <span class="nav-text">问题背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#影响范围"><span class="nav-number">2.</span> <span class="nav-text">影响范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排查过程"><span class="nav-number">3.</span> <span class="nav-text">排查过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查询该机器的系统负载-system-load"><span class="nav-number">3.1.</span> <span class="nav-text">查询该机器的系统负载(system load)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#具体分析系统瓶颈"><span class="nav-number">3.2.</span> <span class="nav-text">具体分析系统瓶颈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查询该机器cpu占用最高的进程"><span class="nav-number">3.3.</span> <span class="nav-text">查询该机器cpu占用最高的进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查询该机器的cpu使用情况"><span class="nav-number">3.4.</span> <span class="nav-text">查询该机器的cpu使用情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看到进程ID后，可以通过ps-aux-grep-pid查看进程的详情"><span class="nav-number">3.5.</span> <span class="nav-text">查看到进程ID后，可以通过ps aux | grep pid查看进程的详情</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定位到最耗cpu的进程后，使用top-Hp-pid命令查看线程列表，并找到占用cpu最高的线程"><span class="nav-number">3.6.</span> <span class="nav-text">定位到最耗cpu的进程后，使用top -Hp pid命令查看线程列表，并找到占用cpu最高的线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将需要的线程ID转换为16进制格式，可以使用printf-quot-x-n-quot-tid命令"><span class="nav-number">3.7.</span> <span class="nav-text">将需要的线程ID转换为16进制格式，可以使用printf &quot;%x\n&quot; tid命令</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

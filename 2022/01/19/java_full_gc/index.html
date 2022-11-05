@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="问题描述用户反馈api请求时快时慢，慢的时候网页打开很久都没有结果，直到超时给出500错误 排查过程初步怀疑当前程序分布式部署在多个节点上，通过vip进行负载均衡，所以对于直接将反馈慢的页面打开的请求通过curl方式登陆生产环境所有节点，进行轮训一遍，发现其中02节点需要等待很久，其他节点均正常，所以问题应该出在02节点，注意：这个定位过程当然也可以使用监控图就一目了然了。推荐使用grafana">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次线上fgc排查过程">
+<meta property="og:url" content="http://yoursite.com/2022/01/19/java_full_gc/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="问题描述用户反馈api请求时快时慢，慢的时候网页打开很久都没有结果，直到超时给出500错误 排查过程初步怀疑当前程序分布式部署在多个节点上，通过vip进行负载均衡，所以对于直接将反馈慢的页面打开的请求通过curl方式登陆生产环境所有节点，进行轮训一遍，发现其中02节点需要等待很久，其他节点均正常，所以问题应该出在02节点，注意：这个定位过程当然也可以使用监控图就一目了然了。推荐使用grafana">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/8.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/1.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/2.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/10.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/11.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/3.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/5.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/6.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/7.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/9.png">
+<meta property="og:image" content="http://yoursite.com/images/java/fgc/12.png">
+<meta property="article:published_time" content="2022-01-19T11:04:11.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.259Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="springboot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/java/fgc/8.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/01/19/java_full_gc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>记一次线上fgc排查过程 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/19/java_full_gc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记一次线上fgc排查过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-19 19:04:11" itemprop="dateCreated datePublished" datetime="2022-01-19T19:04:11+08:00">2022-01-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>用户反馈api请求时快时慢，慢的时候网页打开很久都没有结果，直到超时给出500错误</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><h4 id="初步怀疑"><a href="#初步怀疑" class="headerlink" title="初步怀疑"></a>初步怀疑</h4><p>当前程序分布式部署在多个节点上，通过<code>vip</code>进行负载均衡，所以对于直接将反馈慢的页面打开的请求通过<code>curl</code>方式登陆生产环境所有节点，进行轮训一遍，发现其中02节点需要等待很久，其他节点均正常，所以问题应该出在02节点，<br>注意：这个定位过程当然也可以使用监控图就一目了然了。推荐使用<code>grafana prometheus spring boot dashboard</code>在<code>google</code>搜寻下相关配置就可以了。<br><img src="/images/java/fgc/8.png" alt="cgi"></p>
+<h4 id="查询该节点负载"><a href="#查询该节点负载" class="headerlink" title="查询该节点负载"></a>查询该节点负载</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 得到进程的pid</span><br><span class="line">jps -mlv </span><br><span class="line"># 通过top命令查询节点实际负载</span><br><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/1.png" alt="cgi"></p>
+<blockquote>
+<p>通过top命令发现该节点memory使用了接近<code>90%</code>，怀疑出现内存泄露</p>
+</blockquote>
+<h4 id="查询该节点内存使用情况"><a href="#查询该节点内存使用情况" class="headerlink" title="查询该节点内存使用情况"></a>查询该节点内存使用情况</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcutil pid 1000</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/2.png" alt="cgi"></p>
+<blockquote>
+<p>如我所料，几乎不到<code>1s</code>就开始做一次<code>fgc</code>，所以服务才越来越慢响应</p>
+</blockquote>
+<h3 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h3><h4 id="使用jmap分析内存概要"><a href="#使用jmap分析内存概要" class="headerlink" title="使用jmap分析内存概要"></a>使用jmap分析内存概要</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -heap pid ｜ head -n20</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/10.png" alt="cgi"></p>
+<h4 id="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"><a href="#使用jmap打印堆内存的对象，带上live，则只统计活着的对象" class="headerlink" title="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"></a>使用jmap打印堆内存的对象，带上live，则只统计活着的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -histo pid ｜ head -n20</span><br><span class="line">jmap -histo:live pid ｜ head -n20</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/11.png" alt="cgi"></p>
+<h4 id="打印进程的内存使用情况"><a href="#打印进程的内存使用情况" class="headerlink" title="打印进程的内存使用情况"></a>打印进程的内存使用情况</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format&#x3D;b,file&#x3D;dumpFileName pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/3.png" alt="cgi"></p>
+<blockquote>
+<p>dump出来了<code>12G</code>的文件，通过scp工具转存到本地</p>
+</blockquote>
+<h4 id="jprofiler分析堆内存"><a href="#jprofiler分析堆内存" class="headerlink" title="jprofiler分析堆内存"></a>jprofiler分析堆内存</h4><ul>
+<li>1、把dumpFileName文件转存为.hprof格式后直接双击打开，按照instance count逆序排列<br><img src="/images/java/fgc/5.png" alt="cgi"></li>
+<li>2、会发现有hashmap类型占了最大头，但是这个类型，双击它，选择<code>merged incoming reference</code>，查看合并后的来源引用统计<br><img src="/images/java/fgc/6.png" alt="cgi"></li>
+<li>3、还是选最大头的文件数一直拆到最里层，找出来源引用是<code>org.apache.ibatis.executor.result.DefaultResultHandler</code>这个类，基本能定位到问题根源了，是我们连接<code>clickhouse</code>客户端去查询结果时，未对结果集做限制，导致了一个很大的结果集返回到内存中。<br><img src="/images/java/fgc/7.png" alt="cgi"></li>
+</ul>
+<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><p>当然是对结果集做限制，检测用户输入的sql，是否包含limit条数限制，若未限制，则对sql进行改写，增加<code>500</code>条数限制<br><img src="/images/java/fgc/9.png" alt="cgi"></p>
+<h3 id="GC的运行原理"><a href="#GC的运行原理" class="headerlink" title="GC的运行原理"></a>GC的运行原理</h3><p><code>GC</code>（<code>garbage collection</code>）：垃圾回收，主要是指<code>YGC</code>和<code>FGC</code><br><code>YGC</code>（minor garbage collection）：新生代垃圾回收<br><code>FGC</code>（major garbage collection）：老年代垃圾回收</p>
+<h4 id="堆内存结构"><a href="#堆内存结构" class="headerlink" title="堆内存结构"></a>堆内存结构</h4><p><img src="/images/java/fgc/12.png" alt="cgi"><br>堆内存采用了分代结构，包括新生代和老年代，新生代分为：<code>eden</code>区、<code>from survivor</code>区（简称<code>s0</code>）、<code>to survivor</code>区（简称<code>s1</code>），三者默认比例上8:1:1，另外新生代和老年代的比例则是1:2。<br>堆内存之所以采用分代结构，是因为绝大多数对象都是短生命周期的，这样设计可以把不同的生命周期的对象放在不同的区域中，然后针对新生代和老年代采用不同的垃圾回收算法，从而使得<code>GC</code>效率最高。</p>
+<h4 id="YGC是什么时候触发的？"><a href="#YGC是什么时候触发的？" class="headerlink" title="YGC是什么时候触发的？"></a>YGC是什么时候触发的？</h4><p>大多数情况下，对象直接在年轻代中的<code>Eden</code>区进行分配，如果<code>Eden</code>区域没有足够的空间，那么就会触发<code>YGC</code>（<code>Minor GC</code>），<code>YGC</code>处理的区域只有新生代。因为大部分对象在短时间内都是可收回掉的，因此YGC后只有极少数的对象能存活下来，而被移动到S0区（采用的是复制算法）。<br>当触发下一次YGC时，会将Eden区和S0区的存活对象移动到S1区，同时清空Eden区和S0区。当再次触发YGC时，这时候处理的区域就变成了Eden区和S1区（即S0和S1进行角色交换）。每经过一次YGC，存活对象的年龄就会加1。</p>
+<h4 id="FGC是什么时候触发的？"><a href="#FGC是什么时候触发的？" class="headerlink" title="FGC是什么时候触发的？"></a>FGC是什么时候触发的？</h4><ul>
+<li><p>1、<code>YGC</code>时，<code>To Survivor</code>区不足以存放存活的对象，对象会直接进入到老年代。经过多次<code>YGC</code>后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中。动态年龄判定规则，<code>To Survivor</code>区中相同年龄的对象，如果其大小之和占到了 <code>To Survivor</code> 区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。大对象：由<code>-XX:PretenureSizeThreshold</code>启动参数控制，若对象大小大于此值，就会绕过新生代, 直接在老年代中分配。当晋升到老年代的对象大于了老年代的剩余空间时，就会触发<code>FGC</code>（<code>Major GC</code>），<code>FGC</code>处理的区域同时包括新生代和老年代。老年代的内存使用率达到了一定阈值（可通过参数调整），直接触发<code>FGC</code>。</p>
+</li>
+<li><p>2、空间分配担保：在<code>YGC</code>之前，会先检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果小于，说明<code>YGC</code>是不安全的，则会查看参数 <code>HandlePromotionFailure</code> 是否被设置成了允许担保失败，如果不允许则直接触发<code>Full GC</code>；如果允许，那么会进一步检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果小于也会触发 <code>Full GC</code>。</p>
+</li>
+<li><p>3、<code>Metaspace</code>（元空间）在空间不足时会进行扩容，当扩容到了<code>-XX:MetaspaceSize</code> 参数的指定值时，也会触发<code>FGC</code>。</p>
+</li>
+<li><p>4、<code>System.gc</code>() 或者<code>Runtime.gc</code>() 被显式调用时，触发<code>FGC</code>。</p>
+</li>
+</ul>
+<h4 id="GC对程序会产生什么影响"><a href="#GC对程序会产生什么影响" class="headerlink" title="GC对程序会产生什么影响"></a>GC对程序会产生什么影响</h4><p>不管是YGC还是FGC，都会造成一定程度上的程序卡顿（stop the world问题：GC线程开始工作，其他工作线程被挂起），即使采用ParNew、CMS、G1这些更先进的垃圾回收算法，也只是减少卡顿的时间，并不能完全消除卡顿</p>
+<ul>
+<li>FGC过于频繁：<br>FGC通常是比较慢的，少则几百号秒，多则几秒，正常情况下FGC每隔几个小时或者几天才会执行一次，对系统的影响是可接受的，所以一旦出现FGC频繁（比如几分钟/几十分钟出现一次）会导致工作线程频繁被停掉，让系统看起来就一直卡顿，使得程序的整体性能变差。</li>
+<li>YGC耗时过长：<br>一般来说YGC的总耗时指需要几十毫秒或上百毫秒，对于系统来说几乎无感知，所以如果YGC耗时达到1秒甚至几秒（快赶上FGC的耗时），那么卡顿就会加剧，加上YGC本身会比较频繁发生，就可能导致服务响应时间超时。</li>
+<li>FGC耗时过长：<br>FGC耗时增加，卡顿时间也会随之增加，尤其对于高并发服务，可能导致FGC期间比较多的超时问题，可用性降低，这种也需要关注</li>
+<li>YGC过于频繁：<br>即使YGC不会引起服务超时，但是YGC过于频繁也会降低服务的整体性能，对于高并发服务也是需要关注的。</li>
+</ul>
+<blockquote>
+<p>其中，「FGC过于频繁」和「YGC耗时过长」，这两种情况属于比较典型的GC问题，大概率会对程序的服务质量产生影响。剩余两种情况的严重程度低一些，但是对于高并发或者高可用的程序也需要关注。</p>
+</blockquote>
+<h4 id="导致FGC的原因总结"><a href="#导致FGC的原因总结" class="headerlink" title="导致FGC的原因总结"></a>导致FGC的原因总结</h4><ul>
+<li>大对象：系统一次性加载了过多数据到内存中（比如SQL查询未做分页），导致大对象进入了老年代。（即本文中的案例）</li>
+<li>内存泄漏：频繁创建了大量对象，但是无法被回收（比如IO对象使用完后未调用close方法释放资源），先引发FGC，最后导致OOM.</li>
+<li>程序频繁生成一些长生命周期的对象，当这些对象的存活年龄超过分代年龄时便会进入老年代，最后引发FGC. </li>
+<li>程序BUG导致动态生成了很多新类，使得 Metaspace 不断被占用，先引发FGC，最后导致OOM.</li>
+<li>代码中显式调用了gc方法，包括自己的代码甚至框架中的代码。</li>
+<li>JVM参数设置问题：包括总内存大小、新生代和老年代的大小、Eden区和S区的大小、元空间大小、垃圾回收算法等等。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/springboot/" rel="tag"># springboot</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/19/linux_min_free_kbytes/" rel="prev" title="记一次线上core dump">
+      <i class="fa fa-chevron-left"></i> 记一次线上core dump
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/21/clickhouse-ddl-on-cluster/" rel="next" title="clickhouse query on cluster源码解读">
+      clickhouse query on cluster源码解读 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题描述"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排查过程"><span class="nav-number">2.</span> <span class="nav-text">排查过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初步怀疑"><span class="nav-number">2.1.</span> <span class="nav-text">初步怀疑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查询该节点负载"><span class="nav-number">2.2.</span> <span class="nav-text">查询该节点负载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查询该节点内存使用情况"><span class="nav-number">2.3.</span> <span class="nav-text">查询该节点内存使用情况</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存分析"><span class="nav-number">3.</span> <span class="nav-text">内存分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用jmap分析内存概要"><span class="nav-number">3.1.</span> <span class="nav-text">使用jmap分析内存概要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用jmap打印堆内存的对象，带上live，则只统计活着的对象"><span class="nav-number">3.2.</span> <span class="nav-text">使用jmap打印堆内存的对象，带上live，则只统计活着的对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#打印进程的内存使用情况"><span class="nav-number">3.3.</span> <span class="nav-text">打印进程的内存使用情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jprofiler分析堆内存"><span class="nav-number">3.4.</span> <span class="nav-text">jprofiler分析堆内存</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决问题"><span class="nav-number">4.</span> <span class="nav-text">解决问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC的运行原理"><span class="nav-number">5.</span> <span class="nav-text">GC的运行原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#堆内存结构"><span class="nav-number">5.1.</span> <span class="nav-text">堆内存结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#YGC是什么时候触发的？"><span class="nav-number">5.2.</span> <span class="nav-text">YGC是什么时候触发的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FGC是什么时候触发的？"><span class="nav-number">5.3.</span> <span class="nav-text">FGC是什么时候触发的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GC对程序会产生什么影响"><span class="nav-number">5.4.</span> <span class="nav-text">GC对程序会产生什么影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#导致FGC的原因总结"><span class="nav-number">5.5.</span> <span class="nav-text">导致FGC的原因总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="如何判断程序类型 CPU密集型   CPU 密集型简单理解就是利用 CPU 计算能力的任务,比如你在内存中对大量数据进行排序   I&#x2F;O密集型  但凡涉及到网络读取，文件读取这类都是 IO 密集型，这类任务的特点是 CPU 计算耗费时间相比于等待 IO 操作完成的时间来说很少，大部分时间都花在了等待 IO 操作完成上。    线程池设置 CPU 密集型任务(CPU核数 + 1)：   这种任务消耗">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程池相关">
+<meta property="og:url" content="http://yoursite.com/2021/10/17/thread-pool/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="如何判断程序类型 CPU密集型   CPU 密集型简单理解就是利用 CPU 计算能力的任务,比如你在内存中对大量数据进行排序   I&#x2F;O密集型  但凡涉及到网络读取，文件读取这类都是 IO 密集型，这类任务的特点是 CPU 计算耗费时间相比于等待 IO 操作完成的时间来说很少，大部分时间都花在了等待 IO 操作完成上。    线程池设置 CPU 密集型任务(CPU核数 + 1)：   这种任务消耗">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/1.png">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/2.png">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/4.png">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/5.png">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/3.png">
+<meta property="og:image" content="http://yoursite.com/images/java_thread_pool/6.png">
+<meta property="article:published_time" content="2021-10-17T02:09:55.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.262Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/java_thread_pool/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/10/17/thread-pool/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>线程池相关 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/17/thread-pool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          线程池相关
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-17 10:09:55" itemprop="dateCreated datePublished" datetime="2021-10-17T10:09:55+08:00">2021-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/interview/" itemprop="url" rel="index"><span itemprop="name">interview</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="如何判断程序类型"><a href="#如何判断程序类型" class="headerlink" title="如何判断程序类型"></a>如何判断程序类型</h3><ul>
+<li><p>CPU密集型</p>
+<blockquote>
+<p> <code>CPU</code> 密集型简单理解就是利用 <code>CPU</code> 计算能力的任务,比如你在内存中对大量数据进行排序</p>
+</blockquote>
+</li>
+<li><p>I/O密集型</p>
+<blockquote>
+<p>但凡涉及到网络读取，文件读取这类都是 <code>IO</code> 密集型，这类任务的特点是 <code>CPU</code> 计算耗费时间相比于等待 <code>IO</code> 操作完成的时间来说很少，大部分时间都花在了等待 <code>IO</code> 操作完成上。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="线程池设置"><a href="#线程池设置" class="headerlink" title="线程池设置"></a>线程池设置</h3><ul>
+<li><p>CPU 密集型任务(CPU核数 + 1)： </p>
+<blockquote>
+<p>这种任务消耗的主要是 <code>CPU</code> 资源，可以将线程数设置为 <code>N</code>（<code>CPU</code> 核心数）+1，比 <code>CPU</code> 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，<code>CPU</code> 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。</p>
+</blockquote>
+</li>
+<li><p>I/O 密集型任务(CPU核数 * 2)： </p>
+<blockquote>
+<p>这种任务应用起来，系统会用大部分的时间来处理 <code>I/O</code> 交互，而线程在处理 <code>I/O</code> 的时间段内不会占用 <code>CPU</code> 来处理，这时就可以将 <code>CPU</code> 交出给其它线程使用。因此在 I/O 密集型任务的应用中，我们可以多配置一些线程，具体的计算方法是 <code>2N</code>。</p>
+</blockquote>
+</li>
+<li><p>参数介绍</p>
+<ul>
+<li>corePoolSize：核心线程数，定义了最小可以同时运行的线程数量</li>
+<li>maximumPoolSize：当队列中存放的任务达到队列容量时，当前可以同时运行的线程数量变为最大线程数</li>
+<li>workQueue：当新任务来的时候，先判断当前运行的线程数量是否达到核心线程数（corePoolSize），如果达到，则新任务会被存放到队列中</li>
+<li>keepAliveTime：当线程池中的线程数量大于核心线程池（corePoolSize）时，如果没有新任务提交，核心线程外的线程（maximumPoolSize - corePoolSize）不会被立即销毁，而是等到keepAliveTime时间后，才会被回收销毁</li>
+<li>unit：keepAliveTime的时间单位（TimeUnit类中的成员变量）</li>
+<li>threadFactory：executor创建线程的工厂类</li>
+<li>handler：饱和策略<blockquote>
+<p>如果当前同时运行的线程数量达到最大线程数（maximumPoolSize），并且队列（workQueue）已经满了，ThreadPoolExecutory就会执行一些策略</p>
+<ul>
+<li>AbortPolicy：抛出 RejectExecutionExeception 来拒绝新任务加入 （默认）</li>
+<li>CallerRunsPolicy：调用执行自己的线程运行拒绝任务</li>
+<li>DiscardPolicy：不处理新任务，直接丢弃</li>
+<li>DiscardOldestPolicy：丢弃最早的未处理的任务</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/images/java_thread_pool/1.png" alt="avatar"></p>
+<h3 id="线程池原理分析"><a href="#线程池原理分析" class="headerlink" title="线程池原理分析"></a>线程池原理分析</h3><ul>
+<li><p>ThreadPoolExecutor</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class ThreadPoolExecutor extends AbstractExecutorService &#123;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ThreadPoolExecutor类 继承了 AbstractExecutorService类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractExecutorService implements ExecutorService &#123;</span><br></pre></td></tr></table></figure>
+<p>AbstractExecutorService类 实现了 ExecutorService接口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface ExecutorService extends Executor &#123;</span><br></pre></td></tr></table></figure>
+<p>ExecutorService接口 继承了 Executor类</p>
+</blockquote>
+</li>
+<li><p>线程池demo</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">package blank.lin.thread;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.ArrayBlockingQueue;</span><br><span class="line">import java.util.concurrent.ThreadPoolExecutor;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">public class ThreadPoolTest &#123;</span><br><span class="line">    private static ThreadPoolExecutor threadPoolExecutor &#x3D; new ThreadPoolExecutor(</span><br><span class="line">            1,</span><br><span class="line">            2,</span><br><span class="line">            0L,</span><br><span class="line">            TimeUnit.MILLISECONDS,</span><br><span class="line">            new ArrayBlockingQueue&lt;Runnable&gt;(1)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第1个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第1个任务，线程池刚刚初始化，没有可以执行任务的核心线程，创建一个核心线程来执行任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第2个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第2个任务，没有可以执行任务的核心线程，且任务数大于corePoolSize，新加入任务被放在了阻塞队列中&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第3个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第3个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第4个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第4个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第1个任务执行完毕，核心线程空闲，阻塞队列的任务被取出来，使用核心线程来执行&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第2个任务执行完毕，核心线程空闲，非核心线程在执行第3个任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第3个任务执行完毕，非核心线程被销毁，核心线程保留&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void printCount() &#123;</span><br><span class="line">        System.out.println(&quot;------------------------------------&quot;);</span><br><span class="line">        System.out.println(&quot;当前活跃线程数:&quot;+threadPoolExecutor.getActiveCount());</span><br><span class="line">        System.out.println(&quot;当前核心线程数:&quot;+threadPoolExecutor.getCorePoolSize());</span><br><span class="line">        System.out.println(&quot;阻塞队列中的任务数:&quot;+threadPoolExecutor.getQueue().size());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>threadPoolExecutor.execute源码分析</p>
+<blockquote>
+<p>处理过程一共3步  </p>
+</blockquote>
+<ul>
+<li>首先判断核心线程池是否满了，未满则开启新线程执行任务，addWorker调用会原子性检查线程运行状态和线程数，并且<blockquote>
+<ol>
+<li>If fewer than corePoolSize threads are running, try to start a new thread with the given command as its first task.  The call to addWorker atomically checks runState and workerCount, and so prevents false alarms that would add threads when it shouldn’t, by returning false.</li>
+</ol>
+</blockquote>
+</li>
+<li>如果一个任务被成功加入到队列里，也会重复检查是否应该新添加一个线程去执行，因为自上次检查后现存线程可以已死，或者线程池在进入这个方法后就关闭了，所以我们会重复检查状态，并且判断是否需要回滚队列，或者开启新线程<blockquote>
+<ol>
+<li>If a task can be successfully queued, then we still need to double-check whether we should have added a thread (because existing ones died since last checking) or that the pool shut down since entry into this method. So we recheck state and if necessary roll back the enqueuing if stopped, or start a new thread if there are none.</li>
+</ol>
+</blockquote>
+</li>
+<li>如果无法加入队列任务，我们会尝试新添加一个线程，如果新线程添加失败，我们知道线程被关闭了或者已经满了，所以任务会被拒绝<blockquote>
+<ol>
+<li>If we cannot queue task, then we try to add a new thread.  If it fails, we know we are shut down or saturated and so reject the task.  </li>
+</ol>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>源码   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public void execute(Runnable command) &#123;</span><br><span class="line">        &#x2F;&#x2F; 任务为空，抛异常</span><br><span class="line">        if (command &#x3D;&#x3D; null)</span><br><span class="line">            throw new NullPointerException();</span><br><span class="line">         &#x2F;&#x2F; ctl中保存的线程池当前的一些任务状态</span><br><span class="line">        int c &#x3D; ctl.get();</span><br><span class="line">        &#x2F;&#x2F; 上面介绍的3步从这里开始</span><br><span class="line">        &#x2F;&#x2F; 第一步，判断当前线程池中的任务数量是否小于核心线程数</span><br><span class="line">        &#x2F;&#x2F; 如果小于的话通过addWorker新建一个线程，并将任务添加到线程去执行</span><br><span class="line">        if (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">            if (addWorker(command, true))</span><br><span class="line">                return;</span><br><span class="line">            c &#x3D; ctl.get();</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第二步，如果当前线程数已经大于等于核心线程数了</span><br><span class="line">        &#x2F;&#x2F; 通过isRunning来判断线程池状态，线程池处于RUNNING状态，才会将任务加入到workQueue队列中</span><br><span class="line">        if (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">            int recheck &#x3D; ctl.get();</span><br><span class="line">            &#x2F;&#x2F; 再次获取线程池状态，如果线程池不是RUNNING状态了，就需要从workQueue中移除任务</span><br><span class="line">            if (! isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">                &#x2F;&#x2F; 执行拒绝策略</span><br><span class="line">                reject(command);</span><br><span class="line">            &#x2F;&#x2F; 当前线程池为空，则重新创建线程去执行任务</span><br><span class="line">            else if (workerCountOf(recheck) &#x3D;&#x3D; 0)</span><br><span class="line">                addWorker(null, false);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第三步</span><br><span class="line">        &#x2F;&#x2F; 创建线程执行任务失败，执行相应的拒绝任务</span><br><span class="line">        else if (!addWorker(command, false))</span><br><span class="line">            reject(command);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<img src="/images/java_thread_pool/2.png" alt="avatar"></li>
+</ul>
+<h3 id="查看机器cpu信息"><a href="#查看机器cpu信息" class="headerlink" title="查看机器cpu信息"></a>查看机器cpu信息</h3><ul>
+<li><p>查看物理cpu个数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/4.png" alt="avatar"></p>
+</li>
+<li><p>查看每个物理cpu中core的个数（即核数）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;cpu cores&quot;| uniq</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/5.png" alt="avatar"></p>
+</li>
+<li><p>查看逻辑cpu的个数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;processor&quot;| wc -l</span><br><span class="line">&#x2F;&#x2F; 在java里也可以这样查询</span><br><span class="line">Runtime.getRuntime().avaliableProcessor();</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/3.png" alt="avatar"></p>
+</li>
+<li><p>查看cpu型号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep name | uniq | cut -f2 -d:</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/6.png" alt="avatar"></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/10/java-interview/" rel="prev" title="java面试常见问题">
+      <i class="fa fa-chevron-left"></i> java面试常见问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/20/thread-basic/" rel="next" title="线程知识点">
+      线程知识点 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#如何判断程序类型"><span class="nav-number">1.</span> <span class="nav-text">如何判断程序类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池设置"><span class="nav-number">2.</span> <span class="nav-text">线程池设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池原理分析"><span class="nav-number">3.</span> <span class="nav-text">线程池原理分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看机器cpu信息"><span class="nav-number">4.</span> <span class="nav-text">查看机器cpu信息</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="什么是CRUD CRUD是指在做计算处理时的增加(Create)、检索(Retrieve)、更新(Update)和删除(Delete)几个单词的首字母简写。crud主要被用在描述软件系统中数据库或者持久层的基本操作功能  clickhouse物理上的crud  create创建表1234567891011create table account(  time DateTime default no">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用clickhouse实现数据更新和删除">
+<meta property="og:url" content="http://yoursite.com/2022/02/03/clickhouse-crud/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="什么是CRUD CRUD是指在做计算处理时的增加(Create)、检索(Retrieve)、更新(Update)和删除(Delete)几个单词的首字母简写。crud主要被用在描述软件系统中数据库或者持久层的基本操作功能  clickhouse物理上的crud  create创建表1234567891011create table account(  time DateTime default no">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/5.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/6.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/4.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/7.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/9.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/8.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/10.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/11.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/13.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/crud/12.png">
+<meta property="article:published_time" content="2022-02-03T14:57:11.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.255Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/crud/5.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/02/03/clickhouse-crud/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用clickhouse实现数据更新和删除 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/03/clickhouse-crud/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用clickhouse实现数据更新和删除
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-03 22:57:11" itemprop="dateCreated datePublished" datetime="2022-02-03T22:57:11+08:00">2022-02-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="什么是CRUD"><a href="#什么是CRUD" class="headerlink" title="什么是CRUD"></a>什么是CRUD</h3><blockquote>
+<p><code>CRUD</code>是指在做计算处理时的增加(<code>Create</code>)、检索(<code>Retrieve</code>)、更新(<code>Update</code>)和删除(<code>Delete</code>)几个单词的首字母简写。<code>crud</code>主要被用在描述软件系统中数据库或者持久层的基本操作功能</p>
+</blockquote>
+<h3 id="clickhouse物理上的crud"><a href="#clickhouse物理上的crud" class="headerlink" title="clickhouse物理上的crud"></a>clickhouse物理上的crud</h3><ul>
+<li><ol>
+<li>create创建表<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">create table account(</span><br><span class="line">  time DateTime default now() comment &#39;创建时间&#39;,</span><br><span class="line">  name String default &#39;&#39; comment &#39;唯一标示&#39;,</span><br><span class="line">  alias String default &#39;&#39; comment &#39;别名&#39;,</span><br><span class="line">  age UInt64 default 0 comment &#39;年龄&#39;,</span><br><span class="line">  version UInt64 default 0 comment &#39;版本号&#39;,</span><br><span class="line">  is_delete UInt8 default 0 comment &#39;是否删除，0否，1是&#39;</span><br><span class="line">) </span><br><span class="line">engine &#x3D; MergeTree </span><br><span class="line">partition by toYYYYMMDD(time) </span><br><span class="line">order by name</span><br></pre></td></tr></table></figure>
+<img src="/images/clickhouse/crud/5.png" alt="avatar"></li>
+</ol>
+</li>
+<li><ol>
+<li>insert写入数据<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into default.account(time, name, alias, age, version, is_delete) values (&#39;2022-01-01 11:11:11&#39;, &#39;blanklin&#39;, &#39;superhero&#39;, 20, 1, 0)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>写入数据后会按照partitionby生成对应的分区part目录<br><img src="/images/clickhouse/crud/6.png" alt="avatar"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>update更新<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alter table default.account</span><br><span class="line">update alias &#x3D; &#39;super_hero&#39;</span><br><span class="line">where alias &#x3D; &#39;superhero&#39;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里是 mutation 操作,会生成一个mutation_version.txt<br><img src="/images/clickhouse/crud/4.png" alt="avatar"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>delete删除<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table delete where id &#x3D; 1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里是 mutation 操作,会生成一个mutation_version.txt<br><img src="/images/clickhouse/crud/7.png" alt="avatar"></p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>retrieve检索<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select time, name, alias, age, version, is_delete from account where is_delete &#x3D; 0 order by version desc</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>可以通过system.mutations查询执行计划<br><img src="/images/clickhouse/crud/9.png" alt="avatar"><br>当mutation操作执行完成后，system.mutations表中对应的mutation记录中is_done字段的值会变为1。</li>
+</ol>
+</li>
+<li><ol>
+<li>可以通过system.parts查询执行结果<br><img src="/images/clickhouse/crud/8.png" alt="avatar"><br>当旧的数据片段移除后，system.parts表中旧数据片段对应的记录会被移除。</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>可以看到mutation操作完成后，之前的目录已经被删除<br><img src="/images/clickhouse/crud/10.png" alt="avatar"></p>
+</blockquote>
+<h3 id="clickhouse的mutation是什么"><a href="#clickhouse的mutation是什么" class="headerlink" title="clickhouse的mutation是什么"></a>clickhouse的mutation是什么</h3><h4 id="官方文档解释"><a href="#官方文档解释" class="headerlink" title="官方文档解释"></a>官方文档解释</h4><p>从官方对于mutaiton的解释<a href="https://clickhouse.com/docs/zh/sql-reference/statements/alter/#alter-mutations" target="_blank" rel="noopener">链接</a>中，我们需要注意到几个关键词，如下</p>
+<ul>
+<li><ol>
+<li>manipulate table data<br>操作表数据</li>
+</ol>
+</li>
+<li><ol>
+<li>asynchronous background processes<br>异步后台处理</li>
+</ol>
+</li>
+<li><ol>
+<li>rewriting whole data parts<br>重写全部数据part</li>
+</ol>
+</li>
+<li><ol>
+<li>a SELECT query that started executing during a mutation will see data from parts that have already been mutated along with data from parts that have not been mutated yet<br>在突变期间的查询语句，将看到已经完成突变的数据part和还未发生突变的part</li>
+</ol>
+</li>
+<li><ol>
+<li>data that was inserted into the table before the mutation was submitted will be mutated and data that was inserted after that will not be mutated<br>在提交突变之前插入表中的数据将被突变，而在此之后插入的数据将不会被突变</li>
+</ol>
+</li>
+<li><ol>
+<li>There is no way to roll back the mutation once it is submitted, but if the mutation is stuck for some reason it can be cancelled with the KILL MUTATION query<br>突变一旦被提交就没有方式可以回滚，但是如果突变由于一些原因被卡住，可以使用<code>KILL MUTATION</code>取消突变</li>
+</ol>
+</li>
+</ul>
+<h4 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h4><p>当用户执行一个如上的Mutation操作获得返回时，ClickHouse内核其实只做了两件事情：<br><img src="/images/clickhouse/crud/1.png" alt="avatar"></p>
+<ul>
+<li><ol>
+<li>检查Mutation操作是否合法；<blockquote>
+<p>主体逻辑在MutationsInterpreter::validate函数</p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>保存Mutation命令到存储文件中，唤醒一个异步处理merge和mutation的工作线程；<blockquote>
+<p>主体逻辑在StorageMergeTree::mutate函数中。</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<p>Merge逻辑<br><strong>StorageMergeTree::merge</strong>函数是<code>MergeTree</code>异步<code>Merge</code>的核心逻辑，<code>Data Part Merge</code>的工作除了通过后台工作线程自动完成，用户还可以通过<code>Optimize</code>命令来手动触发。自动触发的场景中，系统会根据后台空闲线程的数据来启发式地决定本次<code>Merge</code>最大可以处理的数据量大小，<strong>max_bytes_to_merge_at_min_space_in_pool</strong>: 决定当空闲线程数最大时可处理的数据量上限（默认150GB）<br><strong>max_bytes_to_merge_at_max_space_in_pool</strong>: 决定只剩下一个空闲线程时可处理的数据量上限（默认1MB）<br>当用户的写入量非常大的时候，应该适当调整工作线程池的大小和这两个参数。当用户手动触发<code>merge</code>时，系统则是根据<code>disk</code>剩余容量来决定可处理的最大数据量。</p>
+<p>Mutation逻辑<br>系统每次都只会订正一个<code>Data Part</code>，但是会聚合多个<code>mutation</code>任务批量完成，这点实现非常的棒。因为在用户真实业务场景中一次数据订正逻辑中可能会包含多个<code>Mutation</code>命令，把这多个<code>mutation</code>操作聚合到一起订正效率上就非常高。系统每次选择一个排序键最小的并且需要订正<code>Data Part</code>进行操作，本意上就是把数据从前往后进行依次订正。<br><img src="/images/clickhouse/crud/11.png" alt="avatar"><br><img src="/images/clickhouse/crud/13.png" alt="avatar"><br><img src="/images/clickhouse/crud/12.png" alt="avatar"></p>
+<p>mutation和merge相互独立执行。看完本文前面的分析，大家应该也注意到了目前Data Part的merge和mutation是相互独立执行的，Data Part在同一时刻只能是在merge或者mutation操作中。对于MergeTree这种存储彻底Immutable的设计，数据频繁merge、mutation会引入巨大的IO负载。实时上merge和mutation操作是可以合并到一起去考虑的，这样可以省去数据一次读写盘的开销。对数据写入压力很大又有频繁mutation的场景，会有很大帮助</p>
+<h3 id="clickhouse逻辑CRUD"><a href="#clickhouse逻辑CRUD" class="headerlink" title="clickhouse逻辑CRUD"></a>clickhouse逻辑CRUD</h3><p><a href="https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/versionedcollapsingmergetree/" target="_blank" rel="noopener">VersionedCollapsingMergeTree介绍</a>，引擎继承自 <code>MergeTree</code> 并将折叠行的逻辑添加到合并数据部分的算法中。 <code>VersionedCollapsingMergeTree</code> 用于相同的目的 折叠树 但使用不同的折叠算法，允许以多个线程的任何顺序插入数据。 特别是， <code>Version</code> 列有助于正确折叠行，即使它们以错误的顺序插入。 相比之下, <code>CollapsingMergeTree</code> 只允许严格连续插入。</p>
+<h4 id="创建VersionedCollapsingMergeTree表"><a href="#创建VersionedCollapsingMergeTree表" class="headerlink" title="创建VersionedCollapsingMergeTree表"></a>创建VersionedCollapsingMergeTree表</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">create table test_version_collapsing(</span><br><span class="line">  time DateTime default now() comment &#39;创建时间&#39;,</span><br><span class="line">  name String default &#39;&#39; comment &#39;唯一标示&#39;,</span><br><span class="line">  alias String default &#39;&#39; comment &#39;别名&#39;,</span><br><span class="line">  age UInt64 default 0 comment &#39;年龄&#39;,</span><br><span class="line">  version UInt64 default 0 comment &#39;版本号&#39;,</span><br><span class="line">  sign Int8 default 0 comment &#39;是否删除，0否，1是&#39;</span><br><span class="line">) </span><br><span class="line">engine &#x3D; VersionedCollapsingMergeTree(sign, version) </span><br><span class="line">partition by toYYYYMMDD(time) </span><br><span class="line">order by name</span><br></pre></td></tr></table></figure>
+<h4 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into default.test_version_collapsing(time, name, alias, age, version, sign) values (&#39;2022-01-01 11:11:11&#39;, &#39;blanklin&#39;, &#39;superhero&#39;, 20, 1, 1)</span><br></pre></td></tr></table></figure>
+<h4 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h4><ul>
+<li><ol>
+<li>先找出要更新的这条数据<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select time, name, alias, age, version, sign from default.test_version_collapsing</span><br><span class="line">where name &#x3D; &#39;blanklin&#39; and sign &#x3D; 1</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>假设要更新alias=update_super_hero，其他值不变，将version由1.捞出的值上+1，类似以下sql<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 先将旧行标示为删除，就是将sign &#x3D; -1</span><br><span class="line">insert into default.test_version_collapsing(time, name, alias, age, version, sign) values (&#39;2022-01-01 11:11:11&#39;, &#39;blanklin&#39;, &#39;superhero&#39;, 20, 1, -1);</span><br><span class="line"></span><br><span class="line"># 再去插入新行，包含要更新的列</span><br><span class="line">insert into default.test_version_collapsing(time, name, alias, age, version, sign) values (&#39;2022-01-01 11:11:11&#39;, &#39;blanklin&#39;, &#39;update_superhero&#39;, 20, 2, 1).</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>捞出更新后的那条数据<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select name, argMax(age, version), argMax(alias, version) from default.test_version_collapsing group by name having sum(sign) &gt; 0;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h4><ul>
+<li><ol>
+<li>先找出要更新的这条数据<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select time, name, alias, age, version, sign from default.test_version_collapsing</span><br><span class="line">where name &#x3D; &#39;blanklin&#39; and sign &#x3D; 1</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>假设要删除alias=update_super_hero，其他值不变，将sign=1,类似以下sql<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into default.test_version_collapsing(time, name, alias, age, version, sign) values (&#39;2022-01-01 11:11:11&#39;, &#39;blanklin&#39;, &#39;update_superhero&#39;, 20, 2, -1)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>捞出更新后的那条数据<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select name, argMax(age, version), argMax(alias, version) from default.test_version_collapsing group by name having sum(sign) &gt; 0;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h4><ul>
+<li><ol>
+<li>只有相同分区内的数据才能删除和更新</li>
+</ol>
+</li>
+<li><ol>
+<li>如果不使用 <strong>having sum(sign) &gt; 0</strong>的方式去查询，则可以使用<code>final</code>方式查询<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from test_version_collapsing final;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>也可以使用<code>optimize</code>方式强制合并分区，再查询，但是这个方式可能会造成集群cpu飙高，而且<code>optimize</code>一个大表需要时间很长，效率极低<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">optimize table test_version_collapsing final</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>sign必须要唯一，添加用1，则删除一定是-1，才可以被折叠处理</li>
+</ol>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/21/clickhouse-ddl-on-cluster/" rel="prev" title="clickhouse query on cluster源码解读">
+      <i class="fa fa-chevron-left"></i> clickhouse query on cluster源码解读
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/02/15/linux-overlay-full/" rel="next" title="由于overlay占用磁盘空间导致磁盘告警">
+      由于overlay占用磁盘空间导致磁盘告警 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是CRUD"><span class="nav-number">1.</span> <span class="nav-text">什么是CRUD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse物理上的crud"><span class="nav-number">2.</span> <span class="nav-text">clickhouse物理上的crud</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse的mutation是什么"><span class="nav-number">3.</span> <span class="nav-text">clickhouse的mutation是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#官方文档解释"><span class="nav-number">3.1.</span> <span class="nav-text">官方文档解释</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#源码解读"><span class="nav-number">3.2.</span> <span class="nav-text">源码解读</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse逻辑CRUD"><span class="nav-number">4.</span> <span class="nav-text">clickhouse逻辑CRUD</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建VersionedCollapsingMergeTree表"><span class="nav-number">4.1.</span> <span class="nav-text">创建VersionedCollapsingMergeTree表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#插入数据"><span class="nav-number">4.2.</span> <span class="nav-text">插入数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更新数据"><span class="nav-number">4.3.</span> <span class="nav-text">更新数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#删除数据"><span class="nav-number">4.4.</span> <span class="nav-text">删除数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意项"><span class="nav-number">4.5.</span> <span class="nav-text">注意项</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

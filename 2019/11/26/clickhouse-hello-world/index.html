@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="OLAP介绍OLAP概述OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB&#x2F;s的流量。在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="带你开箱真香ClickHouse">
+<meta property="og:url" content="http://yoursite.com/2019/11/26/clickhouse-hello-world/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="OLAP介绍OLAP概述OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB&#x2F;s的流量。在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse.png">
+<meta property="article:published_time" content="2019-11-26T10:09:40.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.256Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="ClickHouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/11/26/clickhouse-hello-world/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>带你开箱真香ClickHouse | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/26/clickhouse-hello-world/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          带你开箱真香ClickHouse
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-26 18:09:40" itemprop="dateCreated datePublished" datetime="2019-11-26T18:09:40+08:00">2019-11-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="OLAP介绍"><a href="#OLAP介绍" class="headerlink" title="OLAP介绍"></a>OLAP介绍</h2><h4 id="OLAP概述"><a href="#OLAP概述" class="headerlink" title="OLAP概述"></a>OLAP概述</h4><p>OLAP，也叫联机分析处理（Online Analytical Processing）系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。<br>在OLAP系统中，比较典型的应用是BI平台，常使用分区技术、并行技术。 分区技术在OLAP系统中的重要性主要体现在数据库管理上，比如数据库加载，可以通过分区交换的方式实现，备份可以通过备份分区表空间实现，删除数据可以通过分区进行删除，至于分区在性能上的影响，它可以使得一些大表的扫描变得很快（只扫描单个分区）。另外，如果分区结合并行的话，也可以使得整个表的扫描会变得很快。总之，分区主要的功能是管理上的方便性，它并不能绝对保证查询性能的提高，有时候分区会带来性能上的提高，有时候会降低。</p>
+<h4 id="OLAP特点"><a href="#OLAP特点" class="headerlink" title="OLAP特点"></a>OLAP特点</h4><ul>
+<li>大多数是读请求</li>
+<li>数据总是以相当大的批(&gt; 1000 rows)进行写入</li>
+<li>不修改已添加的数据</li>
+<li>每次查询都从数据库中读取大量的行，但是同时又仅需要少量的列</li>
+<li>宽表，即每个表包含着大量的列</li>
+<li>较少的查询(通常每台服务器每秒数百个查询或更少)</li>
+<li>对于简单查询，允许延迟大约50毫秒</li>
+<li>列中的数据相对较小： 数字和短字符串(例如，每个URL 60个字节)</li>
+<li>处理单个查询时需要高吞吐量（每个服务器每秒高达数十亿行）</li>
+<li>事务不是必须的</li>
+<li>对数据一致性要求低</li>
+<li>每一个查询除了一个大表外都很小</li>
+<li>查询结果明显小于源数据，换句话说，数据被过滤或聚合后能够被盛放在单台服务器的内存中<blockquote>
+<p>很容易可以看出，OLAP场景与其他流行场景(例如,OLTP或K/V)有很大的不同， 因此想要使用OLTP或Key-Value数据库去高效的处理分析查询是没有意义的，例如，使用OLAP数据库去处理分析请求通常要优于使用MongoDB或Redis去处理分析请求。  </p>
+</blockquote>
+</li>
+</ul>
+<h2 id="行式数据库系统介绍"><a href="#行式数据库系统介绍" class="headerlink" title="行式数据库系统介绍"></a>行式数据库系统介绍</h2><p>常见的行式数据库系统有： MySQL、Postgres和MS SQL Server。<br>处于同一行中的数据总是被物理的存储在一起。  </p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Row</th>
+<th style="text-align:center">WatchID</th>
+<th style="text-align:right">JavaEnable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">#0</td>
+<td style="text-align:center">11111</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td style="text-align:left">#1</td>
+<td style="text-align:center">22222</td>
+<td style="text-align:right">0</td>
+</tr>
+<tr>
+<td style="text-align:left">#3</td>
+<td style="text-align:center">33333</td>
+<td style="text-align:right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="列式数据库系统介绍"><a href="#列式数据库系统介绍" class="headerlink" title="列式数据库系统介绍"></a>列式数据库系统介绍</h2><p>常见的列式数据库有： Vertica、 Paraccel (Actian Matrix，Amazon Redshift)、 Sybase IQ、 Exasol、 Infobright、 InfiniDB、 MonetDB (VectorWise， Actian Vector)、 LucidDB、 SAP HANA、 Google Dremel、 Google PowerDrill、 Druid、 kdb+。列式数据库总是将同一列的数据存储在一起，不同列的数据也总是分开存储。  </p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Row</th>
+<th style="text-align:center">#0</th>
+<th style="text-align:right">#1</th>
+<th style="text-align:right">#2 ｜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">WatchID</td>
+<td style="text-align:center">11111</td>
+<td style="text-align:right">22222</td>
+<td style="text-align:right">33333</td>
+</tr>
+<tr>
+<td style="text-align:left">JavaEnable</td>
+<td style="text-align:center">1</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="clickhouse介绍"><a href="#clickhouse介绍" class="headerlink" title="clickhouse介绍"></a>clickhouse介绍</h2><p> ClickHouse是一个用于联机分析(<strong>OLAP</strong>)的<strong>列式数据库</strong>管理系统(DBMS)，是俄罗斯的百度——yandex公司开发的。yandex公司在处理自己公司日常数据业务中，开发了一套数据管理系统，随后进行了开源分享，命名为<a href="https://clickhouse.yandex/docs/en/" target="_blank" rel="noopener">clickhouse</a>。</p>
+<h3 id="clickhouse优势"><a href="#clickhouse优势" class="headerlink" title="clickhouse优势"></a>clickhouse优势</h3><ul>
+<li><p>线性可扩展</p>
+<ul>
+<li>可以部署在虚拟机上，也可以部署在有成百上千个节点（机器）的集群上,单个节点可容纳万亿行数据或超过100TB数据</li>
+</ul>
+</li>
+<li><p>高效的硬件利用</p>
+<ul>
+<li>多核并行处理,数据高效压缩</li>
+</ul>
+</li>
+<li>容错性和高可靠性<ul>
+<li>ClickHouse支持多shard（master/slave）异步复制并且能部署在多个数据中心上</li>
+<li>单节点或者整个数据中心宕机不会影响系统读写的可靠性</li>
+<li>分布式读取模式，自动（将吞吐压力）均衡于各可用的备份节点上从而避免高时延</li>
+<li>宕机恢复后备份间数据自动同步或半自动同步</li>
+</ul>
+</li>
+<li>查询速度快<ul>
+<li>面向列的DBMS，使用向量化引擎，数据压缩，每秒能处理亿级行级别的数据，简单查询时峰值处理性能可达到单服务器每秒2TB</li>
+</ul>
+</li>
+<li>丰富的特征<ul>
+<li>支持sql语法，丰富的内置分析统计函数/组件，比如基数、百分位数计算；日期、时间、时区数据函数；URL和IP地址处理函数</li>
+<li>数据组织和存储格式丰富，比如存储复杂数据的arrays, array joins, tuples and nested data structures，这些数据结构都做了读写和计算优化，因此用来处理和查询非结构化数据（也可以叫半结构化）也是非常高效率的</li>
+<li>支持本地join和分布式join，支持额外定义的字典、从外部导入的维度表，通过简单的语法句子就能无缝join数据</li>
+<li>支持近似查询处理，提高获得结果的速度，特别是在处理TB/PB级别数据的时候（比如抽样部分数据计算一个结果然后推广到总体）</li>
+<li>支持按条件汇总函数，可以用非常简单的句法查询极值和汇总数据查询  <h2 id="clickhouse缺点"><a href="#clickhouse缺点" class="headerlink" title="clickhouse缺点"></a>clickhouse缺点</h2></li>
+</ul>
+</li>
+<li>不支持Transaction：想快就别想Transaction</li>
+<li>聚合结果必须小于一台机器的内存大小：不是大问题</li>
+<li>缺少完整的Update/Delete操作<h2 id="clickhouse架构"><a href="#clickhouse架构" class="headerlink" title="clickhouse架构"></a>clickhouse架构</h2><img src="/images/clickhouse.png" alt="clickhouse"><h2 id="clickhou接入"><a href="#clickhou接入" class="headerlink" title="clickhou接入"></a>clickhou接入</h2></li>
+</ul>
+<ol>
+<li>http接入<br>传入用户名密码的方式<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 读方式</span><br><span class="line">echo &#39;SELECT 1&#39; | curl &#39;http:&#x2F;&#x2F;user:password@localhost:8123&#x2F;?database&#x3D;dbname&#39; -d @-</span><br><span class="line">&#x2F;&#x2F; 写方式</span><br><span class="line">echo &#39;SELECT 1&#39; | curl &#39;http:&#x2F;&#x2F;localhost:8123&#x2F;?database&#x3D;dbname&amp;user&#x3D;user&amp;password&#x3D;password&#39; -d @-</span><br></pre></td></tr></table></figure></li>
+<li><p>JDBC驱动</p>
+<ul>
+<li><p>ClickHouse官方有 JDBC 的驱动。 见<a href="https://github.com/yandex/clickhouse-jdbc" target="_blank" rel="noopener">这里</a>。</p>
+</li>
+<li><p>第三方提供的 JDBC 驱动 <a href="https://github.com/blynkkk/clickhouse4j" target="_blank" rel="noopener">clickhouse4j</a> （推荐，依赖较少）。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; jdbc的连接字符串是</span><br><span class="line">jdbc:clickhouse:&#x2F;&#x2F;&lt;host&gt;&#x2F;&lt;database&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可视化操作界面Tabix<br>ClickHouse Web 界面 <a href="https://github.com/tabixio/tabix" target="_blank" rel="noopener">Tabix</a></p>
+<p> 主要功能：</p>
+<ul>
+<li>浏览器直接连接 ClickHouse，不需要安装其他软件。</li>
+<li>高亮语法的编辑器。</li>
+<li>自动命令补全。</li>
+<li>查询命令执行的图形分析工具。</li>
+<li>配色方案选项。</li>
+</ul>
+</li>
+<li><p>命令行客户端<br>参照 <a href="https://github.com/hatarist/clickhouse-cli" target="_blank" rel="noopener">https://github.com/hatarist/clickhouse-cli</a> 使用，要求Python 3.4+</p>
+<p>pip3安装请<a href="https://www.runoob.com/w3cnote/python-pip-install-usage.html" target="_blank" rel="noopener">参照</a></p>
+<p><a href="https://github.com/hatarist/clickhouse-cli#configuration-file" target="_blank" rel="noopener">内容查看</a><br>步骤如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip3 install clickhouse-cli</span><br><span class="line">vi ~&#x2F;.clickhouse-cli.rc</span><br></pre></td></tr></table></figure>
+<h2 id="表引擎"><a href="#表引擎" class="headerlink" title="表引擎"></a>表引擎</h2><p>表引擎（即表的类型）决定了：</p>
+</li>
+</ol>
+<ul>
+<li>数据的存储方式和位置，写到哪里以及从哪里读取数据</li>
+<li>支持哪些查询以及如何支持。</li>
+<li>并发数据访问。</li>
+<li>索引的使用（如果存在）。</li>
+<li>是否可以执行多线程请求。</li>
+<li>数据复制参数。<h3 id="MergeTree"><a href="#MergeTree" class="headerlink" title="MergeTree"></a>MergeTree</h3>适用于高负载任务的最通用和功能最强大的表引擎。这些引擎的共同特点是可以快速插入数据并进行后续的后台数据处理。 MergeTree系列引擎支持数据复制（使用Replicated* 的引擎版本），分区和一些其他引擎不支持的其他功能<br>该类型的引擎： </li>
+<li>MergeTree </li>
+<li>ReplacingMergeTree </li>
+<li>SummingMergeTree </li>
+<li>AggregatingMergeTree </li>
+<li>CollapsingMergeTree</li>
+<li>VersionedCollapsingMergeTree </li>
+<li>GraphiteMergeTree</li>
+</ul>
+<h3 id="数据副本"><a href="#数据副本" class="headerlink" title="数据副本"></a>数据副本</h3><p>只有 MergeTree 系列里的表可支持副本：</p>
+<ul>
+<li>ReplicatedMergeTree</li>
+<li>ReplicatedSummingMergeTree</li>
+<li>ReplicatedReplacingMergeTree</li>
+<li>ReplicatedAggregatingMergeTree</li>
+<li>ReplicatedCollapsingMergeTree</li>
+<li>ReplicatedVersionedCollapsingMergeTree</li>
+<li><p>ReplicatedGraphiteMergeTree<br>副本是表级别的，不是整个服务器级的。所以，服务器里可以同时有复制表和非复制表。<br>副本不依赖分片。每个分片有它自己的独立副本。</p>
+<blockquote>
+<p>对于 INSERT 和 ALTER 语句操作数据的会在压缩的情况下被复制（从master-》slave ）。<br>而 CREATE，DROP，ATTACH，DETACH 和 RENAME 语句只会在单个服务器上执行，不会被复制。<br>所以在使用集群操作表时需要使用ON CLUSTER cluster_name来通知集群所有机器都操作这个动作。</p>
+</blockquote>
+</li>
+<li><p>The CREATE TABLE 在运行此语句的服务器上创建一个新的可复制表。如果此表已存在其他服务器上，则给该表添加新副本。</p>
+</li>
+<li>The DROP TABLE 删除运行此查询的服务器上的副本。</li>
+<li>The RENAME 重命名一个副本。换句话说，可复制表不同的副本可以有不同的名称。<br>要使用副本，需在配置文件中设置 ZooKeeper 集群的地址。例如：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;zookeeper&gt;</span><br><span class="line">    &lt;node index&#x3D;&quot;1&quot;&gt;</span><br><span class="line">        &lt;host&gt;example1&lt;&#x2F;host&gt;</span><br><span class="line">        &lt;port&gt;2181&lt;&#x2F;port&gt;</span><br><span class="line">    &lt;&#x2F;node&gt;</span><br><span class="line">    &lt;node index&#x3D;&quot;2&quot;&gt;</span><br><span class="line">        &lt;host&gt;example2&lt;&#x2F;host&gt;</span><br><span class="line">        &lt;port&gt;2181&lt;&#x2F;port&gt;</span><br><span class="line">    &lt;&#x2F;node&gt;</span><br><span class="line">    &lt;node index&#x3D;&quot;3&quot;&gt;</span><br><span class="line">        &lt;host&gt;example3&lt;&#x2F;host&gt;</span><br><span class="line">        &lt;port&gt;2181&lt;&#x2F;port&gt;</span><br><span class="line">    &lt;&#x2F;node&gt;</span><br><span class="line">&lt;&#x2F;zookeeper&gt;</span><br></pre></td></tr></table></figure>
+注意：ZooKeeper 3.4.5 或更高版本。<h3 id="创建复制表"><a href="#创建复制表" class="headerlink" title="创建复制表"></a>创建复制表</h3>在表引擎名称上加上 Replicated 前缀。例如：ReplicatedMergeTree。<br>Replicated*MergeTree 参数</li>
+<li>zoo_path — ZooKeeper 中该表的路径。</li>
+<li>replica_name — ZooKeeper 中的该表的副本名称。  </li>
+</ul>
+<p>使用ON CLUSTER cluster功能在集群创建本地表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE db.table_local </span><br><span class="line">ON CLUSTER cluster_name (</span><br><span class="line">  &#96;name&#96; String COMMENT &#39;姓名&#39;,</span><br><span class="line">  &#96;age&#96; String,</span><br><span class="line">  &#96;pt&#96; String,</span><br><span class="line">) </span><br><span class="line">ENGINE &#x3D; ReplicatedMergeTree(</span><br><span class="line">  &#39;&#x2F;clickhouse&#x2F;tables&#x2F;&#123;shard&#125;&#x2F;db&#x2F;table_local&#39;,</span><br><span class="line">  &#39;&#123;replica&#125;&#39;</span><br><span class="line">) </span><br><span class="line">PARTITION BY (pt)</span><br><span class="line">ORDER BY (age) </span><br><span class="line">SETTINGS index_granularity &#x3D; 8192</span><br></pre></td></tr></table></figure><br>如上例所示，这些参数可以包含宏替换的占位符，即大括号的部分。它们会被替换为配置文件里 ‘macros’ 那部分配置的值。示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;macros&gt;</span><br><span class="line">    &lt;shard&gt;02&lt;&#x2F;shard&gt;</span><br><span class="line">    &lt;replica&gt;example05-02-1.yandex.ru&lt;&#x2F;replica&gt;</span><br><span class="line">&lt;&#x2F;macros&gt;</span><br></pre></td></tr></table></figure><br>ZooKeeper 中该表的路径对每个可复制表都要是唯一的。不同分片(shard)上的表要有不同的路径。 这种情况下，路径包含下面这些部分：<br>/clickhouse/tables/ 是公共前缀，我们推荐使用这个。<br>{shard} 是分片标识部分。保留 {shard} 占位符即可，它会替换展开为分片标识。<br>db/table_local 是该表在 ZooKeeper 中的名称。使其与 ClickHouse 中的表名相同加后缀_local来区分。<br>注意：也可以显式指定这些参数，而不是使用宏替换。对于测试和配置小型集群这可能会很方便。但是，这种情况下，则不能使用分布式 DDL 语句（ON CLUSTER）。</p>
+<ul>
+<li>使用ON CLUSTER cluster功能在集群创建分布式表<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE db.table </span><br><span class="line">ON CLUSTER cluster_name</span><br><span class="line">AS db.table_local</span><br><span class="line">ENGINE &#x3D; Distributed (</span><br><span class="line">  cluster_name, </span><br><span class="line">  db,</span><br><span class="line">  table_local,</span><br><span class="line">  rand()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id=""><a href="#" class="headerlink" title=" "></a> </h3></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ClickHouse/" rel="tag"># ClickHouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/11/22/esLint/" rel="prev" title="vscode代码自动提示利器eslint">
+      <i class="fa fa-chevron-left"></i> vscode代码自动提示利器eslint
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/11/27/vue-create-project/" rel="next" title="教你新建一个vue项目">
+      教你新建一个vue项目 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#OLAP介绍"><span class="nav-number">1.</span> <span class="nav-text">OLAP介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OLAP概述"><span class="nav-number">1.0.1.</span> <span class="nav-text">OLAP概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OLAP特点"><span class="nav-number">1.0.2.</span> <span class="nav-text">OLAP特点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#行式数据库系统介绍"><span class="nav-number">2.</span> <span class="nav-text">行式数据库系统介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#列式数据库系统介绍"><span class="nav-number">3.</span> <span class="nav-text">列式数据库系统介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#clickhouse介绍"><span class="nav-number">4.</span> <span class="nav-text">clickhouse介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse优势"><span class="nav-number">4.1.</span> <span class="nav-text">clickhouse优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#clickhouse缺点"><span class="nav-number">5.</span> <span class="nav-text">clickhouse缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#clickhouse架构"><span class="nav-number">6.</span> <span class="nav-text">clickhouse架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#clickhou接入"><span class="nav-number">7.</span> <span class="nav-text">clickhou接入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表引擎"><span class="nav-number">8.</span> <span class="nav-text">表引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MergeTree"><span class="nav-number">8.1.</span> <span class="nav-text">MergeTree</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据副本"><span class="nav-number">8.2.</span> <span class="nav-text">数据副本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建复制表"><span class="nav-number">8.3.</span> <span class="nav-text">创建复制表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#"><span class="nav-number">8.4.</span> <span class="nav-text"> </span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

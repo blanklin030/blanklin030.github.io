@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="问题背景最近经常遇到Read timed out报错，具体内容看下面，从字面意思判断我们知道是读超时，那为什么会发生读超时呢？1ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 159, host: bigdata-clickhouse-xxxx.ys, port: 8023; Read tim">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ClickHouse Read Timed Out追踪过程">
+<meta property="og:url" content="http://yoursite.com/2021/12/21/clickhouse-read-timed-out/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="问题背景最近经常遇到Read timed out报错，具体内容看下面，从字面意思判断我们知道是读超时，那为什么会发生读超时呢？1ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 159, host: bigdata-clickhouse-xxxx.ys, port: 8023; Read tim">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/2.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/3.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/4.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/5.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/6.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/7.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/8.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/9.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/10.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/jdbc/11.png">
+<meta property="article:published_time" content="2021-12-21T11:28:55.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.257Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="tcp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/jdbc/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/12/21/clickhouse-read-timed-out/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ClickHouse Read Timed Out追踪过程 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/21/clickhouse-read-timed-out/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ClickHouse Read Timed Out追踪过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-21 19:28:55" itemprop="dateCreated datePublished" datetime="2021-12-21T19:28:55+08:00">2021-12-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>最近经常遇到<code>Read timed out</code>报错，具体内容看下面，从字面意思判断我们知道是读超时，那为什么会发生读超时呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 159, host: bigdata-clickhouse-xxxx.ys, port: 8023; Read timed out	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.getException(ClickHouseExceptionSpecifier.java:86)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:56)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:25)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getInputStream(ClickHouseStatementImpl.java:797)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getLastInputStream(ClickHouseStatementImpl.java:691)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:340)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:324)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:319)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:314)	at</span><br></pre></td></tr></table></figure></p>
+<h3 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h3><ul>
+<li>从抛出的堆栈入手，先读<code>ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier</code>类<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"> &#x2F;**</span><br><span class="line">  * Here we expect the ClickHouse error message to be of the following format:</span><br><span class="line">  * &quot;Code: 10, e.displayText() &#x3D; DB::Exception: ...&quot;.</span><br><span class="line">  *&#x2F;</span><br><span class="line">private static ClickHouseException specify(String clickHouseMessage, Throwable cause, String host, int port) &#123;</span><br><span class="line">    if (Utils.isNullOrEmptyString(clickHouseMessage) &amp;&amp; cause !&#x3D; null) &#123;</span><br><span class="line">        return getException(cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        int code;</span><br><span class="line">        if (clickHouseMessage.startsWith(&quot;Poco::Exception. Code: 1000, &quot;)) &#123;</span><br><span class="line">            code &#x3D; 1000;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            &#x2F;&#x2F; Code: 175, e.displayText() &#x3D; DB::Exception:</span><br><span class="line">            code &#x3D; getErrorCode(clickHouseMessage);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; ошибку в изначальном виде все-таки укажем</span><br><span class="line">        Throwable messageHolder &#x3D; cause !&#x3D; null ? cause : new Throwable(clickHouseMessage);</span><br><span class="line">        if (code &#x3D;&#x3D; -1) &#123;</span><br><span class="line">            return getException(messageHolder, host, port);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return new ClickHouseException(code, messageHolder, host, port);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        log.error(&quot;Unsupported ClickHouse error format, please fix ClickHouseExceptionSpecifier, message: &#123;&#125;, error: &#123;&#125;&quot;, clickHouseMessage, e.getMessage());</span><br><span class="line">        return new ClickHouseUnknownException(clickHouseMessage, cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">private static ClickHouseException getException(Throwable cause, String host, int port) &#123;</span><br><span class="line">        if (cause instanceof SocketTimeoutException)</span><br><span class="line">        &#x2F;&#x2F; if we&#39;ve got SocketTimeoutException, we&#39;ll say that the query is not good. This is not the same as SOCKET_TIMEOUT of clickhouse</span><br><span class="line">        &#x2F;&#x2F; but it actually could be a failing ClickHouse</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED.code, cause, host, port);</span><br><span class="line">        &#125; else if (cause instanceof ConnectTimeoutException || cause instanceof ConnectException)</span><br><span class="line">        &#x2F;&#x2F; couldn&#39;t connect to ClickHouse during connectTimeout</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.NETWORK_ERROR.code, cause, host, port);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return new ClickHouseUnknownException(cause, host, port);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+注意到上文中异常类型是<code>SocketTimeoutException</code>，为啥会是这个异常呢？</li>
+<li>继续阅读<code>ru.yandex.clickhouse.ClickHouseStatementImpl</code>类<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">private InputStream getInputStream(</span><br><span class="line">  ClickHouseSqlStatement parsedStmt,</span><br><span class="line">  Map&lt;ClickHouseQueryParam, String&gt; additionalClickHouseDBParams,</span><br><span class="line">  List&lt;ClickHouseExternalData&gt; externalData,</span><br><span class="line">  Map&lt;String, String&gt; additionalRequestParams</span><br><span class="line">) throws ClickHouseException &#123;</span><br><span class="line">  .............................</span><br><span class="line">  HttpEntity entity &#x3D; null;</span><br><span class="line">  try &#123;</span><br><span class="line">      uri &#x3D; followRedirects(uri);</span><br><span class="line">      HttpPost post &#x3D; new HttpPost(uri);</span><br><span class="line">      post.setEntity(requestEntity);</span><br><span class="line"></span><br><span class="line">      if (parsedStmt.isIdemponent()) &#123;</span><br><span class="line">          httpContext.setAttribute(&quot;is_idempotent&quot;, Boolean.TRUE);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          httpContext.removeAttribute(&quot;is_idempotent&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      HttpResponse response &#x3D; client.execute(post, httpContext);</span><br><span class="line">      entity &#x3D; response.getEntity();</span><br><span class="line">      checkForErrorAndThrow(entity, response);</span><br><span class="line"></span><br><span class="line">      InputStream is;</span><br><span class="line">      if (entity.isStreaming()) &#123;</span><br><span class="line">          is &#x3D; entity.getContent();</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          FastByteArrayOutputStream baos &#x3D; new FastByteArrayOutputStream();</span><br><span class="line">          entity.writeTo(baos);</span><br><span class="line">          is &#x3D; baos.convertToInputStream();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      &#x2F;&#x2F; retrieve response summary</span><br><span class="line">      if (isQueryParamSet(ClickHouseQueryParam.SEND_PROGRESS_IN_HTTP_HEADERS, additionalClickHouseDBParams, additionalRequestParams)) &#123;</span><br><span class="line">          Header summaryHeader &#x3D; response.getFirstHeader(&quot;X-ClickHouse-Summary&quot;);</span><br><span class="line">          currentSummary &#x3D; summaryHeader !&#x3D; null ? Jackson.getObjectMapper().readValue(summaryHeader.getValue(), ClickHouseResponseSummary.class) : null;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      return is;</span><br><span class="line">  &#125; catch (ClickHouseException e) &#123;</span><br><span class="line">      throw e;</span><br><span class="line">  &#125; catch (Exception e) &#123;</span><br><span class="line">      log.info(&quot;Error during connection to &#123;&#125;, reporting failure to data source, message: &#123;&#125;&quot;, properties, e.getMessage());</span><br><span class="line">      EntityUtils.consumeQuietly(entity);</span><br><span class="line">      log.info(&quot;Error sql: &#123;&#125;&quot;, sql);</span><br><span class="line">      throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+注意到这是建立一个<code>http</code>连接，使用<code>post</code>方式，等到数据传输完成，返回执行结果，如果有任何<code>ClickHouseException</code>则直接抛掉，否则捕获未知异常<code>Exception</code>，格式化成固定文本的错误信息，这个错误信息就是在<code>ClickHouseExceptionSpecifier.specify</code>方法里被处理成<code>Code: 10, e.displayText() = DB::Exception: ...</code>这种结构。<br>所以回到上面的结论，就是说这个<code>http</code>连接出现异常，未等到结果，抛出了<code>SocketTimeoutException</code>，那么根据这个异常，我们可以定位到根本原因了</li>
+<li>接着看<code>java.net.SocketTimeoutException</code>类<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Signals that a timeout has occurred on a socket read or accept.</span><br><span class="line"> *</span><br><span class="line"> * @since   1.4</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">public class SocketTimeoutException extends java.io.InterruptedIOException &#123;</span><br><span class="line">    private static final long serialVersionUID &#x3D; -8846654841826352300L;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Constructs a new SocketTimeoutException with a detail</span><br><span class="line">     * message.</span><br><span class="line">     * @param msg the detail message</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException(String msg) &#123;</span><br><span class="line">        super(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Construct a new SocketTimeoutException with no detailed message.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这个类非常简短，但是很清晰告诉我们，会抛出<code>SocketTimeoutException</code>异常的原因只能是一个<code>socket</code>读取或者接收时发生了超时</li>
+<li>题外话什么是<code>socket</code><br><code>socket</code>的含义就是两个应用程序通过一个双向的通信连接实现数据的交换，连接的一段就是一个<code>socket</code>，又称为套接字。实现一个<code>socket</code>连接通信至少需要两个套接字，一个运行在服务端（插孔），一个运行在客户端（插头）。套接字用于描述<code>IP</code>地址和端口，是一个通信链的句柄。应用程序通过套接字向网络发出请求或应答网络请求。注意的是套接字既不是程序也不是协议，只是操作系统提供给通信层的一组抽象<code>API</code>接口。<br><code>socket</code>是应用层与<code>TCP/IP</code>协议簇通信的中间抽象层，是一组接口。在设计模式中其实就是门面模式。<code>Socket</code>将复杂的<code>TCP/IP</code>协议簇隐藏在接口后面，对于用户而言，一组接口即可让<code>Socket</code>去组织数据，以符合指定的协议。<br><img src="/images/clickhouse/jdbc/1.png" alt="1"></li>
+</ul>
+<h3 id="回归正题，什么是Read-Timed-Out"><a href="#回归正题，什么是Read-Timed-Out" class="headerlink" title="回归正题，什么是Read Timed Out"></a>回归正题，什么是Read Timed Out</h3><p>所谓<code>read timed out</code>就是读超时，<code>http</code>连接已创建，客户端等待服务端返回结果，等待时间超过了超时时间，所以客户端连接断开，抛出<code>SocketTimeoutException</code>异常。我们可以模拟出这个过程，代码如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public class ReadTimedOutTest &#123;</span><br><span class="line"></span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      ServerSocket serverSocket &#x3D; new ServerSocket(8888, 200);</span><br><span class="line">      Thread.sleep(66666666);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Test</span><br><span class="line">  public void tetReadTimedOut() &#123;</span><br><span class="line">    Socket socket &#x3D; new Socket();</span><br><span class="line">    long starTime &#x3D; 0;</span><br><span class="line">    try &#123;</span><br><span class="line">      socket.connect(new InetSocketAddress(&quot;127.0.0.1&quot;, 8888), 10000);</span><br><span class="line">      System.out.println(&quot;socket连接成功。。。。&quot;);</span><br><span class="line">      socket.setSoTimeout(2000);</span><br><span class="line">      starTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      int read &#x3D; socket.getInputStream().read();</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      long endTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      System.out.println(&quot;执行时间：&quot;+(endTime - starTime));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>报错信息如下截图：<br><img src="/images/clickhouse/jdbc/2.png" alt="2"><br>意思是说已连接服务端的8888端口，握手是正常的，然后开始传输数据，因为限制了服务端<code>Thread.sleep</code>，让服务端无法给客户端传输数据</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p><code>clickhouse-jdbc</code>默认给<code>SOCKET_TIMEOUT</code>设置的时间是30s，由于服务端不知道何时能返回结果（此时间受<code>settings.max_execution_time</code>影响），所以我们最好给<code>jdbc</code>设置一个<strong>socket_timeout=max_execution_time+10s</strong>，防止服务端还在处理，而客户端已经超时断开连接。<br><img src="/images/clickhouse/jdbc/3.png" alt="3"><br>下面这个方法，主要是解析<strong>jdbc:clickhouse://127.0.0.1:8023?socket_timeout=500000&amp;connection_timeout=500000</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static Properties parseUriQueryPart(String query, Properties defaults) &#123;</span><br><span class="line">  if (query &#x3D;&#x3D; null) &#123;</span><br><span class="line">      return defaults;</span><br><span class="line">  &#125;</span><br><span class="line">  Properties urlProps &#x3D; new Properties(defaults);</span><br><span class="line">  String queryKeyValues[] &#x3D; query.split(&quot;&amp;&quot;);</span><br><span class="line">  for (String keyValue : queryKeyValues) &#123;</span><br><span class="line">      String keyValueTokens[] &#x3D; keyValue.split(&quot;&#x3D;&quot;);</span><br><span class="line">      if (keyValueTokens.length &#x3D;&#x3D; 2) &#123;</span><br><span class="line">          urlProps.put(keyValueTokens[0], keyValueTokens[1]);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          logger.warn(&quot;don&#39;t know how to handle parameter pair: &#123;&#125;&quot;, keyValue);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return urlProps;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><img src="/images/clickhouse/jdbc/4.png" alt="4"><br><img src="/images/clickhouse/jdbc/5.png" alt="5"></p>
+<h3 id="clickhouse-jdbc执行过程"><a href="#clickhouse-jdbc执行过程" class="headerlink" title="clickhouse-jdbc执行过程"></a>clickhouse-jdbc执行过程</h3><h4 id="实例化ClickHouseDataSource对象"><a href="#实例化ClickHouseDataSource对象" class="headerlink" title="实例化ClickHouseDataSource对象"></a>实例化ClickHouseDataSource对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClickHouseDataSource dataSource &#x3D; new ClickHouseDataSource(jdbc, properties);</span><br></pre></td></tr></table></figure>
+<p>该构造函数主要是将<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url进行解析，若涉及clickhouse默认参数，则会覆盖<code>clickhouse</code>默认配置，返回<code>ClickHouseProperties</code>d对象<br><img src="/images/clickhouse/jdbc/6.png" alt="6"></p>
+<h4 id="获取ClickHouseConnectionImpl连接"><a href="#获取ClickHouseConnectionImpl连接" class="headerlink" title="获取ClickHouseConnectionImpl连接"></a>获取ClickHouseConnectionImpl连接</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; (ClickHouseConnectionImpl) dataSource.getConnection();</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>1、实例化ClickHouseConnectionImpl对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; new ClickHouseConnectionImpl(url, properties);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/jdbc/7.png" alt="7"><br><img src="/images/clickhouse/jdbc/8.png" alt="8"><br>这里主要是干2件事，1、首先要实例化出<code>ClickHouseHttpClientBuilder</code>客户端对象构造器，这个构造器会把我们在<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url里的<strong>key1=value1&amp;key2=value2</strong>传入给<code>CloseableHttpClient</code>类型的<code>httpclient</code>，2、再去初始化连接，获取<code>clickhouse</code>服务端的时区和版本，所以我们每次连接<code>clickhouse-jdbc</code>，都会看到发出一条sql<code>select timezone(), version()</code></p>
+</li>
+<li><p>2、把连接存到<code>Collections.synchronizedMap</code>线程安全的<code>map</code>里</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">registerConnection(connection);</span><br></pre></td></tr></table></figure></li>
+<li>3、返回连接对象</li>
+</ul>
+<h4 id="执行sql过程"><a href="#执行sql过程" class="headerlink" title="执行sql过程"></a>执行sql过程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.createStatement().executeQuery(sql);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>先初始化<code>ClickHouseStatementImpl</code>对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public ClickHouseStatement createStatement(int resultSetType) throws SQLException &#123;</span><br><span class="line">    return LogProxy.wrap(</span><br><span class="line">        ClickHouseStatement.class,</span><br><span class="line">        new ClickHouseStatementImpl(</span><br><span class="line">            httpclient,</span><br><span class="line">            this,</span><br><span class="line">            properties,</span><br><span class="line">            resultSetType));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再执行<code>sql</code><br>1、方法<code>getLastInputStream</code>，支持<code>multi-query</code>用法，多条sql去查<br><img src="/images/clickhouse/jdbc/9.png" alt="9"><br>2、调用的<code>getInputStream</code>方法其实就是构造http的post请求，去执行和返回结果，出错则抛出异常<br><img src="/images/clickhouse/jdbc/10.png" alt="10"><br>3、获取最后的执行结果<br><img src="/images/clickhouse/jdbc/11.png" alt="11"><br>4、返回最后sql的结果集<code>ResultSet</code>，select查询类按配置取到最后结果，其他为null</p>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><code>Read timed out</code>表示已经连接成功(即三次握手已经完成)，但是服务器没有及时返回数据(没有在设定的时间内返回数据)，导致读超时。</li>
+<li><code>java</code>在<code>linux</code>中的 <code>Read timed out</code> 并不是通过<code>C</code>函数<code>setSockOpt(SO_RCVTIMEO)</code>来设置的，而是通过<code>select(s, timeout)</code>来实现定时器，并抛出<code>JNI</code>异常来控制的</li>
+<li><code>java socket</code>读超时的设置是在<code>read()</code>方法被调用的时候传入的，所以只要在<code>read()</code>调用之前设置即可</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+              <a href="/tags/http/" rel="tag"># http</a>
+              <a href="/tags/tcp/" rel="tag"># tcp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/17/mysql-lock/" rel="prev" title="mysql锁相关">
+      <i class="fa fa-chevron-left"></i> mysql锁相关
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/12/clickhouse-distribute-insert-problem%20copy/" rel="next" title="clickhouse分布式表写入积压排查">
+      clickhouse分布式表写入积压排查 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题背景"><span class="nav-number">1.</span> <span class="nav-text">问题背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码解读"><span class="nav-number">2.</span> <span class="nav-text">源码解读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回归正题，什么是Read-Timed-Out"><span class="nav-number">3.</span> <span class="nav-text">回归正题，什么是Read Timed Out</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决方法"><span class="nav-number">4.</span> <span class="nav-text">解决方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clickhouse-jdbc执行过程"><span class="nav-number">5.</span> <span class="nav-text">clickhouse-jdbc执行过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例化ClickHouseDataSource对象"><span class="nav-number">5.1.</span> <span class="nav-text">实例化ClickHouseDataSource对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取ClickHouseConnectionImpl连接"><span class="nav-number">5.2.</span> <span class="nav-text">获取ClickHouseConnectionImpl连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行sql过程"><span class="nav-number">5.3.</span> <span class="nav-text">执行sql过程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

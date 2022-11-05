@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="分布式DDL执行链路 在介绍具体的分布式DDL执行链路之前，先为大家梳理一下哪些操作是可以走分布式DDL执行链路的，大家也可以自己在源码中查看一下ASTQueryWithOnCluster的继承类有哪些：     ASTAlterQuery：包括ATTACH_PARTITION、FETCH_PARTITION、FREEZE_PARTITION、FREEZE_ALL等操作（对表的数据分区粒度进行操作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="clickhouse query on cluster源码解读">
+<meta property="og:url" content="http://yoursite.com/2022/01/21/clickhouse-ddl-on-cluster/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="分布式DDL执行链路 在介绍具体的分布式DDL执行链路之前，先为大家梳理一下哪些操作是可以走分布式DDL执行链路的，大家也可以自己在源码中查看一下ASTQueryWithOnCluster的继承类有哪些：     ASTAlterQuery：包括ATTACH_PARTITION、FETCH_PARTITION、FREEZE_PARTITION、FREEZE_ALL等操作（对表的数据分区粒度进行操作">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/2.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/3.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/4.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/5.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/6.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/7.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/8.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/9.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/10.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/11.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/12.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/13.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/14.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/15.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/12.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/16.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/ddloncluster/12.png">
+<meta property="article:published_time" content="2022-01-21T07:04:11.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.255Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/ddloncluster/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/01/21/clickhouse-ddl-on-cluster/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>clickhouse query on cluster源码解读 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/21/clickhouse-ddl-on-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          clickhouse query on cluster源码解读
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-21 15:04:11" itemprop="dateCreated datePublished" datetime="2022-01-21T15:04:11+08:00">2022-01-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="分布式DDL执行链路"><a href="#分布式DDL执行链路" class="headerlink" title="分布式DDL执行链路"></a>分布式DDL执行链路</h3><blockquote>
+<p>在介绍具体的分布式<code>DDL</code>执行链路之前，先为大家梳理一下哪些操作是可以走分布式<code>DDL</code>执行链路的，大家也可以自己在源码中查看一下<code>ASTQueryWithOnCluster</code>的继承类有哪些：<br><img src="/images/clickhouse/ddloncluster/1.png" alt="cgi">  </p>
+</blockquote>
+<ul>
+<li>ASTAlterQuery：<br>包括<code>ATTACH_PARTITION</code>、<code>FETCH_PARTITION</code>、<code>FREEZE_PARTITION</code>、<code>FREEZE_ALL</code>等操作（对表的数据分区粒度进行操作）。</li>
+<li>ASTCreateQuery：<br>包括常见的建库、建表、建视图，还有<code>ClickHouse</code>独有的<code>Attach Table</code>（可以从存储文件中直接加载一个之前卸载的数据表）。</li>
+<li>ASTCreateQuotaQuery:<br>包括对租户的配额操作语句，例如<code>create quaota</code>，或者<code>alter quota</code>语句</li>
+<li>ASTCreateRoleQuery：<br>包括对租户角色操作语句，例如<code>create/alter/drop/set/set default/show create role</code>语句，或者<code>show roles</code></li>
+<li>ASTCreateRowPolicyQuery<br>对表的查询做行级别的策略限制，例如<code>create row policy</code> 或者 <code>alter row policy</code></li>
+<li>ASTCreateSettingsProfileQuery<br>对角色或者租户的资源限制和约束，例如<code>create settings profile</code> 或者 <code>alter settings profile</code></li>
+<li>ASTCreateUserQuery<br>对租户的操作语句，例如<code>create create user</code> 或者 <code>alter create user</code></li>
+<li>ASTDropAccessEntityQuery<br>涉及到了clickhouse权限相关的所有删除语句，包括<code>DROP USER</code>,<code>DROP ROLE</code>,<code>DROP QUOTA</code>,<code>DROP [ROW] POLICY</code>,<code>DROP [SETTINGS] PROFILE</code></li>
+<li>ASTDropQuery：<br>其中包含了三种不同的删除操作（<code>Drop</code> / <code>Truncate</code> / <code>Detach</code>），<code>Detach Table</code>和<code>Attach Table</code>对应，它是表的卸载动作，把表的存储目录整个移到专门的<code>detach</code>文件夹下，然后关闭表在节点<code>RAM</code>中的”引用”，这张表在节点中不再可见。</li>
+<li>ASTGrantQuery:<br>这是授权相关的<code>RBAC</code>，可以对库/表授予或者撤销读/写等权限命令，例如<code>GRANT insert on db.tb to acount</code>，或者<code>REVOKE all on db.tb from account</code>。</li>
+<li>ASTKillQueryQuery：<br>可以<code>Kill</code>正在运行的<code>Query</code>，也可以<code>Kill</code>之前发送的<code>Mutation</code>命令。</li>
+<li>ASTOptimizeQuery：<br>这是<code>MergeTree</code>表引擎特有的操作命令，它可以手动触发<code>MergeTree</code>表的合并动作，并可以强制数据分区下的所有<code>Data Part</code>合并成一个。</li>
+<li>ASTRenameQuery：<br>修改表名，可更改到不同库下。</li>
+</ul>
+<h3 id="DDL-Query-Task分发"><a href="#DDL-Query-Task分发" class="headerlink" title="DDL Query Task分发"></a>DDL Query Task分发</h3><p><img src="/images/clickhouse/ddloncluster/2.png" alt="cgi"><br><code>ClickHouse</code>内核对每种<code>SQL</code>操作都有对应的<code>IInterpreter</code>实现类，其中的<code>execute</code>方法负责具体的操作逻辑。而以上列举的<code>ASTQuery</code>对应的<code>IInterpreter</code>实现类中的<code>execute</code>方法都加入了分布式<code>DDL</code>执行判断逻辑，把所有分布式<code>DDL</code>执行链路统一都<code>DDLWorker::executeDDLQueryOnCluster</code>方法中。<br><code>executeDDLQueryOnCluster</code>的过程大致可以分为三个步骤：</p>
+<h4 id="检查DDLQuery的合法性，"><a href="#检查DDLQuery的合法性，" class="headerlink" title="检查DDLQuery的合法性，"></a>检查<code>DDLQuery</code>的合法性，</h4><ul>
+<li>1、校验query规则<br><img src="/images/clickhouse/ddloncluster/3.png" alt="cgi"></li>
+<li>2、初始化DDLWorker，取config.xml表的配置<br><img src="/images/clickhouse/ddloncluster/4.png" alt="cgi"></li>
+<li>3、替换query里的数据库名称<br><img src="/images/clickhouse/ddloncluster/5.png" alt="cgi"><br>这里替换库名的逻辑是，</li>
+<li>3.1、如果query里有带上库名称，则直接使用，若无，则走2</li>
+<li>3.2、metrika.xml里配置了shard的默认库<code>&lt;default_database&gt;default&lt;/default_database&gt;</code>，则使用默认库，否则走3</li>
+<li>3.3、使用当前session的database<br><img src="/images/clickhouse/ddloncluster/6.png" alt="cgi"></li>
+</ul>
+<h4 id="把DDLQuery写入到Zookeeper任务队列中"><a href="#把DDLQuery写入到Zookeeper任务队列中" class="headerlink" title="把DDLQuery写入到Zookeeper任务队列中"></a>把<code>DDLQuery</code>写入到<code>Zookeeper</code>任务队列中</h4><ul>
+<li>1、构造DDLLogEntry对象，把entry对象加入到queue队列中<br><img src="/images/clickhouse/ddloncluster/7.png" alt="cgi"><br>注意：queue_dir是由<strong>config.xml</strong>配置的，如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;distributed_ddl&gt;</span><br><span class="line">    &lt;path&gt;&#x2F;clickhouse&#x2F;task_queue&#x2F;ddl&lt;&#x2F;path&gt;</span><br><span class="line">&lt;&#x2F;distributed_ddl&gt;</span><br></pre></td></tr></table></figure></li>
+<li>2、去zookeeper执行创建znode，把entry序列化存入znode<br><img src="/images/clickhouse/ddloncluster/8.png" alt="cgi"></li>
+<li>3、在znode下创建active和finished的znode<br><img src="/images/clickhouse/ddloncluster/9.png" alt="cgi"><blockquote>
+<p>下面截图为query-xxx的记录的entry内容<br><img src="/images/clickhouse/ddloncluster/10.png" alt="cgi"></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="等待Zookeeper任务队列的反馈把结果返回给用户。"><a href="#等待Zookeeper任务队列的反馈把结果返回给用户。" class="headerlink" title="等待Zookeeper任务队列的反馈把结果返回给用户。"></a>等待<code>Zookeeper</code>任务队列的反馈把结果返回给用户。</h4><p><img src="/images/clickhouse/ddloncluster/11.png" alt="cgi"></p>
+<h4 id="DDL-Query-Task执行线程"><a href="#DDL-Query-Task执行线程" class="headerlink" title="DDL Query Task执行线程"></a>DDL Query Task执行线程</h4><ul>
+<li>1、DDLWorker构造函数去取了config.xml配置，并且开启了2个线程，分别是执行线程和清理线程<br><img src="/images/clickhouse/ddloncluster/12.png" alt="cgi"></li>
+<li>2、执行线程加入到线程池后，执行ddl task<br><img src="/images/clickhouse/ddloncluster/13.png" alt="cgi"></li>
+<li>3、过滤掉 query 中带有 on cluster xxx的语句，根据不同的query选择不同执行方式<br><img src="/images/clickhouse/ddloncluster/14.png" alt="cgi"></li>
+<li>4、alter、optimize、truncate语句需要在leader节点执行<br><img src="/images/clickhouse/ddloncluster/15.png" alt="cgi"><blockquote>
+<p>注意：Replcated表的alter、optimize、truncate这些query是会先判断是否leader节点，不是则不处理，在执行时，会先给zookeeper加一个分布式锁，锁住这个任务防止被修改，执行时都是把自己的host:port注册到znode/query-xxx/active下，执行完成后，结果写到znode/query-xxx/finished下。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="DDL-Query-Task清理线程"><a href="#DDL-Query-Task清理线程" class="headerlink" title="DDL Query Task清理线程"></a>DDL Query Task清理线程</h4><ul>
+<li>1、DDLWorker构造函数去取了config.xml配置，并且开启了2个线程，分别是执行线程和清理线程<br><img src="/images/clickhouse/ddloncluster/12.png" alt="cgi"></li>
+<li>2、执行清理逻辑，每次执行后，下一次执行需要过1分钟后才可以接着做清理<br><img src="/images/clickhouse/ddloncluster/16.png" alt="cgi"></li>
+</ul>
+<h3 id="分布式DDL的执行链路总结"><a href="#分布式DDL的执行链路总结" class="headerlink" title="分布式DDL的执行链路总结"></a>分布式DDL的执行链路总结</h3><ul>
+<li><p>1）节点收到用户的分布式<code>DDL</code>请求</p>
+</li>
+<li><p>2）节点校验分布式DDL请求合法性，在<code>Zookeeper</code>的任务队列中创建<code>Znode</code>并上传<strong>DDL LogEntry（query-xxxx）</strong>，同时在<code>LogEntry</code>的<code>Znode</code>下创建<code>active</code>和<code>finish</code>两个状态同步的<code>Znode</code></p>
+</li>
+<li><p>3）<code>Cluster</code>中的节点后台线程消费<code>Zookeeper</code>中的<code>LogEntry</code>队列执行处理逻辑，处理过程中把自己注册到<code>acitve Znode</code>下，并把处理结果写回到<code>finish Znode</code>下<br><img src="/images/clickhouse/ddloncluster/12.png" alt="cgi"></p>
+</li>
+<li><p>4）用户的原始请求节点，不断轮询<code>LogEntry Znode</code>下的<code>active</code>和<code>finish</code>状态<code>Znode</code>，当目标节点全部执行完成任务或者触发超时逻辑时，用户就会获得结果反馈</p>
+</li>
+</ul>
+<p>这个分发逻辑中有个值得注意的点：分布式<code>DDL</code>执行链路中有超时逻辑，如果触发超时用户将无法从客户端返回中确定最终执行结果，需要自己去<code>Zookeeper</code>上<code>check</code>节点返回结果（也可以通过<strong>system.zookeeper</strong>系统表查看）。<strong>每个节点只有一个后台线程在消费执行DDL任务</strong>，碰到某个DDL任务（典型的是optimize任务）执行时间很长时，会导致DDL任务队列积压从而产生大面积的超时反馈。</p>
+<p>可以看出Zookeeper在分布式DDL执行过程中主要充当DDL Task的分发、串行化执行、结果收集的一致性介质。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/19/java_full_gc/" rel="prev" title="记一次线上fgc排查过程">
+      <i class="fa fa-chevron-left"></i> 记一次线上fgc排查过程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/02/03/clickhouse-crud/" rel="next" title="使用clickhouse实现数据更新和删除">
+      使用clickhouse实现数据更新和删除 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式DDL执行链路"><span class="nav-number">1.</span> <span class="nav-text">分布式DDL执行链路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDL-Query-Task分发"><span class="nav-number">2.</span> <span class="nav-text">DDL Query Task分发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#检查DDLQuery的合法性，"><span class="nav-number">2.1.</span> <span class="nav-text">检查DDLQuery的合法性，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#把DDLQuery写入到Zookeeper任务队列中"><span class="nav-number">2.2.</span> <span class="nav-text">把DDLQuery写入到Zookeeper任务队列中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#等待Zookeeper任务队列的反馈把结果返回给用户。"><span class="nav-number">2.3.</span> <span class="nav-text">等待Zookeeper任务队列的反馈把结果返回给用户。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DDL-Query-Task执行线程"><span class="nav-number">2.4.</span> <span class="nav-text">DDL Query Task执行线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DDL-Query-Task清理线程"><span class="nav-number">2.5.</span> <span class="nav-text">DDL Query Task清理线程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式DDL的执行链路总结"><span class="nav-number">3.</span> <span class="nav-text">分布式DDL的执行链路总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

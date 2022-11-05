@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景早上突然收到告警短信，xxx服务磁盘使用率超过80%，如下图，赶紧上机器进行排查，下面是排查的过程 查看机器整体磁盘使用情况123456789101112131415df -h&#x2F;&#x2F; 下面是结果root@xxx.docker.ys:~&#x2F;dlap-manager$ df -hFilesystem      Size  Used Avail Use% Mounted o">
+<meta property="og:type" content="article">
+<meta property="og:title" content="由于overlay占用磁盘空间导致磁盘告警">
+<meta property="og:url" content="http://yoursite.com/2022/02/15/linux-overlay-full/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="背景早上突然收到告警短信，xxx服务磁盘使用率超过80%，如下图，赶紧上机器进行排查，下面是排查的过程 查看机器整体磁盘使用情况123456789101112131415df -h&#x2F;&#x2F; 下面是结果root@xxx.docker.ys:~&#x2F;dlap-manager$ df -hFilesystem      Size  Used Avail Use% Mounted o">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/linux/disk_full/1.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/disk_full/2.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/disk_full/4.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/disk_full/3.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/disk_full/5.png">
+<meta property="article:published_time" content="2022-02-15T07:09:08.000Z">
+<meta property="article:modified_time" content="2022-08-22T10:09:00.260Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/disk_full/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/02/15/linux-overlay-full/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>由于overlay占用磁盘空间导致磁盘告警 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/15/linux-overlay-full/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          由于overlay占用磁盘空间导致磁盘告警
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-15 15:09:08" itemprop="dateCreated datePublished" datetime="2022-02-15T15:09:08+08:00">2022-02-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>早上突然收到告警短信，xxx服务磁盘使用率超过80%，如下图，赶紧上机器进行排查，下面是排查的过程<br><img src="/images/linux/disk_full/1.png" alt="avatar"></p>
+<h3 id="查看机器整体磁盘使用情况"><a href="#查看机器整体磁盘使用情况" class="headerlink" title="查看机器整体磁盘使用情况"></a>查看机器整体磁盘使用情况</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">df -h</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是结果</span><br><span class="line">root@xxx.docker.ys:~&#x2F;dlap-manager$ df -h</span><br><span class="line">Filesystem      Size  Used Avail Use% Mounted on</span><br><span class="line">overlay          20G   18G  2.7G  87% &#x2F;</span><br><span class="line">tmpfs            64M     0   64M   0% &#x2F;dev</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;fs&#x2F;cgroup</span><br><span class="line">&#x2F;dev&#x2F;sda3       219G   15G  193G   8% &#x2F;etc&#x2F;hosts</span><br><span class="line">shm              64M     0   64M   0% &#x2F;dev&#x2F;shm</span><br><span class="line">&#x2F;dev&#x2F;sdb1       4.4T  949G  3.5T  22% &#x2F;etc&#x2F;hostname</span><br><span class="line">tmpfs            63G   12K   63G   1% &#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;acpi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;scsi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;firmware</span><br></pre></td></tr></table></figure>
+<p>看到overlay这个文件目录占了<code>87%</code>，仔细研究下这个文件夹是什么</p>
+<h4 id="overlay介绍"><a href="#overlay介绍" class="headerlink" title="overlay介绍"></a>overlay介绍</h4><p>OverlayFS是一种堆叠文件系统，它依赖并建立在其它的文件系统之上（例如ext4fs和xfs等等），并不直接参与磁盘空间结构的划分，仅仅将原来底层文件系统中不同的目录进行“合并”，然后向用户呈现，这也就是联合挂载技术，对比于AUFS，OverlayFS速度更快，实现更简单。 而Linux 内核为Docker提供的OverlayFS驱动有两种：overlay和overlay2。而overlay2是相对于overlay的一种改进，在inode利用率方面比overlay更有效。但是overlay有环境需求：docker版本17.06.02+，宿主机文件系统需要是ext4或xfs格式。<br>overlayfs通过三个目录：lower目录、upper目录、以及work目录实现，其中lower目录可以是多个，work目录为工作基础目录，挂载后内容会被清空，且在使用过程中其内容用户不可见，最后联合挂载完成给用户呈现的统一视图称为为merged目录<br><img src="/images/linux/disk_full/2.png" alt="avatar"><br>在上述图中可以看到三个层结构，即：lowerdir、uperdir、merged，其中lowerdir是只读的image layer，其实就是rootfs，对应的lowerdir是可以有多个目录。而upperdir则是在lowerdir之上的一层，这层是读写层，在启动一个容器时候会进行创建，所有的对容器数据更改都发生在这里层。最后merged目录是容器的挂载点，也就是给用户暴露的统一视角。</p>
+<h4 id="overlay如何工作"><a href="#overlay如何工作" class="headerlink" title="overlay如何工作"></a>overlay如何工作</h4><p>当容器中发生数据修改时候overlayfs存储驱动又是如何进行工作的？以下将阐述其读写过程：</p>
+<ul>
+<li><ol>
+<li>读：</li>
+</ol>
+<ul>
+<li>如果文件在容器层（upperdir），直接读取文件；</li>
+<li>如果文件不在容器层（upperdir），则从镜像层（lowerdir）读取；</li>
+</ul>
+</li>
+<li><ol>
+<li>写：</li>
+</ol>
+<ul>
+<li>首次写入： 如果在upperdir中不存在，overlay和overlay2执行copy_up操作，把文件从lowdir拷贝到upperdir，由于overlayfs是文件级别的（即使文件只有很少的一点修改，也会产生的copy_up的行为），后续对同一文件的在此写入操作将对已经复制到容器的文件的副本进行操作。这也就是常常说的写时复制（copy-on-write）</li>
+<li>删除文件和目录： 当文件在容器被删除时，在容器层（upperdir）创建whiteout文件，镜像层(lowerdir)的文件是不会被删除的，因为他们是只读的，但without文件会阻止他们显示，当目录在容器内被删除时，在容器层（upperdir）一个不透明的目录，这个和上面whiteout原理一样，阻止用户继续访问，即便镜像层仍然存在。 </li>
+</ul>
+</li>
+<li><ol>
+<li>注意事项</li>
+</ol>
+<ul>
+<li>copy_up操作只发生在文件首次写入，以后都是只修改副本,</li>
+<li>overlayfs只适用两层目录，相比于比AUFS，查找搜索都更快。</li>
+<li>容器层的文件删除只是一个“障眼法”，是靠whiteout文件将其遮挡，image层并没有删除，这也就是为什么使用docker commit 提交保存的镜像会越来越大，无论在容器层怎么删除数据，image层都不会改变。</li>
+</ul>
+</li>
+</ul>
+<h4 id="overlay镜像存储结构"><a href="#overlay镜像存储结构" class="headerlink" title="overlay镜像存储结构"></a>overlay镜像存储结构</h4><p>从仓库拉取ubuntu镜像，结果显示总共拉取了6层镜像如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@bigdata-xxx.ys ~]$ sudo docker pull ubuntu-test:xenial</span><br><span class="line">Trying to pull repository ubuntu-test ...</span><br><span class="line">xenial: Pulling from ubuntu-test</span><br><span class="line">58690f9b18fc: Pull complete</span><br><span class="line">b51569e7c507: Pull complete</span><br><span class="line">da8ef40b9eca: Pull complete</span><br><span class="line">fb15d46c38dc: Pull complete</span><br><span class="line">4c7a0de79adc: Pull complete</span><br><span class="line">5eff12cba838: Pull complete</span><br><span class="line">Digest: sha256:d21c70f1203a5b0fe1d8a1b60bd1924ca5458ba450828f6b88c4e973db84c8e8</span><br><span class="line">Status: Downloaded newer image for ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>此时6层镜像被存储在/var/lib/docker/overlay2下，将镜像运行起来一个容器，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -itd --name ubuntu-test ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>运行容器之后，查询出容器的元数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 获取容器ID</span><br><span class="line">sudo docker ps -a | grep ubuntu</span><br><span class="line">&#x2F;&#x2F; 通过容器ID查看元数据</span><br><span class="line">sudo docker inspect container-id</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/4.png" alt="avatar"></p>
+<p>进入容器创建一个文件，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker exec -it ubuntu-test bash</span><br><span class="line">echo &#39;xxxxxx&#39; &gt; helloworld.txt</span><br></pre></td></tr></table></figure></p>
+<p>通过tree命令查看新创建的文件出现在哪里<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tree -L 3 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;f90282cedadf6b7765ba06ea8983af306f78773baeca9ff1e418651d0b9d14f2&#x2F;diff</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/3.png" alt="avatar"></p>
+<h3 id="回到问题本身"><a href="#回到问题本身" class="headerlink" title="回到问题本身"></a>回到问题本身</h3><p>overlay目录使用了87%的存储，触发了磁盘告警，overlay目录是我们的弹性云容器运行的目录，发现通过nohup启动的jar包将所有stdout/stderr都输出到了nohup.out文件，该文件也持久化存在/var/lib/docker/overlay2下，所以需要对nohup.out进行处理，不可直接删除，因为jar启动后所有的输出流都会转存到nohup.out，这个文件句柄已经打开，所有的stdout/stderr仍然会输出，只是输出在/proc/pid/fd/1或者/proc/pid/fd/2这些目录下。</p>
+<blockquote>
+<p>0描述符 标准输入<br>1描述符 标注输出<br>2描述符 标注错误输出  </p>
+</blockquote>
+<p><strong>linux一切到可以看作文件</strong>，/proc/pid/fd/1 就是pid进程的标准输出，/proc/pid/fd/1 就是pid进程的标准错误输出，我们通过测试可以看到下面结果，就算我们删除了nohup.out文件，任何会将stdout/stderro输出到这个文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@xxx.ys ~]$ tree -L 3 &#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">&#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">├── 0 -&gt; &#x2F;dev&#x2F;null</span><br><span class="line">├── 1 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">├── 2 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">└── 3 -&gt; &#x2F;home&#x2F;hadoop&#x2F;test.txt</span><br><span class="line"></span><br><span class="line">0 directories, 4 files</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><ol>
+<li>重启jar包，将所有错误/标准输出忽略<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; &gt;&#x2F;dev&#x2F;null是表示linux的空设备，是一个特殊的文件，写入到它的内容都会被丢弃(等同于 1&gt;&#x2F;dev&#x2F;null)</span><br><span class="line">&#x2F;&#x2F; 2&gt;&amp;1表示所有错误输出都重定向到标准输出</span><br><span class="line">&#x2F;&#x2F; 所以就是将错误输出重定向到标准输出，将标准输出重定向到空设备，就是禁止所有输出&#x2F;错误</span><br><span class="line">nohup java -jar xx.jar &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>删除nohup.out文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -f nohup.out</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="修改docker的根目录"><a href="#修改docker的根目录" class="headerlink" title="修改docker的根目录"></a>修改docker的根目录</h3><h4 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h4><ol>
+<li>停止docker服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop docker</span><br></pre></td></tr></table></figure></li>
+<li><p>创建新的docker工作目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
+<p>这个目录可以自定义，但是一定要保证在/root里面</p>
+</li>
+<li><p>迁移/var/lib/docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -avz &#x2F;var&#x2F;lib&#x2F;docker &#x2F;data2&#x2F;docker&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>配置devicemapper.conf<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 不存在就创建</span><br><span class="line">sudo mkdir -p &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;</span><br><span class="line"># 不存在就创建</span><br><span class="line">sudo vi &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;devicemapper.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>在devicemapper.conf中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Service]</span><br><span class="line">ExecStart&#x3D;</span><br><span class="line">ExecStart&#x3D;&#x2F;usr&#x2F;bin&#x2F;dockerd  --graph&#x3D;&#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启docker服务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"> </span><br><span class="line">systemctl restart docker</span><br><span class="line"> </span><br><span class="line">systemctl enable docker</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>确认是否配置成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker info</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux/disk_full/5.png" alt="avatar"></p>
+</li>
+</ol>
+<p>重新启动所有容器后，确认无误。即可删除/var/lib/docker里面所有文件。</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>如果报错如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error response from daemon: Cannot restart container linyu: shim error: docker-runc not installed on system</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><ol>
+<li>判断是否安装runc<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -qi runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>未安装则先安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>创建软连接<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;usr&#x2F;libexec&#x2F;docker&#x2F;</span><br><span class="line">sudo ln -s docker-runc-current docker-runc</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><ol>
+<li>重启服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker restart container_id</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/02/03/clickhouse-crud/" rel="prev" title="使用clickhouse实现数据更新和删除">
+      <i class="fa fa-chevron-left"></i> 使用clickhouse实现数据更新和删除
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/02/16/linux-ln/" rel="next" title="聊聊linux下的软硬链接">
+      聊聊linux下的软硬链接 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看机器整体磁盘使用情况"><span class="nav-number">2.</span> <span class="nav-text">查看机器整体磁盘使用情况</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#overlay介绍"><span class="nav-number">2.1.</span> <span class="nav-text">overlay介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#overlay如何工作"><span class="nav-number">2.2.</span> <span class="nav-text">overlay如何工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#overlay镜像存储结构"><span class="nav-number">2.3.</span> <span class="nav-text">overlay镜像存储结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回到问题本身"><span class="nav-number">3.</span> <span class="nav-text">回到问题本身</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改docker的根目录"><span class="nav-number">4.</span> <span class="nav-text">修改docker的根目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装过程"><span class="nav-number">4.1.</span> <span class="nav-text">安装过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项"><span class="nav-number">4.2.</span> <span class="nav-text">注意事项</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
