@@ -30,6 +30,12 @@ brew install llvm
 ![avatar](/images/clickhouse/1.png)
 > cmake和make是新版本就可以了，配置好c和c++编译器(compiler)使用刚装好的llvm下的clang
 
+### 安装googletest
+有报错ld: library not found for -lgtest
+```
+brew install googletest
+```
+![avatar](/images/clickhouse/8.png)
 ### 使用支持ninja的CLion版本(可选, 最新版是支持的)
 > CLion中的CMake使用选项
 ```
@@ -44,10 +50,12 @@ brew install llvm
 -DSPLIT_SHARED_LIBRARIES=ON
 -DENABLE_LIBRARIES=OFF
 -DENABLE_UTILS=OFF
--DENABLE_TESTS=ON
+-DENABLE_TESTS=OFF
 -DUSE_ROCKSDB=ON
 -DENABLE_ROCKSDB=ON
 -DUSE_INTERNAL_ROCKSDB_LIBRARY=ON
+-DENABLE_PROTOBUF=ON
+-DENABLE_GRPC=ON
 ```
 ![avatar](/images/clickhouse/2.png)
 
