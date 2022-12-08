@@ -3220,8 +3220,7 @@ LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
 </ul>
 <h4 id="统一分析"><a href="#统一分析" class="headerlink" title="统一分析"></a>统一分析</h4><p>通过使用一套系统解决多维分析、高并发查询、实时分析和Ad-Hoc查询等场景，降低系统复杂度和多技术栈开发与维护成本。</p>
 <h3 id="如何使用StarRocks"><a href="#如何使用StarRocks" class="headerlink" title="如何使用StarRocks"></a>如何使用StarRocks</h3><blockquote>
-<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"></p>
-<h4 id="创建库"><a href="#创建库" class="headerlink" title="创建库"></a>创建库</h4><p>登陆<a href="https://pam.data.didichuxing.com/" target="_blank" rel="noopener">项目管理平台</a>，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：<br><img src="/images/starrocks/helloworld/1.png" alt="1"><br>注意：<a href="https://pam.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东项目管理平台</a></p>
+<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"><br>&lt;!— #### 创建库<br>登陆<a href="https://pam.data.didichuxing.com/" target="_blank" rel="noopener">项目管理平台</a>，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：<br><img src="/images/starrocks/helloworld/1.png" alt="1"><br>注意：<a href="https://pam.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东项目管理平台</a></p>
 </blockquote>
 <h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><p>登陆<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以自定义创建表。<br>注意:<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">美东实时开发平台</a></p>
 <ul>
@@ -3286,7 +3285,7 @@ LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
 <li>潮汐  </li>
 </ol>
 <p>欢迎大佬们加入<code>StarRocks</code>用户群，我们<code>OLAP</code>团队竭诚欢迎滴滴内部各项业务合作！</p>
-<p><img src="/images/starrocks/helloworld/21.png" alt="1"></p>
+<p><img src="/images/starrocks/helloworld/21.png" alt="1"> —&gt;</p>
 ]]></content>
   </entry>
   <entry>
