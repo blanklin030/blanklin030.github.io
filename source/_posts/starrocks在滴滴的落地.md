@@ -116,7 +116,7 @@
 ### 如何使用StarRocks
 > 我们olap团队已经将`StarRocks`接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用`StarRocks`引擎。
 ![1](/images/starrocks/helloworld/19.png)
-#### 创建库
+<!-- #### 创建库
 登陆[项目管理平台](https://pam.data.didichuxing.com/)，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：
 ![1](/images/starrocks/helloworld/1.png)
 注意：[美东项目管理平台](https://pam.data.intra.didiglobal.com/)
@@ -191,4 +191,4 @@
 
 欢迎大佬们加入`StarRocks`用户群，我们`OLAP`团队竭诚欢迎滴滴内部各项业务合作！
 
-![1](/images/starrocks/helloworld/21.png)
+![1](/images/starrocks/helloworld/21.png) -->
