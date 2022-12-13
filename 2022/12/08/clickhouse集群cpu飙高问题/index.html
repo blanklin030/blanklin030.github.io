@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景介绍clickhouse是分布式系统，一条查询sql会经过pipeline处理后通过后台的查询线程池开启多线程查询，而经常会收到cpu飙高告警，则是因为这条sql开启了系统所有的cpu资源（多个线程）进行计算 告警图如下图所示，提示cpu飙高如下图所示，ganglia上展示了当时的cpu顶着线在跑 system.query_log 地址，该表包含了所有进入到ck的sql语句。该表包含字段如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="clickhouse集群cpu飙高问题排查">
+<meta property="og:url" content="http://yoursite.com/2022/12/08/clickhouse%E9%9B%86%E7%BE%A4cpu%E9%A3%99%E9%AB%98%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="BlankLin">
+<meta property="og:description" content="背景介绍clickhouse是分布式系统，一条查询sql会经过pipeline处理后通过后台的查询线程池开启多线程查询，而经常会收到cpu飙高告警，则是因为这条sql开启了系统所有的cpu资源（多个线程）进行计算 告警图如下图所示，提示cpu飙高如下图所示，ganglia上展示了当时的cpu顶着线在跑 system.query_log 地址，该表包含了所有进入到ck的sql语句。该表包含字段如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/cpu_high/1.png">
+<meta property="og:image" content="http://yoursite.com/images/clickhouse/cpu_high/2.png">
+<meta property="article:published_time" content="2022-12-08T11:35:11.000Z">
+<meta property="article:modified_time" content="2022-12-08T12:45:17.382Z">
+<meta property="article:author" content="Blank Lin">
+<meta property="article:tag" content="clickhouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/clickhouse/cpu_high/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/12/08/clickhouse%E9%9B%86%E7%BE%A4cpu%E9%A3%99%E9%AB%98%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>clickhouse集群cpu飙高问题排查 | BlankLin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="BlankLin" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BlankLin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">lazy and boring</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/08/clickhouse%E9%9B%86%E7%BE%A4cpu%E9%A3%99%E9%AB%98%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          clickhouse集群cpu飙高问题排查
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-12-08 19:35:11 / 修改时间：20:45:17" itemprop="dateCreated datePublished" datetime="2022-12-08T19:35:11+08:00">2022-12-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse是分布式系统，一条查询sql会经过pipeline处理后通过后台的查询线程池开启多线程查询，而经常会收到cpu飙高告警，则是因为这条sql开启了系统所有的cpu资源（多个线程）进行计算</p>
+<h3 id="告警图"><a href="#告警图" class="headerlink" title="告警图"></a>告警图</h3><p>如下图所示，提示cpu飙高<br><img src="/images/clickhouse/cpu_high/1.png" alt="clickhouse"><br>如下图所示，ganglia上展示了当时的cpu顶着线在跑<br><img src="/images/clickhouse/cpu_high/2.png" alt="clickhouse"></p>
+<h3 id="system-query-log"><a href="#system-query-log" class="headerlink" title="system.query_log"></a>system.query_log</h3><blockquote>
+<p><a href="https://clickhouse.com/docs/en/operations/system-tables/query_log" target="_blank" rel="noopener">地址</a>，该表包含了所有进入到ck的sql语句。<br>该表包含字段如下：</p>
+<ul>
+<li>type (Enum8) — 执行查询时的事件类型. 值:<ul>
+<li>‘QueryStart’ = 1 — 查询成功启动.</li>
+<li>‘QueryFinish’ = 2 — 查询成功完成.</li>
+</ul>
+</li>
+<li>‘ExceptionBeforeStart’ = 3 — 查询执行前有异常.</li>
+<li>‘ExceptionWhileProcessing’ = 4 — 查询执行期间有异常.</li>
+<li>event_date (Date) — 查询开始日期.</li>
+<li>event_time (DateTime) — 查询开始时间.</li>
+<li>event_time_microseconds (DateTime64) — 查询开始时间（毫秒精度）.</li>
+<li>query_start_time (DateTime) — 查询执行的开始时间.</li>
+<li>query_start_time_microseconds (DateTime64) — 查询执行的开始时间（毫秒精度）.</li>
+<li>query_duration_ms (UInt64) — 查询消耗的时间（毫秒）.</li>
+<li>read_rows (UInt64) — 从参与了查询的所有表和表函数读取的总行数. 包括：普通的子查询, IN 和 JOIN的子查询. 对于分布式查询 read_rows 包括在所有副本上读取的行总数。 每个副本发送它的 read_rows 值，并且查询的服务器-发起方汇总所有接收到的和本地的值。 缓存卷不会影响此值。</li>
+<li>read_bytes (UInt64) — 从参与了查询的所有表和表函数读取的总字节数. 包括：普通的子查询, IN 和 JOIN的子查询. 对于分布式查询 read_bytes 包括在所有副本上读取的字节总数。 每个副本发送它的 read_bytes 值，并且查询的服务器-发起方汇总所有接收到的和本地的值。 缓存卷不会影响此值。</li>
+<li>written_rows (UInt64) — 对于 INSERT 查询，为写入的行数。 对于其他查询，值为0。</li>
+<li>written_bytes (UInt64) — 对于 INSERT 查询时，为写入的字节数。 对于其他查询，值为0。</li>
+<li>result_rows (UInt64) — SELECT 查询结果的行数，或INSERT 的行数。</li>
+<li>result_bytes (UInt64) — 存储查询结果的RAM量.</li>
+<li>memory_usage (UInt64) — 查询使用的内存.</li>
+<li>query (String) — 查询语句.</li>
+<li>exception (String) — 异常信息.</li>
+<li>exception_code (Int32) — 异常码.</li>
+<li>stack_trace (String) — Stack Trace. 如果查询成功完成，则为空字符串。</li>
+<li>is_initial_query (UInt8) — 查询类型. 可能的值:<ul>
+<li>1 — 客户端发起的查询.</li>
+<li>0 — 由另一个查询发起的，作为分布式查询的一部分.</li>
+</ul>
+</li>
+<li>user (String) — 发起查询的用户.</li>
+<li>query_id (String) — 查询ID.</li>
+<li>address (IPv6) — 发起查询的客户端IP地址.</li>
+<li>port (UInt16) — 发起查询的客户端端口.</li>
+<li>initial_user (String) — 初始查询的用户名（用于分布式查询执行）.</li>
+<li>initial_query_id (String) — 运行初始查询的ID（用于分布式查询执行）.</li>
+<li>initial_address (IPv6) — 运行父查询的IP地址.</li>
+<li>initial_port (UInt16) — 发起父查询的客户端端口.</li>
+<li>interface (UInt8) — 发起查询的接口. 可能的值:<ul>
+<li>1 — TCP.</li>
+<li>2 — HTTP.</li>
+</ul>
+</li>
+<li>os_user (String) — 运行 clickhouse-client的操作系统用户名.</li>
+<li>client_hostname (String) — 运行clickhouse-client 或其他TCP客户端的机器的主机名。</li>
+<li>client_name (String) — clickhouse-client 或其他TCP客户端的名称。</li>
+<li>client_revision (UInt32) — clickhouse-client 或其他TCP客户端的Revision。</li>
+<li>client_version_major (UInt32) — clickhouse-client 或其他TCP客户端的Major version。</li>
+<li>client_version_minor (UInt32) — clickhouse-client 或其他TCP客户端的Minor version。</li>
+<li>client_version_patch (UInt32) — clickhouse-client 或其他TCP客户端的Patch component。</li>
+<li>http_method (UInt8) — 发起查询的HTTP方法. 可能值:<ul>
+<li>0 — TCP接口的查询.</li>
+<li>1 — GET</li>
+<li>2 — POST</li>
+</ul>
+</li>
+<li>http_user_agent (String) — http请求的客户端参数</li>
+<li>quota_key (String) — 在quotas 配置里设置的“quota key” （见 keyed).</li>
+<li>revision (UInt32) — ClickHouse revision.</li>
+<li>ProfileEvents (Map(String, UInt64))) — 不同指标的计数器 </li>
+<li>Settings (Map(String, String)) — 当前请求里的setting部分参数</li>
+<li>thread_ids (Array(UInt64)) — 参与查询的线程数.</li>
+<li>Settings.Names (Array（String)) — 客户端运行查询时更改的设置的名称。 要启用对设置的日志记录更改，请将log_query_settings参数设置为1。</li>
+<li>Settings.Values (Array（String)) — Settings.Names 列中列出的设置的值。</li>
+</ul>
+</blockquote>
+<h3 id="解决过程"><a href="#解决过程" class="headerlink" title="解决过程"></a>解决过程</h3><ul>
+<li>查询当前时间内耗cpu最高的sql前10条<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">select initial_user, event_time, query,</span><br><span class="line">read_rows, read_bytes,</span><br><span class="line">written_rows, written_bytes,</span><br><span class="line">result_rows, result_bytes,</span><br><span class="line">memory_usage, length(thread_ids) as thread_count</span><br><span class="line">from system.query_log</span><br><span class="line">WHERE event_time &gt; &#39;2022-10-27 18:30:00&#39; AND event_time &lt; &#39;2022-10-27 18:35:00&#39; </span><br><span class="line">and initial_user&lt;&gt;&#39;default&#39;</span><br><span class="line">order by thread_count desc</span><br><span class="line">limit 10;</span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/" rel="prev" title="clickhouse副本不同步问题排查">
+      <i class="fa fa-chevron-left"></i> clickhouse副本不同步问题排查
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#告警图"><span class="nav-number">2.</span> <span class="nav-text">告警图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#system-query-log"><span class="nav-number">3.</span> <span class="nav-text">system.query_log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决过程"><span class="nav-number">4.</span> <span class="nav-text">解决过程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Blank Lin</p>
+  <div class="site-description" itemprop="description">say something about me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Blank Lin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

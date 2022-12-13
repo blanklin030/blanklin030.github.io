@@ -150,6 +150,260 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/08/clickhouse%E9%9B%86%E7%BE%A4cpu%E9%A3%99%E9%AB%98%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/12/08/clickhouse%E9%9B%86%E7%BE%A4cpu%E9%A3%99%E9%AB%98%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">clickhouse集群cpu飙高问题排查</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-12-08 19:35:11 / 修改时间：20:45:17" itemprop="dateCreated datePublished" datetime="2022-12-08T19:35:11+08:00">2022-12-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse是分布式系统，一条查询sql会经过pipeline处理后通过后台的查询线程池开启多线程查询，而经常会收到cpu飙高告警，则是因为这条sql开启了系统所有的cpu资源（多个线程）进行计算</p>
+<h3 id="告警图"><a href="#告警图" class="headerlink" title="告警图"></a>告警图</h3><p>如下图所示，提示cpu飙高<br><img src="/images/clickhouse/cpu_high/1.png" alt="clickhouse"><br>如下图所示，ganglia上展示了当时的cpu顶着线在跑<br><img src="/images/clickhouse/cpu_high/2.png" alt="clickhouse"></p>
+<h3 id="system-query-log"><a href="#system-query-log" class="headerlink" title="system.query_log"></a>system.query_log</h3><blockquote>
+<p><a href="https://clickhouse.com/docs/en/operations/system-tables/query_log" target="_blank" rel="noopener">地址</a>，该表包含了所有进入到ck的sql语句。<br>该表包含字段如下：</p>
+<ul>
+<li>type (Enum8) — 执行查询时的事件类型. 值:<ul>
+<li>‘QueryStart’ = 1 — 查询成功启动.</li>
+<li>‘QueryFinish’ = 2 — 查询成功完成.</li>
+</ul>
+</li>
+<li>‘ExceptionBeforeStart’ = 3 — 查询执行前有异常.</li>
+<li>‘ExceptionWhileProcessing’ = 4 — 查询执行期间有异常.</li>
+<li>event_date (Date) — 查询开始日期.</li>
+<li>event_time (DateTime) — 查询开始时间.</li>
+<li>event_time_microseconds (DateTime64) — 查询开始时间（毫秒精度）.</li>
+<li>query_start_time (DateTime) — 查询执行的开始时间.</li>
+<li>query_start_time_microseconds (DateTime64) — 查询执行的开始时间（毫秒精度）.</li>
+<li>query_duration_ms (UInt64) — 查询消耗的时间（毫秒）.</li>
+<li>read_rows (UInt64) — 从参与了查询的所有表和表函数读取的总行数. 包括：普通的子查询, IN 和 JOIN的子查询. 对于分布式查询 read_rows 包括在所有副本上读取的行总数。 每个副本发送它的 read_rows 值，并且查询的服务器-发起方汇总所有接收到的和本地的值。 缓存卷不会影响此值。</li>
+<li>read_bytes (UInt64) — 从参与了查询的所有表和表函数读取的总字节数. 包括：普通的子查询, IN 和 JOIN的子查询. 对于分布式查询 read_bytes 包括在所有副本上读取的字节总数。 每个副本发送它的 read_bytes 值，并且查询的服务器-发起方汇总所有接收到的和本地的值。 缓存卷不会影响此值。</li>
+<li>written_rows (UInt64) — 对于 INSERT 查询，为写入的行数。 对于其他查询，值为0。</li>
+<li>written_bytes (UInt64) — 对于 INSERT 查询时，为写入的字节数。 对于其他查询，值为0。</li>
+<li>result_rows (UInt64) — SELECT 查询结果的行数，或INSERT 的行数。</li>
+<li>result_bytes (UInt64) — 存储查询结果的RAM量.</li>
+<li>memory_usage (UInt64) — 查询使用的内存.</li>
+<li>query (String) — 查询语句.</li>
+<li>exception (String) — 异常信息.</li>
+<li>exception_code (Int32) — 异常码.</li>
+<li>stack_trace (String) — Stack Trace. 如果查询成功完成，则为空字符串。</li>
+<li>is_initial_query (UInt8) — 查询类型. 可能的值:<ul>
+<li>1 — 客户端发起的查询.</li>
+<li>0 — 由另一个查询发起的，作为分布式查询的一部分.</li>
+</ul>
+</li>
+<li>user (String) — 发起查询的用户.</li>
+<li>query_id (String) — 查询ID.</li>
+<li>address (IPv6) — 发起查询的客户端IP地址.</li>
+<li>port (UInt16) — 发起查询的客户端端口.</li>
+<li>initial_user (String) — 初始查询的用户名（用于分布式查询执行）.</li>
+<li>initial_query_id (String) — 运行初始查询的ID（用于分布式查询执行）.</li>
+<li>initial_address (IPv6) — 运行父查询的IP地址.</li>
+<li>initial_port (UInt16) — 发起父查询的客户端端口.</li>
+<li>interface (UInt8) — 发起查询的接口. 可能的值:<ul>
+<li>1 — TCP.</li>
+<li>2 — HTTP.</li>
+</ul>
+</li>
+<li>os_user (String) — 运行 clickhouse-client的操作系统用户名.</li>
+<li>client_hostname (String) — 运行clickhouse-client 或其他TCP客户端的机器的主机名。</li>
+<li>client_name (String) — clickhouse-client 或其他TCP客户端的名称。</li>
+<li>client_revision (UInt32) — clickhouse-client 或其他TCP客户端的Revision。</li>
+<li>client_version_major (UInt32) — clickhouse-client 或其他TCP客户端的Major version。</li>
+<li>client_version_minor (UInt32) — clickhouse-client 或其他TCP客户端的Minor version。</li>
+<li>client_version_patch (UInt32) — clickhouse-client 或其他TCP客户端的Patch component。</li>
+<li>http_method (UInt8) — 发起查询的HTTP方法. 可能值:<ul>
+<li>0 — TCP接口的查询.</li>
+<li>1 — GET</li>
+<li>2 — POST</li>
+</ul>
+</li>
+<li>http_user_agent (String) — http请求的客户端参数</li>
+<li>quota_key (String) — 在quotas 配置里设置的“quota key” （见 keyed).</li>
+<li>revision (UInt32) — ClickHouse revision.</li>
+<li>ProfileEvents (Map(String, UInt64))) — 不同指标的计数器 </li>
+<li>Settings (Map(String, String)) — 当前请求里的setting部分参数</li>
+<li>thread_ids (Array(UInt64)) — 参与查询的线程数.</li>
+<li>Settings.Names (Array（String)) — 客户端运行查询时更改的设置的名称。 要启用对设置的日志记录更改，请将log_query_settings参数设置为1。</li>
+<li>Settings.Values (Array（String)) — Settings.Names 列中列出的设置的值。</li>
+</ul>
+</blockquote>
+<h3 id="解决过程"><a href="#解决过程" class="headerlink" title="解决过程"></a>解决过程</h3><ul>
+<li>查询当前时间内耗cpu最高的sql前10条<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">select initial_user, event_time, query,</span><br><span class="line">read_rows, read_bytes,</span><br><span class="line">written_rows, written_bytes,</span><br><span class="line">result_rows, result_bytes,</span><br><span class="line">memory_usage, length(thread_ids) as thread_count</span><br><span class="line">from system.query_log</span><br><span class="line">WHERE event_time &gt; &#39;2022-10-27 18:30:00&#39; AND event_time &lt; &#39;2022-10-27 18:35:00&#39; </span><br><span class="line">and initial_user&lt;&gt;&#39;default&#39;</span><br><span class="line">order by thread_count desc</span><br><span class="line">limit 10;</span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">clickhouse副本不同步问题排查</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-12-08 16:04:11 / 修改时间：18:13:36" itemprop="dateCreated datePublished" datetime="2022-12-08T16:04:11+08:00">2022-12-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index"><span itemprop="name">bigdata</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse的Replicated**MergeTree表是通过zookeeper来完成同一个shard之间的副本数据的同步，因为clickhouse本身不是master/slave的架构，我们通过proxy的方式，设定了同一个shard里某个副本是读/写节点角色，另一个节点是读角色，当用户写入时，proxy会路由到读/写节点去完成写入操作，然后通过zk发起同步任务，把日志进入到system.replcation_queue。<br>今天早上用户和我们反馈说数据查询时每一次结果都不一样，用户查询也是通过连我们的proxy进行读节点的路由，所以用户反馈的结果不一致，其实是第一次路由到读/写节点查询结果是a，第二次路由到读节点，查询结果是b，由于a和b两个副本数据没有同步，导致了查询结果不一致，下面是排查的过程。</p>
+<h3 id="system-replcation-queue"><a href="#system-replcation-queue" class="headerlink" title="system.replcation_queue"></a>system.replcation_queue</h3><blockquote>
+<p><a href="https://clickhouse.com/docs/en/operations/system-tables/replication_queue/" target="_blank" rel="noopener">地址</a>,该表记录了当前的副本任务队列的所有信息，如下图所示，我们看到当前副本同步出现大量异常错误<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from system.mutations where latest_failed_part !&#x3D; &#39;&#39;</span><br></pre></td></tr></table></figure><br><img src="/images/clickhouse/replicas_data_diff/1.png" alt="clickhouse"><br>如下图所示，<strong>type</strong>字段可以查看到当前是什么类型的操作导致的，发现是<strong>MUTATE_PART</strong>操作，<strong>last_exception</strong>字段显示当前我们在操作ttl时创建的元数据目录下columns.txt无法打开，这个是已知bug。<br><img src="/images/clickhouse/replicas_data_diff/2.png" alt="clickhouse"></p>
+<h3 id="system-mutations"><a href="#system-mutations" class="headerlink" title="system.mutations"></a>system.mutations</h3><p><a href="https://clickhouse.com/docs/en/operations/system-tables/mutations" target="_blank" rel="noopener">地址</a>，该表包含了所有mutation操作的日志信息，<a href="https://clickhouse.com/docs/en/sql-reference/statements/alter/#mutations" target="_blank" rel="noopener">mutation</a>操作包括修改字段类型/修改表ttl操作/按条件删表的数据/按条件更新表的数据等，这些操作都是异步后台线程去处理，都会去回溯该表的所有parts，需要rewrite每个part的信息并且这个操作还不是原子性的，所以如果某个节点操作失败，可能引发该表无法使用。  </p>
+</blockquote>
+<p>该表包含字段如下：</p>
+<ul>
+<li><p>database (String) — 数据库名称.</p>
+</li>
+<li><p>table (String) — 表名称.</p>
+</li>
+<li><p>data_path (String) — 本地文件的路径.</p>
+</li>
+<li><p>mutation_id (String) — mutation的唯一标识，可通过该标识直接kill mutation.</p>
+</li>
+<li><p>command (String) — mutation命令.</p>
+</li>
+<li><p>create_time (DateTime) —  mutation创建时间.</p>
+</li>
+<li><p>block_numbers (Map) — partition_id：需要进行mutation操作的分区id，number：需要进行mutation的分区对应的block序号.</p>
+</li>
+<li><p>parts_to_do_names (Array) — 即将完成的需要进行mutation的数组.</p>
+</li>
+<li><p>parts_to_do (Int64) — 准备进行mutation操作的part序号.</p>
+</li>
+<li><p>is_done (UInt8) — 该操作是否已完成.</p>
+</li>
+<li><p>latest_failed_part (String) — mutation操作最后失败的part名称.</p>
+</li>
+<li><p>latest_fail_time (DateTime) — 最后失败的时间.</p>
+</li>
+<li><p>latest_fail_reason (String) — 最后失败的原因.</p>
+</li>
+</ul>
+<ul>
+<li>去最高的那个节点查找正在写入的队列<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from system.distribution_queue where data_files &gt; 0</span><br></pre></td></tr></table></figure>
+<img src="/images/clickhouse/replicas_data_diff/3.png" alt="clickhouse"><blockquote>
+<p>根据异常错误的<strong>command</strong>字段，我们看到错误是通过<code>MATERIALIZE TTL FAST 16070400</code>引起的，mutation操作在写节点处理完成后，也会通过zookeeper进行副本数据同步</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="解决副本不同步问题"><a href="#解决副本不同步问题" class="headerlink" title="解决副本不同步问题"></a>解决副本不同步问题</h3><ul>
+<li>终止该失败的mutation<br>具体操作语句可以查看<a href="https://clickhouse.com/docs/zh/sql-reference/statements/kill/#:~:text=KILL%20MUTATION%E2%80%8B&amp;text=Tries%20to%20cancel%20and%20remove,list%20of%20mutations%20to%20stop." target="_blank" rel="noopener">官方文档</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill mutation where database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39; and mutation_id &#x3D; &#39;zz&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>操作之后，可以通过查询shard里每个副本的count是否一致来判断数据是否已经进行同步<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select count(dt), dt from xx.yy group by dt;</span><br></pre></td></tr></table></figure></li>
+<li>操作之后，可以通过上面的<code>system.replication_queue</code>表来观察是否开始进行副本数据同步<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from system.replication_queue where type&#x3D;&#39;GET_PART&#39; and database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/04/clickhouse-parser/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1035,255 +1289,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/16/linux-ln/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/02/16/linux-ln/" class="post-title-link" itemprop="url">聊聊linux下的软硬链接</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-02-16 15:48:18" itemprop="dateCreated datePublished" datetime="2022-02-16T15:48:18+08:00">2022-02-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="链接概念"><a href="#链接概念" class="headerlink" title="链接概念"></a>链接概念</h3><p>Linux链接分两种，一种被称为硬链接（Hard Link），另一种被称为符号链接（Symbolic Link）。<br>默认情况下，ln命令产生硬链接。</p>
-<h3 id="硬连接"><a href="#硬连接" class="headerlink" title="硬连接"></a>硬连接</h3><ul>
-<li>硬连接指通过索引节点来进行连接。在Linux的文件系统中，保存在磁盘分区中的文件不管是什么类型都给它分配一个编号，称为索引节点号(Inode Index)。在Linux中，多个文件名指向同一索引节点是存在的。一般这种连接就是硬连接。</li>
-<li>硬连接的作用是允许一个文件拥有多个有效路径名，这样用户就可以建立硬连接到重要文件，以防止“误删”的功能。其原因如上所述，因为对应该目录的索引节点有一个以上的连接。只删除一个连接并不影响索引节点本身和其它的连接，只有当最后一个连接被删除后，文件的数据块及目录的连接才会被释放。也就是说，文件真正删除的条件是与之相关的所有硬连接文件均被删除。</li>
-</ul>
-<h3 id="软连接"><a href="#软连接" class="headerlink" title="软连接"></a>软连接</h3><p>另外一种连接称之为符号连接（Symbolic Link），也叫软连接。软链接文件有类似于Windows的快捷方式。它实际上是一个特殊的文件。在符号连接中，文件实际上是一个文本文件，其中包含的有另一文件的位置信息。</p>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#创建一个测试文件f1</span><br><span class="line">[oracle@Linux]$ touch f1</span><br><span class="line"></span><br><span class="line">#创建f1的一个硬连接文件f2</span><br><span class="line">[oracle@Linux]$ ln f1 f2</span><br><span class="line"></span><br><span class="line">#创建f1的一个符号连接文件f3</span><br><span class="line">[oracle@Linux]$ ln -s f1 f3</span><br><span class="line"></span><br><span class="line"># -i参数显示文件的inode节点信息</span><br><span class="line">[oracle@Linux]$ ls -li   </span><br><span class="line">total 0</span><br><span class="line">9797648 -rw-r--r--  2 oracle oinstall 0 Apr 21 08:11 f1</span><br><span class="line">9797648 -rw-r--r--  2 oracle oinstall 0 Apr 21 08:11 f2</span><br><span class="line">9797649 lrwxrwxrwx  1 oracle oinstall 2 Apr 21 08:11 f3 -&gt; f1</span><br></pre></td></tr></table></figure>
-<p>从上面的结果中可以看出，硬连接文件f2与原文件f1的inode节点相同，均为9797648，然而符号连接文件的inode节点不同。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 修改文件内容</span><br><span class="line">[oracle@Linux]$ echo &quot;I am f1 file&quot; &gt;&gt;f1</span><br><span class="line"></span><br><span class="line"># 打印f1文件内容</span><br><span class="line">[oracle@Linux]$ cat f1</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f2文件内容</span><br><span class="line">[oracle@Linux]$ cat f2</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f3文件内容</span><br><span class="line">[oracle@Linux]$ cat f3</span><br><span class="line">I am f1 file</span><br><span class="line"># 删除f1</span><br><span class="line">[oracle@Linux]$ rm -f f1</span><br><span class="line"></span><br><span class="line"># 打印f2文件内容，未受到影响，所以硬链接未受源文件删除的影响</span><br><span class="line">[oracle@Linux]$ cat f2</span><br><span class="line">I am f1 file</span><br><span class="line"></span><br><span class="line"># 打印f3文件内容，提示找不到该文件或者目录，所以软连接会受到源文件删除的影响</span><br><span class="line">[oracle@Linux]$ cat f3</span><br><span class="line">cat: f3: No such file or directory</span><br></pre></td></tr></table></figure>
-<p>通过上面的测试可以看出：当删除原始文件f1后，硬连接f2不受影响，但是符号连接f1文件无效</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>1).删除符号连接f3,对f1,f2无影响；<br>2).删除硬连接f2，对f1,f3也无影响；<br>3).删除原文件f1，对硬连接f2没有影响，导致符号连接f3失效；<br>4).同时删除原文件f1,硬连接f2，整个文件会真正的被删除。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/02/15/linux-overlay-full/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/02/15/linux-overlay-full/" class="post-title-link" itemprop="url">由于overlay占用磁盘空间导致磁盘告警</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-02-15 15:09:08" itemprop="dateCreated datePublished" datetime="2022-02-15T15:09:08+08:00">2022-02-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>早上突然收到告警短信，xxx服务磁盘使用率超过80%，如下图，赶紧上机器进行排查，下面是排查的过程<br><img src="/images/linux/disk_full/1.png" alt="avatar"></p>
-<h3 id="查看机器整体磁盘使用情况"><a href="#查看机器整体磁盘使用情况" class="headerlink" title="查看机器整体磁盘使用情况"></a>查看机器整体磁盘使用情况</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">df -h</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是结果</span><br><span class="line">root@xxx.docker.ys:~&#x2F;dlap-manager$ df -h</span><br><span class="line">Filesystem      Size  Used Avail Use% Mounted on</span><br><span class="line">overlay          20G   18G  2.7G  87% &#x2F;</span><br><span class="line">tmpfs            64M     0   64M   0% &#x2F;dev</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;fs&#x2F;cgroup</span><br><span class="line">&#x2F;dev&#x2F;sda3       219G   15G  193G   8% &#x2F;etc&#x2F;hosts</span><br><span class="line">shm              64M     0   64M   0% &#x2F;dev&#x2F;shm</span><br><span class="line">&#x2F;dev&#x2F;sdb1       4.4T  949G  3.5T  22% &#x2F;etc&#x2F;hostname</span><br><span class="line">tmpfs            63G   12K   63G   1% &#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;acpi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;proc&#x2F;scsi</span><br><span class="line">tmpfs            63G     0   63G   0% &#x2F;sys&#x2F;firmware</span><br></pre></td></tr></table></figure>
-<p>看到overlay这个文件目录占了<code>87%</code>，仔细研究下这个文件夹是什么</p>
-<h4 id="overlay介绍"><a href="#overlay介绍" class="headerlink" title="overlay介绍"></a>overlay介绍</h4><p>OverlayFS是一种堆叠文件系统，它依赖并建立在其它的文件系统之上（例如ext4fs和xfs等等），并不直接参与磁盘空间结构的划分，仅仅将原来底层文件系统中不同的目录进行“合并”，然后向用户呈现，这也就是联合挂载技术，对比于AUFS，OverlayFS速度更快，实现更简单。 而Linux 内核为Docker提供的OverlayFS驱动有两种：overlay和overlay2。而overlay2是相对于overlay的一种改进，在inode利用率方面比overlay更有效。但是overlay有环境需求：docker版本17.06.02+，宿主机文件系统需要是ext4或xfs格式。<br>overlayfs通过三个目录：lower目录、upper目录、以及work目录实现，其中lower目录可以是多个，work目录为工作基础目录，挂载后内容会被清空，且在使用过程中其内容用户不可见，最后联合挂载完成给用户呈现的统一视图称为为merged目录<br><img src="/images/linux/disk_full/2.png" alt="avatar"><br>在上述图中可以看到三个层结构，即：lowerdir、uperdir、merged，其中lowerdir是只读的image layer，其实就是rootfs，对应的lowerdir是可以有多个目录。而upperdir则是在lowerdir之上的一层，这层是读写层，在启动一个容器时候会进行创建，所有的对容器数据更改都发生在这里层。最后merged目录是容器的挂载点，也就是给用户暴露的统一视角。</p>
-<h4 id="overlay如何工作"><a href="#overlay如何工作" class="headerlink" title="overlay如何工作"></a>overlay如何工作</h4><p>当容器中发生数据修改时候overlayfs存储驱动又是如何进行工作的？以下将阐述其读写过程：</p>
-<ul>
-<li><ol>
-<li>读：</li>
-</ol>
-<ul>
-<li>如果文件在容器层（upperdir），直接读取文件；</li>
-<li>如果文件不在容器层（upperdir），则从镜像层（lowerdir）读取；</li>
-</ul>
-</li>
-<li><ol>
-<li>写：</li>
-</ol>
-<ul>
-<li>首次写入： 如果在upperdir中不存在，overlay和overlay2执行copy_up操作，把文件从lowdir拷贝到upperdir，由于overlayfs是文件级别的（即使文件只有很少的一点修改，也会产生的copy_up的行为），后续对同一文件的在此写入操作将对已经复制到容器的文件的副本进行操作。这也就是常常说的写时复制（copy-on-write）</li>
-<li>删除文件和目录： 当文件在容器被删除时，在容器层（upperdir）创建whiteout文件，镜像层(lowerdir)的文件是不会被删除的，因为他们是只读的，但without文件会阻止他们显示，当目录在容器内被删除时，在容器层（upperdir）一个不透明的目录，这个和上面whiteout原理一样，阻止用户继续访问，即便镜像层仍然存在。 </li>
-</ul>
-</li>
-<li><ol>
-<li>注意事项</li>
-</ol>
-<ul>
-<li>copy_up操作只发生在文件首次写入，以后都是只修改副本,</li>
-<li>overlayfs只适用两层目录，相比于比AUFS，查找搜索都更快。</li>
-<li>容器层的文件删除只是一个“障眼法”，是靠whiteout文件将其遮挡，image层并没有删除，这也就是为什么使用docker commit 提交保存的镜像会越来越大，无论在容器层怎么删除数据，image层都不会改变。</li>
-</ul>
-</li>
-</ul>
-<h4 id="overlay镜像存储结构"><a href="#overlay镜像存储结构" class="headerlink" title="overlay镜像存储结构"></a>overlay镜像存储结构</h4><p>从仓库拉取ubuntu镜像，结果显示总共拉取了6层镜像如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@bigdata-xxx.ys ~]$ sudo docker pull ubuntu-test:xenial</span><br><span class="line">Trying to pull repository ubuntu-test ...</span><br><span class="line">xenial: Pulling from ubuntu-test</span><br><span class="line">58690f9b18fc: Pull complete</span><br><span class="line">b51569e7c507: Pull complete</span><br><span class="line">da8ef40b9eca: Pull complete</span><br><span class="line">fb15d46c38dc: Pull complete</span><br><span class="line">4c7a0de79adc: Pull complete</span><br><span class="line">5eff12cba838: Pull complete</span><br><span class="line">Digest: sha256:d21c70f1203a5b0fe1d8a1b60bd1924ca5458ba450828f6b88c4e973db84c8e8</span><br><span class="line">Status: Downloaded newer image for ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>此时6层镜像被存储在/var/lib/docker/overlay2下，将镜像运行起来一个容器，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -itd --name ubuntu-test ubuntu-test:xenial</span><br></pre></td></tr></table></figure><br>运行容器之后，查询出容器的元数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 获取容器ID</span><br><span class="line">sudo docker ps -a | grep ubuntu</span><br><span class="line">&#x2F;&#x2F; 通过容器ID查看元数据</span><br><span class="line">sudo docker inspect container-id</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/4.png" alt="avatar"></p>
-<p>进入容器创建一个文件，如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker exec -it ubuntu-test bash</span><br><span class="line">echo &#39;xxxxxx&#39; &gt; helloworld.txt</span><br></pre></td></tr></table></figure></p>
-<p>通过tree命令查看新创建的文件出现在哪里<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tree -L 3 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;f90282cedadf6b7765ba06ea8983af306f78773baeca9ff1e418651d0b9d14f2&#x2F;diff</span><br></pre></td></tr></table></figure><br><img src="/images/linux/disk_full/3.png" alt="avatar"></p>
-<h3 id="回到问题本身"><a href="#回到问题本身" class="headerlink" title="回到问题本身"></a>回到问题本身</h3><p>overlay目录使用了87%的存储，触发了磁盘告警，overlay目录是我们的弹性云容器运行的目录，发现通过nohup启动的jar包将所有stdout/stderr都输出到了nohup.out文件，该文件也持久化存在/var/lib/docker/overlay2下，所以需要对nohup.out进行处理，不可直接删除，因为jar启动后所有的输出流都会转存到nohup.out，这个文件句柄已经打开，所有的stdout/stderr仍然会输出，只是输出在/proc/pid/fd/1或者/proc/pid/fd/2这些目录下。</p>
-<blockquote>
-<p>0描述符 标准输入<br>1描述符 标注输出<br>2描述符 标注错误输出  </p>
-</blockquote>
-<p><strong>linux一切到可以看作文件</strong>，/proc/pid/fd/1 就是pid进程的标准输出，/proc/pid/fd/1 就是pid进程的标准错误输出，我们通过测试可以看到下面结果，就算我们删除了nohup.out文件，任何会将stdout/stderro输出到这个文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@xxx.ys ~]$ tree -L 3 &#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">&#x2F;proc&#x2F;143645&#x2F;fd</span><br><span class="line">├── 0 -&gt; &#x2F;dev&#x2F;null</span><br><span class="line">├── 1 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">├── 2 -&gt; &#x2F;home&#x2F;hadoop&#x2F;nohup.out\ (deleted)</span><br><span class="line">└── 3 -&gt; &#x2F;home&#x2F;hadoop&#x2F;test.txt</span><br><span class="line"></span><br><span class="line">0 directories, 4 files</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><ol>
-<li>重启jar包，将所有错误/标准输出忽略<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; &gt;&#x2F;dev&#x2F;null是表示linux的空设备，是一个特殊的文件，写入到它的内容都会被丢弃(等同于 1&gt;&#x2F;dev&#x2F;null)</span><br><span class="line">&#x2F;&#x2F; 2&gt;&amp;1表示所有错误输出都重定向到标准输出</span><br><span class="line">&#x2F;&#x2F; 所以就是将错误输出重定向到标准输出，将标准输出重定向到空设备，就是禁止所有输出&#x2F;错误</span><br><span class="line">nohup java -jar xx.jar &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-<li><ol>
-<li>删除nohup.out文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -f nohup.out</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-</ul>
-<h3 id="修改docker的根目录"><a href="#修改docker的根目录" class="headerlink" title="修改docker的根目录"></a>修改docker的根目录</h3><h4 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h4><ol>
-<li>停止docker服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop docker</span><br></pre></td></tr></table></figure></li>
-<li><p>创建新的docker工作目录</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
-<p>这个目录可以自定义，但是一定要保证在/root里面</p>
-</li>
-<li><p>迁移/var/lib/docker</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -avz &#x2F;var&#x2F;lib&#x2F;docker &#x2F;data2&#x2F;docker&#x2F;</span><br></pre></td></tr></table></figure></li>
-<li>配置devicemapper.conf<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 不存在就创建</span><br><span class="line">sudo mkdir -p &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;</span><br><span class="line"># 不存在就创建</span><br><span class="line">sudo vi &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;docker.service.d&#x2F;devicemapper.conf</span><br></pre></td></tr></table></figure></li>
-<li><p>在devicemapper.conf中添加</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Service]</span><br><span class="line">ExecStart&#x3D;</span><br><span class="line">ExecStart&#x3D;&#x2F;usr&#x2F;bin&#x2F;dockerd  --graph&#x3D;&#x2F;data2&#x2F;docker</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>重启docker服务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"> </span><br><span class="line">systemctl restart docker</span><br><span class="line"> </span><br><span class="line">systemctl enable docker</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>确认是否配置成功</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker info</span><br></pre></td></tr></table></figure>
-<p><img src="/images/linux/disk_full/5.png" alt="avatar"></p>
-</li>
-</ol>
-<p>重新启动所有容器后，确认无误。即可删除/var/lib/docker里面所有文件。</p>
-<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>如果报错如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error response from daemon: Cannot restart container linyu: shim error: docker-runc not installed on system</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><ol>
-<li>判断是否安装runc<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -qi runc</span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-<li><ol>
-<li>未安装则先安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install runc</span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-<li><ol>
-<li>创建软连接<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;usr&#x2F;libexec&#x2F;docker&#x2F;</span><br><span class="line">sudo ln -s docker-runc-current docker-runc</span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-<li><ol>
-<li>重启服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker restart container_id</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1353,7 +1358,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

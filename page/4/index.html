@@ -150,6 +150,296 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/13/java-cpu-high/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/13/java-cpu-high/" class="post-title-link" itemprop="url">java应用cpu打满排查过程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-13 10:09:55" itemprop="dateCreated datePublished" datetime="2021-07-13T10:09:55+08:00">2021-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="查询cpu的过程"><a href="#查询cpu的过程" class="headerlink" title="查询cpu的过程"></a>查询cpu的过程</h3><ul>
+<li><ol>
+<li>查看应用的pid,我的应用名称是以dlap开头<br>jps的命令参数如下，<code>jps [options] [hostid]</code> <ul>
+<li>-q 不输出类名、Jar名和传入main方法的参数</li>
+<li>-m 输出传入main方法的参数</li>
+<li>-l 输出main类或Jar的全限名</li>
+<li>-v 输出传入JVM的参数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">jps -m -l</span><br><span class="line">或者</span><br><span class="line">ps -ef | grep dlap | grep -v grep</span><br><span class="line">或者</span><br><span class="line">ps aux | grep dlap | grep -v greppid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/1.png" alt="avatar"></li>
+</ul>
+</li>
+</ol>
+</li>
+<li><ol>
+<li>查看系统资源占用信息，使用<code>top</code>查一下当前进程<code>pid</code>占用较高的<code>cpu</code>线程<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">top -Hp pid</span><br><span class="line">&#x2F;&#x2F; 也可以用以下两个命令</span><br><span class="line">ps -Lfp pid</span><br><span class="line">&#x2F;&#x2F; 或者</span><br><span class="line">ps -mp pid -o THREAD, tid, time | sort -rn</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/2.png" alt="avatar"></li>
+</ol>
+</li>
+<li><ol>
+<li>将需要的线程<code>ID</code>转换为<code>16</code>进制格式，可以使用<code>printf &quot;%x\n&quot; tid</code>命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf &quot;%x\n&quot; tid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/3.png" alt="avatar"></li>
+</ol>
+</li>
+<li><ol>
+<li>打印线程堆栈信息，可以使用命令<code>jstack pid | grep tid</code>，注意这里的tid是线程ID的16进制值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack pid | grep tid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/4.png" alt="avatar"></li>
+</ol>
+</li>
+</ul>
+<h3 id="jmap命令介绍"><a href="#jmap命令介绍" class="headerlink" title="jmap命令介绍"></a>jmap命令介绍</h3><blockquote>
+<p>jmap可以导出堆内容，然后使用jhat进行分析，语法如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NAME</span><br><span class="line">       jmap - Prints shared object memory maps or heap memory details for a process, core file, or remote debug server. This command is</span><br><span class="line">       experimental and unsupported.</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       jmap [ options ] pid</span><br><span class="line">       jmap [ options ] executable core</span><br><span class="line">       jmap [ options ] [ pid ] server-id@ ] remote-hostname-or-IP</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>根据pid查看堆内存使用情况，包括使用的GC算法、堆配置参数和各代中堆内存使用情况<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -heap pid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/5.png" alt="avatar"></li>
+</ul>
+</blockquote>
+<ul>
+<li>根据pid查看堆内存中的对象数目、大小统计直方图，如果带上live则只统计活对象<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -histo:live pid | more</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/6.png" alt="avatar"><blockquote>
+<p>class name是对象类型，说明如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">B  byte</span><br><span class="line">C  char</span><br><span class="line">D  double</span><br><span class="line">F  float</span><br><span class="line">I  int</span><br><span class="line">J  long</span><br><span class="line">Z  boolean</span><br><span class="line">[  数组，如[I表示int[]</span><br><span class="line">[L+类名 其他对象</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li>用jmap把进程内存使用情况dump到文件中，再用jhat分析查看<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format&#x3D;b,file&#x3D;dumpFileName pid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/7.png" alt="avatar"></li>
+<li>用jhat查看<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jhat -port 9998 &#x2F;tmp&#x2F;dump.dat</span><br><span class="line">&#x2F;&#x2F; 注意如果Dump文件太大，可能需要加上-J-Xmx512m这种参数指定最大堆内存</span><br><span class="line">jhat -J-Xmx512m -port 9998 &#x2F;tmp&#x2F;dump.dat</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/8.png" alt="avatar"><blockquote>
+<p>然后用浏览器打开，<a href="http://ip:9998" target="_blank" rel="noopener">http://ip:9998</a></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="jstat-JVM统计监测工具"><a href="#jstat-JVM统计监测工具" class="headerlink" title="jstat(JVM统计监测工具)"></a>jstat(JVM统计监测工具)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">NAME</span><br><span class="line">       jstat - Monitors Java Virtual Machine (JVM) statistics. This command is experimental and unsupported.</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">           jstat [ generalOption | outputOptions vmid [ interval[s|ms] [ count ] ]</span><br><span class="line"></span><br><span class="line">       generalOption</span><br><span class="line">           A single general command-line option -help or -options. See General Options.</span><br><span class="line"></span><br><span class="line">       outputOptions</span><br><span class="line">           One or more output options that consist of a single statOption, plus any of the -t, -h, and -J options. See Output Options.</span><br><span class="line"></span><br><span class="line">       vmid</span><br><span class="line">           Virtual machine identifier, which is a string that indicates the target JVM. The general syntax is the following:</span><br><span class="line"></span><br><span class="line">               [protocol:][&#x2F;&#x2F;]lvmid[@hostname[:port]&#x2F;servername]</span><br><span class="line"></span><br><span class="line">           The syntax of the vmid string corresponds to the syntax of a URI. The vmid string can vary from a simple integer that</span><br><span class="line">           represents a local JVM to a more complex construction that specifies a communications protocol, port number, and other</span><br><span class="line">           implementation-specific values. See Virtual Machine Identifier.</span><br><span class="line"></span><br><span class="line">       interval [s|ms]</span><br><span class="line">           Sampling interval in the specified units, seconds (s) or milliseconds (ms). Default units are milliseconds. Must be a positive</span><br><span class="line">           integer. When specified, the jstat command produces its output at each interval.</span><br><span class="line"></span><br><span class="line">       count</span><br><span class="line">           Number of samples to display. The default value is infinity which causes the jstat command to display statistics until the</span><br><span class="line">           target JVM terminates or the jstat command is terminated. This value must be a positive integer.</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据pid 间隔250ms 采样条数4 输出GC信息<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc pid 250 4</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/9.png" alt="avatar"><blockquote>
+<p>jvm 堆内容布局<br><img src="/images/java_high_cpu/10.png" alt="avatar"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">堆内存 &#x3D; 年轻代 + 年老代 + 永久代  </span><br><span class="line">年轻代 &#x3D; Eden区 + 两个Survivor区（From和To）</span><br></pre></td></tr></table></figure>
+<p>各列含义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">S0C、S1C、S0U、S1U：Survivor 0&#x2F;1区容量（Capacity）和使用量（Used）</span><br><span class="line">EC、EU：Eden区容量和使用量</span><br><span class="line">OC、OU：年老代容量和使用量</span><br><span class="line">PC、PU：永久代容量和使用量</span><br><span class="line">YGC、YGT：年轻代GC次数和GC耗时</span><br><span class="line">FGC、FGCT：Full GC次数和Full GC耗时</span><br><span class="line">GCT：GC总耗时</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<h3 id="hprof用法"><a href="#hprof用法" class="headerlink" title="hprof用法"></a>hprof用法</h3><blockquote>
+<p>hprof 能展现cpu使用率，堆内存使用情况，语法格式如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">java -agentlib:hprof[&#x3D;options] ToBeProfiledClass</span><br><span class="line">java -Xrunprof[:options] ToBeProfiledClass</span><br><span class="line">javac -J-agentlib:hprof[&#x3D;options] ToBeProfiledClass</span><br></pre></td></tr></table></figure><br>完整的命令格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Option Name and Value  Description                    Default</span><br><span class="line">---------------------  -----------                    -------</span><br><span class="line">heap&#x3D;dump|sites|all    heap profiling                 all</span><br><span class="line">cpu&#x3D;samples|times|old  CPU usage                      off</span><br><span class="line">monitor&#x3D;y|n            monitor contention             n</span><br><span class="line">format&#x3D;a|b             text(txt) or binary output     a</span><br><span class="line">file&#x3D;&lt;file&gt;            write data to file             java.hprof[.txt]</span><br><span class="line">net&#x3D;&lt;host&gt;:&lt;port&gt;      send data over a socket        off</span><br><span class="line">depth&#x3D;&lt;size&gt;           stack trace depth              4</span><br><span class="line">interval&#x3D;&lt;ms&gt;          sample interval in ms          10</span><br><span class="line">cutoff&#x3D;&lt;value&gt;         output cutoff point            0.0001</span><br><span class="line">lineno&#x3D;y|n             line number in traces?         y</span><br><span class="line">thread&#x3D;y|n             thread in traces?              n</span><br><span class="line">doe&#x3D;y|n                dump on exit?                  y</span><br><span class="line">msa&#x3D;y|n                Solaris micro state accounting n</span><br><span class="line">force&#x3D;y|n              force output to &lt;file&gt;         y</span><br><span class="line">verbose&#x3D;y|n            print messages about dumps     y</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>每隔20毫秒采样CPU消耗信息，堆栈深度为3<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -agentlib:hprof&#x3D;cpu&#x3D;samples,interval&#x3D;20,depth&#x3D;3 Hello.java</span><br></pre></td></tr></table></figure></li>
+<li>获取CPU消耗信息，能够细到每个方法调用的开始和结束，它的实现使用了字节码注入技术（BCI）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javac -J-agentlib:hprof&#x3D;cpu&#x3D;times Hello.java</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javac -J-agentlib:hprof&#x3D;heap&#x3D;sites Hello.java</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javac -J-agentlib:hprof&#x3D;heap&#x3D;dump Hello.java</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意在JVM启动参数中加入-Xrunprof:heap=sites参数可以生成CPU/Heap Profile文件，但对JVM性能影响非常大，不建议在线上服务器环境使用</p>
+</blockquote>
+<h3 id="jinfo查看jvm启动参数"><a href="#jinfo查看jvm启动参数" class="headerlink" title="jinfo查看jvm启动参数"></a>jinfo查看jvm启动参数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 看出所有参数</span><br><span class="line">jinfo -flags pid</span><br><span class="line">&#x2F;&#x2F; 查看某个具体参数,例如InitialHeapSize</span><br><span class="line">jinfo -flag InitialHeapSize pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_high_cpu/11.png" alt="avatar"></p>
+<ul>
+<li>开启/关闭某个jvm参数<blockquote>
+<p>使用jinnfo可以在不重启虚拟机的情况下，动态修改jvm的参数，这个方法在生产环境尤其特别有用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; jinfo -flag [+|-]name pid</span><br><span class="line">jinfo -flag +PrintGC pid</span><br><span class="line">jinfo -flag -PrintGC pid</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li>修改某个JVM进程的值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; jinfo -flag name&#x3D;value pid</span><br><span class="line">jinfo -flag InitialHeapSize&#x3D;64g pid</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意并不是所有参数都支持动态修改</p>
+</blockquote>
+</li>
+<li>查看当前jvm进程所有的系统属性<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jinfo -sysprops pid</span><br></pre></td></tr></table></figure>
+<img src="/images/java_high_cpu/12.png" alt="avatar"></li>
+</ul>
+<h3 id="free命令查看机器物理内存"><a href="#free命令查看机器物理内存" class="headerlink" title="free命令查看机器物理内存"></a>free命令查看机器物理内存</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS</span><br><span class="line">       -b, --bytes</span><br><span class="line">              Display the amount of memory in bytes.</span><br><span class="line"></span><br><span class="line">       -k, --kilo</span><br><span class="line">              Display the amount of memory in kilobytes.  This is the default.</span><br><span class="line"></span><br><span class="line">       -m, --mega</span><br><span class="line">              Display the amount of memory in megabytes.</span><br><span class="line"></span><br><span class="line">       -g, --giga</span><br><span class="line">              Display the amount of memory in gigabytes.</span><br><span class="line"></span><br><span class="line">       --tera Display the amount of memory in terabytes.</span><br><span class="line"></span><br><span class="line">       -h, --human</span><br><span class="line">              Show all output fields automatically scaled to shortest three digit unit and display the units of print out.  Following units are used.</span><br><span class="line"></span><br><span class="line">                B &#x3D; bytes</span><br><span class="line">                K &#x3D; kilos</span><br><span class="line">                M &#x3D; megas</span><br><span class="line">                G &#x3D; gigas</span><br><span class="line">                T &#x3D; teras</span><br><span class="line"></span><br><span class="line">              If unit is missing, and you have petabyte of RAM or swap, the number is in terabytes and columns might not be aligned with header.</span><br><span class="line"></span><br><span class="line">       -w, --wide</span><br><span class="line">              Switch to the wide mode. The wide mode produces lines longer than 80 characters. In this mode buffers and cache are reported in two separate columns.</span><br><span class="line"></span><br><span class="line">       -c, --count count</span><br><span class="line">              Display the result count times.  Requires the -s option.</span><br><span class="line"></span><br><span class="line">       -l, --lohi</span><br><span class="line">              Show detailed low and high memory statistics.</span><br><span class="line"></span><br><span class="line">       -s, --seconds seconds</span><br><span class="line">              Continuously display the result delay seconds apart.  You may actually specify any floating point number for delay, usleep(3) is used for microsecond  resolu‐</span><br><span class="line">              tion delay times.</span><br><span class="line"></span><br><span class="line">       --si   Use power of 1000 not 1024.</span><br><span class="line"></span><br><span class="line">       -t, --total</span><br><span class="line">              Display a line showing the column totals.</span><br><span class="line"></span><br><span class="line">       --help Print help.</span><br><span class="line"></span><br><span class="line">       -V, --version</span><br><span class="line">              Display version information.</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_high_cpu/13.png" alt="avatar"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/13/linux-cpu-high/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/13/linux-cpu-high/" class="post-title-link" itemprop="url">linux机器cpu打满排查过程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-13 10:09:55" itemprop="dateCreated datePublished" datetime="2021-07-13T10:09:55+08:00">2021-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>接收到告警短信，web应用登陆无响应，请求api均为504</p>
+<h3 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h3><p>平台无法正常使用</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><p>一般情况下，<code>cpp</code>应用占用<code>cpu</code>较高的原因大部分分为以下两个情况：</p>
+<ul>
+<li>应用属于计算密集型应用<br>使用大量 <code>CPU</code> 会导致平均负载升高，此时<code>system load</code>和<code>cpu</code>使用数率值上是一致的</li>
+<li>应用中出现了<code>IO</code>密集型应用<br>等待 <code>I/O</code> 也会导致平均负载升高，但 <code>CPU</code> 使用率不一定很高，所以<code>system load</code>和<code>cpu</code>使用率并不会一致</li>
+</ul>
+<h4 id="查询该机器的系统负载-system-load"><a href="#查询该机器的系统负载-system-load" class="headerlink" title="查询该机器的系统负载(system load)"></a>查询该机器的系统负载(system load)</h4><ul>
+<li><p>1.系统负载：<br>是指系统cpu繁忙程度的度量指标，即有多少个进程在等待被cpu调度，就是进程等待cpu的队列长度</p>
+</li>
+<li><p>2.平均负载：<br>是指单位时间内，处于可运行状态和不可中断状态的进程数。所以，它不仅包括了正在使用 <code>CPU</code> 的进程，还包括等待 <code>CPU</code> 和等待 <code>I/O</code> 的进程，实际上是系统的平均活跃进程数统计</p>
+</li>
+<li><p>3.uptime详解</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 观察uptime刷新，w命令&#x2F;top命令皆可查询到系统的平均负载</span><br><span class="line">watch -D uptime</span><br><span class="line">&#x2F;&#x2F; 得到结果</span><br><span class="line"> 11:10:17 up 628 days, 14:06,  2 users,  load average: 0.05, 3.53, 6.59</span><br><span class="line"> &#x2F;&#x2F; 11:10:17是指当前系统时间</span><br><span class="line"> &#x2F;&#x2F; up 628 days, 14:06 是指机器运行时间</span><br><span class="line"> &#x2F;&#x2F; 2 users：是指当前登陆有2个用户</span><br><span class="line"> &#x2F;&#x2F; load average: 0.05, 3.53, 6.59：是指当前1分钟&#x2F;5分钟&#x2F;15分钟的平均负载指</span><br></pre></td></tr></table></figure>
+<p>假设平均负载是<code>2</code>，当前<code>cpu</code>数是<code>2cores</code>则说明<code>cpu</code>被<code>100%</code>使用，如果是<code>4cores</code>则说明<code>cpu</code>利用率是<code>50%</code>，如果是<code>1cores</code>，则说明有一半的进程都竞争得不到<code>cpu</code></p>
+</li>
+<li><p>3.如何查看机器的核心(core)呢</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep cores | wc -l</span><br></pre></td></tr></table></figure></li>
+<li>4.如何查看机器是否开启超线程呢？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 如何得到的值和grep cores后得到的核心数一致，则说明未开启</span><br><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep processor | wc -l</span><br></pre></td></tr></table></figure>
+比如我们的机器2颗物理cpu，在每颗物理cpu上又做了6颗逻辑CPU，之后在每颗逻辑CPU上又实现了超线程后，假如此时你在系统中使用<strong>cat /proc/cpuinfo |grep ‘processor’|wc –l</strong>返回24颗，如果load值（15分钟的返回值作为参考依据）长期在24以上，说明系统已经很繁忙了。</li>
+</ul>
+<h4 id="具体分析系统瓶颈"><a href="#具体分析系统瓶颈" class="headerlink" title="具体分析系统瓶颈"></a>具体分析系统瓶颈</h4><blockquote>
+<p>结合平均负载分析，假如我们当前已经知道load很高，但是仍然无法判断是cpu占用率高，还是系统I/O繁忙，又或者是内存不足导致的？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vmstat 1</span><br></pre></td></tr></table></figure><br><img src="/images/linux-cpu-high/6.png" alt="cgi"></p>
+<ul>
+<li>1、procs列<br><strong>r</strong> 列表示运行和等待cpu时间片的进程数，如果长期大于cpu核心数，说明cpu不足，需要增加cpu。<br><strong>b</strong> 列表示在等待资源的进程数，比如正在等待I/O、或者内存交换等。</li>
+</ul>
+</blockquote>
+<ul>
+<li><p>2、system 显示采集间隔内发生的中断数<br><strong>in</strong> 列表示在某一时间间隔中观测到的每秒设备中断数。<br><strong>cs</strong> 列表示每秒产生的上下文切换次数，如当 cs 比磁盘 I/O 和网络信息包速率高得多，都应进行进一步调查。</p>
+</li>
+<li><p>3、memory列<br><strong>swpd</strong> 切换到内存交换区的内存数量(k表示)。如果swpd的值不为0，或者比较大，比如超过了100m，只要<br><strong>free</strong> 当前的空闲页面列表中内存数量(k表示)<br><strong>buff</strong> 作为buffer cache的内存数量，一般对块设备的读写才需要缓冲。<br><strong>cache</strong> 作为page cache的内存数量，一般作为文件系统的cache，如果cache较大，说明用到cache的文件较多，如果此时IO中bi比较小，说明文件系统效率比较好。</p>
+</li>
+<li><p>4、swap列<br><strong>si</strong> 由内存进入内存交换区数量。<br><strong>so</strong> 由内存交换区进入内存数量。<br><strong>si</strong>、<strong>so</strong>的值长期为0，系统性能还是正常</p>
+</li>
+<li><p>5、IO列<br><strong>bi</strong> 从块设备读入数据的总量（读磁盘）（每秒kb）。<br><strong>bo</strong> 块设备写入数据的总量（写磁盘）（每秒kb）<br>这里我们设置的bi+bo参考值为1000，如果超过1000，而且wa值较大应该考虑均衡磁盘负载，可以结合iostat输出来分析。</p>
+</li>
+<li><p>6、cpu列<br><strong>cs</strong> 表示cpu的使用状态<br><strong>us</strong> 列显示了用户方式下所花费 CPU 时间的百分比。us的值比较高时，说明用户进程消耗的cpu时间多，但是如果长期大于50%，需要考虑优化用户的程序。<br><strong>sy</strong> 列显示了内核进程所花费的cpu时间的百分比。这里us + sy的参考值为80%，如果us+sy 大于 80%说明可能存在CPU不足<br><strong>id</strong> 列显示了cpu处在空闲状态的时间百分比<br><strong>wa</strong> 列显示了IO等待所占用的CPU时间的百分比。这里wa的参考值为30%，如果wa超过30%，说明IO等待严重，这可能是磁盘大量随机访问造成的，也可能磁盘或者磁盘访问控制器的带宽瓶颈造成的(主要是块操作)。</p>
+</li>
+</ul>
+<blockquote>
+<p>通过以上分析，可以知道当前机器的瓶颈是cpu负载过高，那么如何知道哪个进程占用cpu资源呢？</p>
+</blockquote>
+<h4 id="查询该机器cpu占用最高的进程"><a href="#查询该机器cpu占用最高的进程" class="headerlink" title="查询该机器cpu占用最高的进程"></a>查询该机器<code>cpu</code>占用最高的进程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 每5秒统计一次</span><br><span class="line">pidstat -u 5 1</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/1.png" alt="cgi"></p>
+<blockquote>
+<p>也可以使用<code>top</code>命令查询到<code>cpu</code>占用最高的进程</p>
+</blockquote>
+<h4 id="查询该机器的cpu使用情况"><a href="#查询该机器的cpu使用情况" class="headerlink" title="查询该机器的cpu使用情况"></a>查询该机器的<code>cpu</code>使用情况</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 每5秒刷新一次查看所有cpu的统计情况</span><br><span class="line">mpstat -P ALL 5</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/2.png" alt="cgi"></p>
+<h4 id="查看到进程ID后，可以通过ps-aux-grep-pid查看进程的详情"><a href="#查看到进程ID后，可以通过ps-aux-grep-pid查看进程的详情" class="headerlink" title="查看到进程ID后，可以通过ps aux | grep pid查看进程的详情"></a>查看到进程<code>ID</code>后，可以通过<code>ps aux | grep pid</code>查看进程的详情</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/4.png" alt="cgi"></p>
+<h4 id="定位到最耗cpu的进程后，使用top-Hp-pid命令查看线程列表，并找到占用cpu最高的线程"><a href="#定位到最耗cpu的进程后，使用top-Hp-pid命令查看线程列表，并找到占用cpu最高的线程" class="headerlink" title="定位到最耗cpu的进程后，使用top -Hp pid命令查看线程列表，并找到占用cpu最高的线程"></a>定位到最耗<code>cpu</code>的进程后，使用<code>top -Hp pid</code>命令查看线程列表，并找到占用cpu最高的线程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; &#96;tid&#96;表示线程&#96;ID&#96;，&#96;time&#96;表示线程已经运行的时间</span><br><span class="line">&#x2F;&#x2F; 这个命令也一样使用ps -mp pid -o THREAD,tid,time | sort -rn</span><br><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/linux-cpu-high/5.png" alt="cgi"></p>
+<h4 id="将需要的线程ID转换为16进制格式，可以使用printf-quot-x-n-quot-tid命令"><a href="#将需要的线程ID转换为16进制格式，可以使用printf-quot-x-n-quot-tid命令" class="headerlink" title="将需要的线程ID转换为16进制格式，可以使用printf &quot;%x\n&quot; tid命令"></a>将需要的线程<code>ID</code>转换为<code>16</code>进制格式，可以使用<code>printf &quot;%x\n&quot; tid</code>命令</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf &quot;%x\n&quot; tid</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/21/docker-ipv4-forword/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -994,178 +1284,6 @@ http://ip:8082
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/16/mysql5.7-forget-password/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/16/mysql5.7-forget-password/" class="post-title-link" itemprop="url">mysql5.7忘记root密码</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-16 18:12:55" itemprop="dateCreated datePublished" datetime="2020-07-16T18:12:55+08:00">2020-07-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tool/" itemprop="url" rel="index"><span itemprop="name">tool</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>关闭mysqld<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br></pre></td></tr></table></figure></li>
-<li>修改my.conf<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,添加skip-grant-tables,意思是忽略所有表的授权</span><br><span class="line">skip-grant-tables</span><br></pre></td></tr></table></figure></li>
-<li>开启mysqld服务<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
-<li>进入mysql<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; update mysql.user set authentication_string&#x3D;password(&#39;new password&#39;) where user&#x3D;&#39;root&#39;;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; exit;</span><br></pre></td></tr></table></figure></li>
-<li>撤回skip-grant-tables<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;my.conf</span><br><span class="line"># 找到[mysqld]这个section,注释掉skip-grant-tables</span><br></pre></td></tr></table></figure></li>
-<li>重启mysqld<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep mysqld | grep -v grep | awk &#39;&#123;print $2&#125;&#39; | xargs kill -9</span><br><span class="line">mysqld &amp;</span><br></pre></td></tr></table></figure></li>
-<li>密码登录mysql<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -p</span><br><span class="line">#输入刚配置的新密码</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/20/grafana-open-log-file/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/20/grafana-open-log-file/" class="post-title-link" itemprop="url">grafana持久化用户操作日志</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-20 22:04:10" itemprop="dateCreated datePublished" datetime="2020-05-20T22:04:10+08:00">2020-05-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1235,7 +1353,7 @@ http://ip:8082
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
