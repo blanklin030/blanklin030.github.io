@@ -70,3 +70,10 @@ select count(dt), dt from xx.yy group by dt;
 ```
 select * from system.replication_queue where type='GET_PART' and database = 'xx' and table = 'yy'
 ```
++ 如果还没恢复，则去对应出错的副本节点，将本地表删除后重建（出错节点可以从上一步里看出来）
+```
+drop table if exists xx.yy
+create table xx.yy
+```
++ 此时再查询replication_queue表出错的队列应该已经被清理掉了
+可以继续操作元数据修改
