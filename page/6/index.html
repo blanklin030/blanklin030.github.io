@@ -150,6 +150,244 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/docke-nginx-logrotate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/17/docke-nginx-logrotate/" class="post-title-link" itemprop="url">按日切割使用docker安装的nginx容器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-17 21:00:42" itemprop="dateCreated datePublished" datetime="2020-02-17T21:00:42+08:00">2020-02-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
+<li>查看docker nginx容器 进程 pid<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 请务必确认您的docker container name是什么，笔者名称是nginx</span><br><span class="line">&#x2F;&#x2F; 命令1</span><br><span class="line">sudo docker inspect --format&#x3D;&#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令2是命令1的缩写</span><br><span class="line">sudo docker inspect  -f &#39;&#123;&#123;.State.Pid&#125;&#125;&#39; $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;命令3是命令2的缩写</span><br><span class="line">sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 命令4</span><br><span class="line">sudo docker top $(sudo docker ps -a | grep nginx | awk &#39;&#123;print $1&#125;&#39;) | grep master | awk &#39;&#123;print $2&#125;&#39;</span><br></pre></td></tr></table></figure></li>
+<li>通知nginx重新打开日志文件<blockquote>
+<p>Nginx 官方其实给出了如何滚动日志的说明：<br>Rotating Log-files<br>In order to rotate log files, they need to be renamed first. After that USR1 signal should be sent to the master process. The master process will then re-open all currently open log files and assign them an unprivileged user under which the worker processes are running, as an owner. After successful re-opening, the master process closes all open files and sends the message to worker process to ask them to re-open files. Worker processes also open new files and close old files right away. As a result, old files are almost immediately available for post processing, such as compression.<br>以上英文的大致意思是<br>1.先把旧的日志文件重命名<br>2.然后给 nginx master 进程发送 USR1 信号<br>3.nginx master 进程收到信号后会做一些处理，然后要求工作者进程重新打开日志文件<br>4.工作者进程打开新的日志文件并关闭旧的日志文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -USR1 pid</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>logrotate使用帮助</p>
+<ul>
+<li>配置说明</li>
+</ul>
+</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">daily</td>
+<td style="text-align:center">日志的轮替周期是每天</td>
+</tr>
+<tr>
+<td style="text-align:left">weekly</td>
+<td style="text-align:center">日志的轮替周期是每周</td>
+</tr>
+<tr>
+<td style="text-align:left">monthly</td>
+<td style="text-align:center">日志的轮替周期是每月</td>
+</tr>
+<tr>
+<td style="text-align:left">rotate</td>
+<td style="text-align:center">数字 保留的日志文件个数，0指没有备份</td>
+</tr>
+<tr>
+<td style="text-align:left">compress</td>
+<td style="text-align:center">当进行日志轮替时，对旧的日志进行压缩</td>
+</tr>
+<tr>
+<td style="text-align:left">create</td>
+<td style="text-align:center">mode owner group 建立新日志，同时指定新日志的权限与所有者和所属组，如 create 0644 root root</td>
+</tr>
+<tr>
+<td style="text-align:left">copytruncate</td>
+<td style="text-align:center">用于还在打开中的日志文件，把当前日志备份并截断</td>
+</tr>
+<tr>
+<td style="text-align:left">mail</td>
+<td style="text-align:center">address 当进行日志轮替时，输出内容通过邮件发送到指定的邮件地址，如 mail test@gmail.com</td>
+</tr>
+<tr>
+<td style="text-align:left">missingok</td>
+<td style="text-align:center">如果日志不存在，则忽略改日志的警告信息</td>
+</tr>
+<tr>
+<td style="text-align:left">notifempty</td>
+<td style="text-align:center">如果日志为空文件，则不进行日志轮替</td>
+</tr>
+<tr>
+<td style="text-align:left">minsize</td>
+<td style="text-align:center">大小 日志只有大于指定大小才进行日志轮替，而不是按照时间轮替，如 size 100k</td>
+</tr>
+<tr>
+<td style="text-align:left">dateext</td>
+<td style="text-align:center">使用日期作为日志轮替文件的后缀，如 access.log-2019-07-12</td>
+</tr>
+<tr>
+<td style="text-align:left">sharedscripts</td>
+<td style="text-align:center">在此关键词之后的脚本只执行一次</td>
+</tr>
+<tr>
+<td style="text-align:left">prerotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 prerotate 脚本结束</td>
+</tr>
+<tr>
+<td style="text-align:left">postrotate/endscript</td>
+<td style="text-align:center">在日志轮替之前执行脚本命令。endscript 标识 postrotate脚本结束</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">参数说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">-?或–help</td>
+<td style="text-align:center">在线帮助</td>
+</tr>
+<tr>
+<td style="text-align:left">-d或–debug</td>
+<td style="text-align:center">详细显示指令执行过程，便于排错或了解程序执行的情况</td>
+</tr>
+<tr>
+<td style="text-align:left">-f或–force</td>
+<td style="text-align:center">强行启动记录文件维护操作，纵使logrotate指令认为没有需要亦然</td>
+</tr>
+<tr>
+<td style="text-align:left">-s&lt;状态文件&gt;或–state=&lt;状态文件&gt;</td>
+<td style="text-align:center">使用指定的状态文件</td>
+</tr>
+<tr>
+<td style="text-align:left">-v或–version</td>
+<td style="text-align:center">显示指令执行过程</td>
+</tr>
+<tr>
+<td style="text-align:left">-usage</td>
+<td style="text-align:center">显示指令基本用法</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="脚本详解"><a href="#脚本详解" class="headerlink" title="脚本详解"></a>脚本详解</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">sudo vim &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br><span class="line">&#x2F;&#x2F;复制以下脚本，第一行是您的nginx log路径</span><br><span class="line">&#x2F;home&#x2F;xx&#x2F;docker&#x2F;nginx&#x2F;logs&#x2F;*log &#123;</span><br><span class="line">        daily</span><br><span class="line">        dateext</span><br><span class="line">        missingok</span><br><span class="line">        rotate 52</span><br><span class="line">        compress</span><br><span class="line">        delaycompress</span><br><span class="line">        notifempty</span><br><span class="line">        su hadoop hadoop</span><br><span class="line">        create 0664 hadoop hadoop</span><br><span class="line">        sharedscripts</span><br><span class="line">        postrotate</span><br><span class="line">            sudo docker inspect -f &#39;&#123;&#123; .State.Pid &#125;&#125;&#39; nginx | xargs sudo kill -USR1</span><br><span class="line">        endscript</span><br><span class="line">&#125;</span><br><span class="line">sudo  logrotate -vf &#x2F;etc&#x2F; logrotate.d&#x2F;nginx</span><br></pre></td></tr></table></figure>
+<p><img src="/images/logrotate.png" alt="loratate"></p>
+<h2 id="crontab-加定时脚本"><a href="#crontab-加定时脚本" class="headerlink" title="crontab 加定时脚本"></a>crontab 加定时脚本</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;logrotate &#x2F;etc&#x2F;logrotate.d&#x2F;nginx &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<h2 id="使用docker安装nginx"><a href="#使用docker安装nginx" class="headerlink" title="使用docker安装nginx"></a>使用docker安装nginx</h2><ul>
+<li>docker run(运行容器)的参数说明</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">–-name</td>
+<td style="text-align:center">容器名称</td>
+</tr>
+<tr>
+<td style="text-align:left">–-link</td>
+<td style="text-align:center">连接某个镜像</td>
+</tr>
+<tr>
+<td style="text-align:left">–port</td>
+<td style="text-align:center">端口映射</td>
+</tr>
+<tr>
+<td style="text-align:left">–volum</td>
+<td style="text-align:center">持久化存储</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>获取nginx 镜像<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull nginx</span><br></pre></td></tr></table></figure></li>
+<li>运行nginx容器<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; --rm标示删除旧容器 -d 标示daemon守护进程方式运行 --name标示容器名称</span><br><span class="line">docker run --name nginx --network spring-net -p 80:80 -d -v &#x2F;etc&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:ro -v &#x2F;etc&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d -v &#x2F;opt&#x2F;nginx&#x2F;dist:&#x2F;opt&#x2F;nginx&#x2F;dist -v &#x2F;etc&#x2F;localtime:&#x2F;etc&#x2F;localtime:ro -v &#x2F;var&#x2F;log&#x2F;nginx:&#x2F;var&#x2F;log&#x2F;nginx nginx</span><br></pre></td></tr></table></figure></li>
+<li>拷贝宿主机的nginx配置到容器内，指定目录<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker cp nginx:&#x2F;etc&#x2F;nginx &#x2F;etc&#x2F;nginx</span><br></pre></td></tr></table></figure></li>
+<li>Dockerfile编写<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line"> COPY content &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line"> COPY conf &#x2F;etc&#x2F;nginx</span><br><span class="line"> VOLUME &#x2F;var&#x2F;log&#x2F;nginx&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li>docker-compose.yml编写<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">web:</span><br><span class="line">  image: nginx</span><br><span class="line">  volumes:</span><br><span class="line">   - .&#x2F;mysite.template:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template</span><br><span class="line">  ports:</span><br><span class="line">   - &quot;8080:80&quot;</span><br><span class="line">  environment:</span><br><span class="line">   - NGINX_HOST&#x3D;foobar.com</span><br><span class="line">   - NGINX_PORT&#x3D;80</span><br><span class="line">  command: &#x2F;bin&#x2F;bash -c &quot;envsubst &lt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;mysite.template &gt; &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &amp;&amp; exec nginx -g &#39;daemon off;&#39;&quot;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/vscode-open-project/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1208,114 +1446,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/29/write-article/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/29/write-article/" class="post-title-link" itemprop="url">怎样使用hexo编写文章</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-10-29 01:47:21" itemprop="dateCreated datePublished" datetime="2019-10-29T01:47:21+08:00">2019-10-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-29 20:40:42" itemprop="dateModified" datetime="2022-11-29T20:40:42+08:00">2022-11-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="创建-MD-文章"><a href="#创建-MD-文章" class="headerlink" title="创建 MD 文章"></a>创建 MD 文章</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>创建的文章会出现在 source/_posts 文件夹下，是 MarkDown 格式。<br>在文章开头通过如下格式添加必要信息：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: 标题 # 自动创建，如 hello-world</span><br><span class="line">date: 日期 # 自动创建，如 2019-09-22 01:47:21</span><br><span class="line">tags:</span><br><span class="line">- 标签1</span><br><span class="line">- 标签2</span><br><span class="line">- 标签3</span><br><span class="line">categories:</span><br><span class="line">- 分类1</span><br><span class="line">- 分类2</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-<p>这样在下次编译的时候就会自动识别标题、时间、类别等等，另外还有其他的一些参数设置，可以<a href="https://hexo.io/zh-cn/docs/writing.html" target="_blank" rel="noopener">参考文档</a></p>
-<h2 id="标签页"><a href="#标签页" class="headerlink" title="标签页"></a>标签页</h2><p>我们的博客只有首页、文章页，如果我们想要增加标签页，可以自行添加，这里 Hexo 也给我们提供了这个功能，在根目录执行命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page tags</span><br></pre></td></tr></table></figure>
-<p>执行这个命令之后会自动帮我们生成一个 source/tags/index.md 文件，内容就只有这样子的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2019-09-26 16:44:17</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-<p>我们可以自行添加一个 type 字段来指定页面的类型：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type: tags</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure>
-<p>然后再在主题的 _config.yml 文件将这个页面的链接添加到主菜单里面，修改 menu 字段如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: &#x2F; || home</span><br><span class="line">  #about: &#x2F;about&#x2F; || user</span><br><span class="line">  tags: &#x2F;tags&#x2F; || tags</span><br><span class="line">  #categories: &#x2F;categories&#x2F; || th</span><br><span class="line">  archives: &#x2F;archives&#x2F; || archive</span><br><span class="line">  #schedule: &#x2F;schedule&#x2F; || calendar</span><br><span class="line">  #sitemap: &#x2F;sitemap.xml || sitemap</span><br><span class="line">  #commonweal: &#x2F;404&#x2F; || heartbeat</span><br></pre></td></tr></table></figure>
-<h2 id="分类页"><a href="#分类页" class="headerlink" title="分类页"></a>分类页</h2><p>分类功能和标签类似，一个文章可以对应某个分类，如果要增加分类页面可以使用如下命令创建：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page categories</span><br></pre></td></tr></table></figure>
-<p>然后同样地，会生成一个 source/categories/index.md 文件。</p>
-<p>我们可以自行添加一个 type 字段来指定页面的类型：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type: categories</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure>
-<p>然后再在主题的 _config.yml 文件将这个页面的链接添加到主菜单里面，修改 menu 字段如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: &#x2F; || home</span><br><span class="line">  #about: &#x2F;about&#x2F; || user</span><br><span class="line">  tags: &#x2F;tags&#x2F; || tags</span><br><span class="line">  categories: &#x2F;categories&#x2F; || th</span><br><span class="line">  archives: &#x2F;archives&#x2F; || archive</span><br><span class="line">  #schedule: &#x2F;schedule&#x2F; || calendar</span><br><span class="line">  #sitemap: &#x2F;sitemap.xml || sitemap</span><br><span class="line">  #commonweal: &#x2F;404&#x2F; || heartbeat</span><br></pre></td></tr></table></figure>
-<h2 id="搜索页"><a href="#搜索页" class="headerlink" title="搜索页"></a>搜索页</h2><p>很多情况下我们需要搜索全站的内容，所以一个搜索功能的支持也是很有必要的。</p>
-<p>如果要添加搜索的支持，需要先安装一个插件，叫做 hexo-generator-searchdb，命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
-<p>然后在项目的 _config.yml 里面添加搜索设置如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># Local search</span><br><span class="line"># Dependencies: https:&#x2F;&#x2F;github.com&#x2F;wzpan&#x2F;hexo-generator-search</span><br><span class="line">local_search:</span><br><span class="line">  enable: true</span><br><span class="line">  # If auto, trigger search by changing input.</span><br><span class="line">  # If manual, trigger search by pressing enter key or search button.</span><br><span class="line">  trigger: auto</span><br><span class="line">  # Show top n results per article, show all results by setting to -1</span><br><span class="line">  top_n_per_article: 5</span><br><span class="line">  # Unescape html strings to the readable one.</span><br><span class="line">  unescape: false</span><br><span class="line">  # Preload the search data when the page loads.</span><br><span class="line">  preload: false</span><br></pre></td></tr></table></figure>
-<p>这里用的是 Local Search，如果想启用其他是 Search Service 的话可以参考官方文档：<a href="https://theme-next.org/docs/third-party-services/search-services。" target="_blank" rel="noopener">https://theme-next.org/docs/third-party-services/search-services。</a></p>
-<h2 id="404-页面"><a href="#404-页面" class="headerlink" title="404 页面"></a>404 页面</h2><p>另外还需要添加一个 404 页面，直接在根目录 source 文件夹新建一个 404.md 文件即可，内容可以仿照如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line">title: 404 Not Found</span><br><span class="line">date: 2019-09-22 10:41:27</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">&lt;center&gt;</span><br><span class="line">对不起，您所访问的页面不存在或者已删除。</span><br><span class="line">您可以&lt;a href&#x3D;&quot;https:&#x2F;&#x2F;blog.nightteam.cn&gt;&quot;&gt;点击此处&lt;&#x2F;a&gt;返回首页。</span><br><span class="line">&lt;&#x2F;center&gt;</span><br><span class="line"></span><br><span class="line">&lt;blockquote class&#x3D;&quot;blockquote-center&quot;&gt;</span><br><span class="line">    NightTeam</span><br><span class="line">&lt;&#x2F;blockquote&gt;</span><br></pre></td></tr></table></figure>
-<p>这里面的一些相关信息和链接可以替换成自己的。</p>
-<p>增加了这个 404 页面之后就可以</p>
-<p>完成了上面的配置基本就完成了大半了，其实 Hexo 还有很多很多功能，这里就介绍不过来了，大家可以直接参考官方文档：<a href="https://hexo.io/zh-cn/docs/" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/</a> 查看更多的配置。</p>
-<h2 id="部署脚本"><a href="#部署脚本" class="headerlink" title="部署脚本"></a>部署脚本</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1381,18 +1515,18 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-count">36</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
