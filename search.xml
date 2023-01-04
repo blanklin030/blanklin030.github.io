@@ -79,29 +79,6 @@
       </tags>
   </entry>
   <entry>
-    <title>2022年终总结</title>
-    <url>/2022/12/30/2022/</url>
-    <content><![CDATA[<ul>
-<li><p>2022年仓皇而逃，在恍惚间我仍然有一丝怀疑，此时此刻是2019年的冬天，我们在准备着即将到来到2020年，订好了机票，订好了酒店，在跨年夜的云层之上，陌生人在沉睡，而我即将见到相隔数月思念日日夜夜的人儿。</p>
-</li>
-<li><p>这种怀疑在这3年间时不时的击碎我，重建我，沉溺我，到最后清醒我，时间过得太快了啊，快到迅雷烈风，快到掩耳而逝，我不是还在17/8岁的高中课堂上汗流浃背准备高考吗？怎么这一眨眼之间，我竟已是前额白发丝丝黑眼圈蜡黄脸的中年人了呢？</p>
-</li>
-<li><p>人世间的痛不知道何时能结束，人世间的离愁不知道何时能消散，虚度30余载光阴，到如今即将到来的第二个本命年，我有何成就吗？我有实现过理想吗？我活着的这些时刻，有给这个世界带来什么美好吗？我不自知只觉惭愧。</p>
-</li>
-<li><p>麻木的躯壳麻木的灵魂，肤浅的知识肤浅的见识，2022年在核酸、隔离、阳性中结束，这浅浅6个字结束了我的又一个365天，我是谁？我在2022年都做了什么事？有什么可以拿说来细说一二吗？有什么不足和遗憾吗？希望2023年可以改变吗？希望改变什么呢？</p>
-</li>
-<li><p>没有答案，我甚至连流水账都写不出来，哦，我这个可笑的中年人。</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>blank</category>
-      </categories>
-      <tags>
-        <tag>流水记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>聊聊cgi的二三事</title>
     <url>/2019/11/07/cgi/</url>
     <content><![CDATA[<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p><strong>通用网关接口</strong>（Common Gateway Interface/CGI）描述了客户端和服务器程序之间传输数据的一种标准，可以让一个客户端，从网页浏览器向执行在网络服务器上的程序请求数据。CGI 独立于任何语言的，CGI 程序可以用任何脚本语言或者是完全独立编程语言实现，只要这个语言可以在这个系统上运行。</p>
@@ -164,6 +141,29 @@
         <tag>nginx</tag>
         <tag>cgi</tag>
         <tag>fastcgi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2022年终总结</title>
+    <url>/2022/12/30/2022/</url>
+    <content><![CDATA[<ul>
+<li><p>2022年仓皇而逃，在恍惚间我仍然有一丝怀疑，此时此刻是2019年的冬天，我们在准备着即将到来到2020年，订好了机票，订好了酒店，在跨年夜的云层之上，陌生人在沉睡，而我即将见到相隔数月思念日日夜夜的人儿。</p>
+</li>
+<li><p>这种怀疑在这3年间时不时的击碎我，重建我，沉溺我，到最后清醒我，时间过得太快了啊，快到迅雷烈风，快到掩耳而逝，我不是还在17/8岁的高中课堂上汗流浃背准备高考吗？怎么这一眨眼之间，我竟已是前额白发丝丝黑眼圈蜡黄脸的中年人了呢？</p>
+</li>
+<li><p>人世间的痛不知道何时能结束，人世间的离愁不知道何时能消散，虚度30余载光阴，到如今即将到来的第二个本命年，我有何成就吗？我有实现过理想吗？我活着的这些时刻，有给这个世界带来什么美好吗？我不自知只觉惭愧。</p>
+</li>
+<li><p>麻木的躯壳麻木的灵魂，肤浅的知识肤浅的见识，2022年在核酸、隔离、阳性中结束，这浅浅6个字结束了我的又一个365天，我是谁？我在2022年都做了什么事？有什么可以拿说来细说一二吗？有什么不足和遗憾吗？希望2023年可以改变吗？希望改变什么呢？</p>
+</li>
+<li><p>没有答案，我甚至连流水账都写不出来，哦，我这个可笑的中年人。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>blank</category>
+      </categories>
+      <tags>
+        <tag>流水记</tag>
       </tags>
   </entry>
   <entry>
@@ -588,44 +588,6 @@
       </tags>
   </entry>
   <entry>
-    <title>使用clickhouse实现索引</title>
-    <url>/2022/02/21/clickhouse-index/</url>
-    <content><![CDATA[<h3 id="一级索引"><a href="#一级索引" class="headerlink" title="一级索引"></a>一级索引</h3><h4 id="index-granularity"><a href="#index-granularity" class="headerlink" title="index_granularity"></a>index_granularity</h4><p><img src="/images/clickhouse/crud/5.png" alt="avatar"></p>
-<h3 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h3><h4 id="granularity"><a href="#granularity" class="headerlink" title="granularity"></a>granularity</h4>]]></content>
-      <categories>
-        <category>bigdata</category>
-      </categories>
-      <tags>
-        <tag>clickhouse</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>clickhouse的写入流程</title>
-    <url>/2022/04/05/clickhouse-insert/</url>
-    <content><![CDATA[<h3 id="请求处理"><a href="#请求处理" class="headerlink" title="请求处理"></a>请求处理</h3><p>ck请求处理过程<br><img src="/images/clickhouse/insert/1.png" alt="clickhouse"></p>
-<h4 id="客户端请求发给ck，ck接收到请求，放入请求队列"><a href="#客户端请求发给ck，ck接收到请求，放入请求队列" class="headerlink" title="客户端请求发给ck，ck接收到请求，放入请求队列"></a>客户端请求发给ck，ck接收到请求，放入请求队列</h4><h4 id="ck将请求队列的请求分发给Request-handler线程处理"><a href="#ck将请求队列的请求分发给Request-handler线程处理" class="headerlink" title="ck将请求队列的请求分发给Request handler线程处理"></a>ck将请求队列的请求分发给Request handler线程处理</h4><h4 id="Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。"><a href="#Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。" class="headerlink" title="Request handler线程处理请求，解析sql语句，执行sql语句逻辑。"></a>Request handler线程处理请求，解析sql语句，执行sql语句逻辑。</h4><h4 id="简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）"><a href="#简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）" class="headerlink" title="简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）"></a>简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）</h4><h4 id="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"><a href="#请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求" class="headerlink" title="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"></a>请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求</h4><h3 id="insert语句解析执行"><a href="#insert语句解析执行" class="headerlink" title="insert语句解析执行"></a>insert语句解析执行</h3><h4 id="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"><a href="#初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息" class="headerlink" title="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"></a>初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息</h4><h4 id="解析sql语句"><a href="#解析sql语句" class="headerlink" title="解析sql语句"></a>解析sql语句</h4><h4 id="检查被写入的表是否存在，是否有写入权限，是否被限流"><a href="#检查被写入的表是否存在，是否有写入权限，是否被限流" class="headerlink" title="检查被写入的表是否存在，是否有写入权限，是否被限流"></a>检查被写入的表是否存在，是否有写入权限，是否被限流</h4><h4 id="对insert数据校验，字段是否存在，是否满足约束"><a href="#对insert数据校验，字段是否存在，是否满足约束" class="headerlink" title="对insert数据校验，字段是否存在，是否满足约束"></a>对insert数据校验，字段是否存在，是否满足约束</h4><h4 id="根据默认值填充空字段和物化字段"><a href="#根据默认值填充空字段和物化字段" class="headerlink" title="根据默认值填充空字段和物化字段"></a>根据默认值填充空字段和物化字段</h4><h4 id="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"><a href="#缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。" class="headerlink" title="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"></a>缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。</h4><h4 id="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"><a href="#将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree" class="headerlink" title="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"></a>将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree</h4><h4 id="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"><a href="#检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表" class="headerlink" title="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"></a>检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表</h4><h3 id="分布式表写入"><a href="#分布式表写入" class="headerlink" title="分布式表写入"></a>分布式表写入</h3><blockquote>
-<p>分布式表数据写入一般情况下是异步写入，只有对使用 remote(‘addresses_expr’, db, table[, ‘user’[, ‘password’], sharding_key]) 定义的表的写入是同步的。如果分布式表中含有local表或replical的表local副本，直接写本地表。<br><img src="/images/clickhouse/insert/2.png" alt="clickhouse"></p>
-</blockquote>
-<h4 id="将写入block数据按sharding逻辑分成多个block"><a href="#将写入block数据按sharding逻辑分成多个block" class="headerlink" title="将写入block数据按sharding逻辑分成多个block"></a>将写入block数据按sharding逻辑分成多个block</h4><h4 id="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"><a href="#将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据" class="headerlink" title="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"></a>将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据</h4><h4 id="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"><a href="#检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎" class="headerlink" title="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"></a>检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎</h4><h4 id="shard在远程，将新insert语句写入远程shard本地缓存文件。"><a href="#shard在远程，将新insert语句写入远程shard本地缓存文件。" class="headerlink" title="shard在远程，将新insert语句写入远程shard本地缓存文件。"></a>shard在远程，将新insert语句写入远程shard本地缓存文件。</h4><h4 id="通知后台线程发送本地缓存中的数据"><a href="#通知后台线程发送本地缓存中的数据" class="headerlink" title="通知后台线程发送本地缓存中的数据"></a>通知后台线程发送本地缓存中的数据</h4><h4 id="后台执行过程"><a href="#后台执行过程" class="headerlink" title="后台执行过程"></a>后台执行过程</h4><h4 id="读远程shard本地缓存目录"><a href="#读远程shard本地缓存目录" class="headerlink" title="读远程shard本地缓存目录"></a>读远程shard本地缓存目录</h4><h4 id="逐个处理每个文件"><a href="#逐个处理每个文件" class="headerlink" title="逐个处理每个文件"></a>逐个处理每个文件</h4><h4 id="根据配置的loadbalance策略，选择合适的机器连接"><a href="#根据配置的loadbalance策略，选择合适的机器连接" class="headerlink" title="根据配置的loadbalance策略，选择合适的机器连接"></a>根据配置的loadbalance策略，选择合适的机器连接</h4><h4 id="将文件的insert语句通过上步连接发送给远程机器执行"><a href="#将文件的insert语句通过上步连接发送给远程机器执行" class="headerlink" title="将文件的insert语句通过上步连接发送给远程机器执行"></a>将文件的insert语句通过上步连接发送给远程机器执行</h4><h4 id="执行成功后删除对应文件"><a href="#执行成功后删除对应文件" class="headerlink" title="执行成功后删除对应文件"></a>执行成功后删除对应文件</h4><h3 id="本地表写入"><a href="#本地表写入" class="headerlink" title="本地表写入"></a>本地表写入</h3><blockquote>
-<p>本地表一般是StorageReplicatedXXMergeTree，其写入过程如下：<br><img src="/images/clickhouse/insert/3.png" alt="clickhouse"><br>本地表是以block为最小单元单次写入，一个block中的数据可能是一次insert的全部数据，也可以是部分数据。</p>
-</blockquote>
-<h4 id="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"><a href="#检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。" class="headerlink" title="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"></a>检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。</h4><h4 id="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"><a href="#检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。" class="headerlink" title="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"></a>检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。</h4><h4 id="将写入block数据按partition-by-逻辑分成多个block"><a href="#将写入block数据按partition-by-逻辑分成多个block" class="headerlink" title="将写入block数据按partition by 逻辑分成多个block"></a>将写入block数据按partition by 逻辑分成多个block</h4><h4 id="依次将每个分区的block数据写入表中"><a href="#依次将每个分区的block数据写入表中" class="headerlink" title="依次将每个分区的block数据写入表中"></a>依次将每个分区的block数据写入表中</h4><h4 id="创建分区的临时part"><a href="#创建分区的临时part" class="headerlink" title="创建分区的临时part"></a>创建分区的临时part</h4><h4 id="计算part数据的sha1生成part对应的blockid"><a href="#计算part数据的sha1生成part对应的blockid" class="headerlink" title="计算part数据的sha1生成part对应的blockid"></a>计算part数据的sha1生成part对应的blockid</h4><h4 id="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"><a href="#检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。" class="headerlink" title="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"></a>检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。</h4><h4 id="将part信息发布到ck，通知其他副本拉去新添加part"><a href="#将part信息发布到ck，通知其他副本拉去新添加part" class="headerlink" title="将part信息发布到ck，通知其他副本拉去新添加part"></a>将part信息发布到ck，通知其他副本拉去新添加part</h4><h4 id="将临时part加入到commit到mergetree表"><a href="#将临时part加入到commit到mergetree表" class="headerlink" title="将临时part加入到commit到mergetree表"></a>将临时part加入到commit到mergetree表</h4><h4 id="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"><a href="#如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件" class="headerlink" title="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"></a>如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件</h4><h4 id="临时part创建过程"><a href="#临时part创建过程" class="headerlink" title="临时part创建过程"></a>临时part创建过程</h4><ul>
-<li>创建block数据对应分区的临时part对象</li>
-<li>计算分区min_max索引</li>
-<li>处理排序和主键索引</li>
-<li>ttl处理</li>
-<li>其他二级索引处理</li>
-<li>将处理过的block数据和索引写入临时part，根据配置的压缩方式压缩</li>
-</ul>
-]]></content>
-      <categories>
-        <category>bigdata</category>
-      </categories>
-      <tags>
-        <tag>clickhouse</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>clickhouse分布式表写入积压排查</title>
     <url>/2022/01/12/clickhouse-distribute-insert-problem/</url>
     <content><![CDATA[<h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><ul>
@@ -713,6 +675,44 @@
 <p>这个方式只是清除掉积压的数据，不用删表，用户通过分布式表来查询时不会报表不存在，但是如果数据量非常大就不要用truncate方式了，因为会导致整个表被锁非常久，应该用<code>alter table xx drop partititon xx</code>方式，一个一个分区删。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">truncate table db.tb</span><br></pre></td></tr></table></figure></blockquote>
 </li>
+</ul>
+]]></content>
+      <categories>
+        <category>bigdata</category>
+      </categories>
+      <tags>
+        <tag>clickhouse</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用clickhouse实现索引</title>
+    <url>/2022/02/21/clickhouse-index/</url>
+    <content><![CDATA[<h3 id="一级索引"><a href="#一级索引" class="headerlink" title="一级索引"></a>一级索引</h3><h4 id="index-granularity"><a href="#index-granularity" class="headerlink" title="index_granularity"></a>index_granularity</h4><p><img src="/images/clickhouse/crud/5.png" alt="avatar"></p>
+<h3 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h3><h4 id="granularity"><a href="#granularity" class="headerlink" title="granularity"></a>granularity</h4>]]></content>
+      <categories>
+        <category>bigdata</category>
+      </categories>
+      <tags>
+        <tag>clickhouse</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>clickhouse的写入流程</title>
+    <url>/2022/04/05/clickhouse-insert/</url>
+    <content><![CDATA[<h3 id="请求处理"><a href="#请求处理" class="headerlink" title="请求处理"></a>请求处理</h3><p>ck请求处理过程<br><img src="/images/clickhouse/insert/1.png" alt="clickhouse"></p>
+<h4 id="客户端请求发给ck，ck接收到请求，放入请求队列"><a href="#客户端请求发给ck，ck接收到请求，放入请求队列" class="headerlink" title="客户端请求发给ck，ck接收到请求，放入请求队列"></a>客户端请求发给ck，ck接收到请求，放入请求队列</h4><h4 id="ck将请求队列的请求分发给Request-handler线程处理"><a href="#ck将请求队列的请求分发给Request-handler线程处理" class="headerlink" title="ck将请求队列的请求分发给Request handler线程处理"></a>ck将请求队列的请求分发给Request handler线程处理</h4><h4 id="Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。"><a href="#Request-handler线程处理请求，解析sql语句，执行sql语句逻辑。" class="headerlink" title="Request handler线程处理请求，解析sql语句，执行sql语句逻辑。"></a>Request handler线程处理请求，解析sql语句，执行sql语句逻辑。</h4><h4 id="简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）"><a href="#简单请求处理使用Request-handler线程直接执行（如create，insert，alter等），-复杂请求处理使用Pipeline-executor执行（如select，-insert-select等）" class="headerlink" title="简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）"></a>简单请求处理使用Request handler线程直接执行（如create，insert，alter等）， 复杂请求处理使用Pipeline executor执行（如select， insert select等）</h4><h4 id="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"><a href="#请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求" class="headerlink" title="请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求"></a>请求线程处理完当前请求后，发送请求结果给给客户端。然后接着处理后续请求</h4><h3 id="insert语句解析执行"><a href="#insert语句解析执行" class="headerlink" title="insert语句解析执行"></a>insert语句解析执行</h3><h4 id="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"><a href="#初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息" class="headerlink" title="初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息"></a>初始化请求上下文环境。包括session，用户信息，当前database等，限流，权限，设置等信息</h4><h4 id="解析sql语句"><a href="#解析sql语句" class="headerlink" title="解析sql语句"></a>解析sql语句</h4><h4 id="检查被写入的表是否存在，是否有写入权限，是否被限流"><a href="#检查被写入的表是否存在，是否有写入权限，是否被限流" class="headerlink" title="检查被写入的表是否存在，是否有写入权限，是否被限流"></a>检查被写入的表是否存在，是否有写入权限，是否被限流</h4><h4 id="对insert数据校验，字段是否存在，是否满足约束"><a href="#对insert数据校验，字段是否存在，是否满足约束" class="headerlink" title="对insert数据校验，字段是否存在，是否满足约束"></a>对insert数据校验，字段是否存在，是否满足约束</h4><h4 id="根据默认值填充空字段和物化字段"><a href="#根据默认值填充空字段和物化字段" class="headerlink" title="根据默认值填充空字段和物化字段"></a>根据默认值填充空字段和物化字段</h4><h4 id="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"><a href="#缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。" class="headerlink" title="缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。"></a>缓存单次insert语句中的数据，insert语句全部接收完成或缓存数据超过一定大小后批量写入数据。</h4><h4 id="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"><a href="#将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree" class="headerlink" title="将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree"></a>将insert的数据写入存储引擎，主要包含StorageDistributed和StorageReplicatedXXMergeTree</h4><h4 id="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"><a href="#检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表" class="headerlink" title="检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表"></a>检查是否有物化视图，如果有使用物化视图逻辑处理insert数据，写入物化视图表</h4><h3 id="分布式表写入"><a href="#分布式表写入" class="headerlink" title="分布式表写入"></a>分布式表写入</h3><blockquote>
+<p>分布式表数据写入一般情况下是异步写入，只有对使用 remote(‘addresses_expr’, db, table[, ‘user’[, ‘password’], sharding_key]) 定义的表的写入是同步的。如果分布式表中含有local表或replical的表local副本，直接写本地表。<br><img src="/images/clickhouse/insert/2.png" alt="clickhouse"></p>
+</blockquote>
+<h4 id="将写入block数据按sharding逻辑分成多个block"><a href="#将写入block数据按sharding逻辑分成多个block" class="headerlink" title="将写入block数据按sharding逻辑分成多个block"></a>将写入block数据按sharding逻辑分成多个block</h4><h4 id="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"><a href="#将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据" class="headerlink" title="将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据"></a>将原insert语句改写，表名改成分布式表对应的底表，数据改成分shard后的block数据</h4><h4 id="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"><a href="#检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎" class="headerlink" title="检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎"></a>检查待写入的每个shard，如果shard在本机，则直接写入实际存储引擎</h4><h4 id="shard在远程，将新insert语句写入远程shard本地缓存文件。"><a href="#shard在远程，将新insert语句写入远程shard本地缓存文件。" class="headerlink" title="shard在远程，将新insert语句写入远程shard本地缓存文件。"></a>shard在远程，将新insert语句写入远程shard本地缓存文件。</h4><h4 id="通知后台线程发送本地缓存中的数据"><a href="#通知后台线程发送本地缓存中的数据" class="headerlink" title="通知后台线程发送本地缓存中的数据"></a>通知后台线程发送本地缓存中的数据</h4><h4 id="后台执行过程"><a href="#后台执行过程" class="headerlink" title="后台执行过程"></a>后台执行过程</h4><h4 id="读远程shard本地缓存目录"><a href="#读远程shard本地缓存目录" class="headerlink" title="读远程shard本地缓存目录"></a>读远程shard本地缓存目录</h4><h4 id="逐个处理每个文件"><a href="#逐个处理每个文件" class="headerlink" title="逐个处理每个文件"></a>逐个处理每个文件</h4><h4 id="根据配置的loadbalance策略，选择合适的机器连接"><a href="#根据配置的loadbalance策略，选择合适的机器连接" class="headerlink" title="根据配置的loadbalance策略，选择合适的机器连接"></a>根据配置的loadbalance策略，选择合适的机器连接</h4><h4 id="将文件的insert语句通过上步连接发送给远程机器执行"><a href="#将文件的insert语句通过上步连接发送给远程机器执行" class="headerlink" title="将文件的insert语句通过上步连接发送给远程机器执行"></a>将文件的insert语句通过上步连接发送给远程机器执行</h4><h4 id="执行成功后删除对应文件"><a href="#执行成功后删除对应文件" class="headerlink" title="执行成功后删除对应文件"></a>执行成功后删除对应文件</h4><h3 id="本地表写入"><a href="#本地表写入" class="headerlink" title="本地表写入"></a>本地表写入</h3><blockquote>
+<p>本地表一般是StorageReplicatedXXMergeTree，其写入过程如下：<br><img src="/images/clickhouse/insert/3.png" alt="clickhouse"><br>本地表是以block为最小单元单次写入，一个block中的数据可能是一次insert的全部数据，也可以是部分数据。</p>
+</blockquote>
+<h4 id="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"><a href="#检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。" class="headerlink" title="检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。"></a>检查当前表part数量，如果part数量过多（接近part数限制）延时写入数据，如果part数量过限制则写入失败。</h4><h4 id="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"><a href="#检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。" class="headerlink" title="检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。"></a>检查写入block中parttition总数是否超过限制。如果超过限制，写入失败。</h4><h4 id="将写入block数据按partition-by-逻辑分成多个block"><a href="#将写入block数据按partition-by-逻辑分成多个block" class="headerlink" title="将写入block数据按partition by 逻辑分成多个block"></a>将写入block数据按partition by 逻辑分成多个block</h4><h4 id="依次将每个分区的block数据写入表中"><a href="#依次将每个分区的block数据写入表中" class="headerlink" title="依次将每个分区的block数据写入表中"></a>依次将每个分区的block数据写入表中</h4><h4 id="创建分区的临时part"><a href="#创建分区的临时part" class="headerlink" title="创建分区的临时part"></a>创建分区的临时part</h4><h4 id="计算part数据的sha1生成part对应的blockid"><a href="#计算part数据的sha1生成part对应的blockid" class="headerlink" title="计算part数据的sha1生成part对应的blockid"></a>计算part数据的sha1生成part对应的blockid</h4><h4 id="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"><a href="#检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。" class="headerlink" title="检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。"></a>检查该blockid在是否存在（表的zk中会记录所有已存在的part的blockid）。如果存在表示插入数据重复，忽略后续步骤。</h4><h4 id="将part信息发布到ck，通知其他副本拉去新添加part"><a href="#将part信息发布到ck，通知其他副本拉去新添加part" class="headerlink" title="将part信息发布到ck，通知其他副本拉去新添加part"></a>将part信息发布到ck，通知其他副本拉去新添加part</h4><h4 id="将临时part加入到commit到mergetree表"><a href="#将临时part加入到commit到mergetree表" class="headerlink" title="将临时part加入到commit到mergetree表"></a>将临时part加入到commit到mergetree表</h4><h4 id="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"><a href="#如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件" class="headerlink" title="如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件"></a>如果配置最小同步副本大于1，则等代其他副本数据同步达到满足条件</h4><h4 id="临时part创建过程"><a href="#临时part创建过程" class="headerlink" title="临时part创建过程"></a>临时part创建过程</h4><ul>
+<li>创建block数据对应分区的临时part对象</li>
+<li>计算分区min_max索引</li>
+<li>处理排序和主键索引</li>
+<li>ttl处理</li>
+<li>其他二级索引处理</li>
+<li>将处理过的block数据和索引写入临时part，根据配置的压缩方式压缩</li>
 </ul>
 ]]></content>
       <categories>
@@ -843,56 +843,6 @@
       </tags>
   </entry>
   <entry>
-    <title>ClickHouse Read Timed Out追踪过程</title>
-    <url>/2021/12/21/clickhouse-read-timed-out/</url>
-    <content><![CDATA[<h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>最近经常遇到<code>Read timed out</code>报错，具体内容看下面，从字面意思判断我们知道是读超时，那为什么会发生读超时呢？<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 159, host: bigdata-clickhouse-xxxx.ys, port: 8023; Read timed out	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.getException(ClickHouseExceptionSpecifier.java:86)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:56)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:25)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getInputStream(ClickHouseStatementImpl.java:797)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getLastInputStream(ClickHouseStatementImpl.java:691)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:340)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:324)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:319)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:314)	at</span><br></pre></td></tr></table></figure></p>
-<h3 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h3><ul>
-<li>从抛出的堆栈入手，先读<code>ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> &#x2F;**</span><br><span class="line">  * Here we expect the ClickHouse error message to be of the following format:</span><br><span class="line">  * &quot;Code: 10, e.displayText() &#x3D; DB::Exception: ...&quot;.</span><br><span class="line">  *&#x2F;</span><br><span class="line">private static ClickHouseException specify(String clickHouseMessage, Throwable cause, String host, int port) &#123;</span><br><span class="line">    if (Utils.isNullOrEmptyString(clickHouseMessage) &amp;&amp; cause !&#x3D; null) &#123;</span><br><span class="line">        return getException(cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        int code;</span><br><span class="line">        if (clickHouseMessage.startsWith(&quot;Poco::Exception. Code: 1000, &quot;)) &#123;</span><br><span class="line">            code &#x3D; 1000;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            &#x2F;&#x2F; Code: 175, e.displayText() &#x3D; DB::Exception:</span><br><span class="line">            code &#x3D; getErrorCode(clickHouseMessage);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; ошибку в изначальном виде все-таки укажем</span><br><span class="line">        Throwable messageHolder &#x3D; cause !&#x3D; null ? cause : new Throwable(clickHouseMessage);</span><br><span class="line">        if (code &#x3D;&#x3D; -1) &#123;</span><br><span class="line">            return getException(messageHolder, host, port);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return new ClickHouseException(code, messageHolder, host, port);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        log.error(&quot;Unsupported ClickHouse error format, please fix ClickHouseExceptionSpecifier, message: &#123;&#125;, error: &#123;&#125;&quot;, clickHouseMessage, e.getMessage());</span><br><span class="line">        return new ClickHouseUnknownException(clickHouseMessage, cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">private static ClickHouseException getException(Throwable cause, String host, int port) &#123;</span><br><span class="line">        if (cause instanceof SocketTimeoutException)</span><br><span class="line">        &#x2F;&#x2F; if we&#39;ve got SocketTimeoutException, we&#39;ll say that the query is not good. This is not the same as SOCKET_TIMEOUT of clickhouse</span><br><span class="line">        &#x2F;&#x2F; but it actually could be a failing ClickHouse</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED.code, cause, host, port);</span><br><span class="line">        &#125; else if (cause instanceof ConnectTimeoutException || cause instanceof ConnectException)</span><br><span class="line">        &#x2F;&#x2F; couldn&#39;t connect to ClickHouse during connectTimeout</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.NETWORK_ERROR.code, cause, host, port);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return new ClickHouseUnknownException(cause, host, port);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-注意到上文中异常类型是<code>SocketTimeoutException</code>，为啥会是这个异常呢？</li>
-<li>继续阅读<code>ru.yandex.clickhouse.ClickHouseStatementImpl</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">private InputStream getInputStream(</span><br><span class="line">  ClickHouseSqlStatement parsedStmt,</span><br><span class="line">  Map&lt;ClickHouseQueryParam, String&gt; additionalClickHouseDBParams,</span><br><span class="line">  List&lt;ClickHouseExternalData&gt; externalData,</span><br><span class="line">  Map&lt;String, String&gt; additionalRequestParams</span><br><span class="line">) throws ClickHouseException &#123;</span><br><span class="line">  .............................</span><br><span class="line">  HttpEntity entity &#x3D; null;</span><br><span class="line">  try &#123;</span><br><span class="line">      uri &#x3D; followRedirects(uri);</span><br><span class="line">      HttpPost post &#x3D; new HttpPost(uri);</span><br><span class="line">      post.setEntity(requestEntity);</span><br><span class="line"></span><br><span class="line">      if (parsedStmt.isIdemponent()) &#123;</span><br><span class="line">          httpContext.setAttribute(&quot;is_idempotent&quot;, Boolean.TRUE);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          httpContext.removeAttribute(&quot;is_idempotent&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      HttpResponse response &#x3D; client.execute(post, httpContext);</span><br><span class="line">      entity &#x3D; response.getEntity();</span><br><span class="line">      checkForErrorAndThrow(entity, response);</span><br><span class="line"></span><br><span class="line">      InputStream is;</span><br><span class="line">      if (entity.isStreaming()) &#123;</span><br><span class="line">          is &#x3D; entity.getContent();</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          FastByteArrayOutputStream baos &#x3D; new FastByteArrayOutputStream();</span><br><span class="line">          entity.writeTo(baos);</span><br><span class="line">          is &#x3D; baos.convertToInputStream();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      &#x2F;&#x2F; retrieve response summary</span><br><span class="line">      if (isQueryParamSet(ClickHouseQueryParam.SEND_PROGRESS_IN_HTTP_HEADERS, additionalClickHouseDBParams, additionalRequestParams)) &#123;</span><br><span class="line">          Header summaryHeader &#x3D; response.getFirstHeader(&quot;X-ClickHouse-Summary&quot;);</span><br><span class="line">          currentSummary &#x3D; summaryHeader !&#x3D; null ? Jackson.getObjectMapper().readValue(summaryHeader.getValue(), ClickHouseResponseSummary.class) : null;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      return is;</span><br><span class="line">  &#125; catch (ClickHouseException e) &#123;</span><br><span class="line">      throw e;</span><br><span class="line">  &#125; catch (Exception e) &#123;</span><br><span class="line">      log.info(&quot;Error during connection to &#123;&#125;, reporting failure to data source, message: &#123;&#125;&quot;, properties, e.getMessage());</span><br><span class="line">      EntityUtils.consumeQuietly(entity);</span><br><span class="line">      log.info(&quot;Error sql: &#123;&#125;&quot;, sql);</span><br><span class="line">      throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-注意到这是建立一个<code>http</code>连接，使用<code>post</code>方式，等到数据传输完成，返回执行结果，如果有任何<code>ClickHouseException</code>则直接抛掉，否则捕获未知异常<code>Exception</code>，格式化成固定文本的错误信息，这个错误信息就是在<code>ClickHouseExceptionSpecifier.specify</code>方法里被处理成<code>Code: 10, e.displayText() = DB::Exception: ...</code>这种结构。<br>所以回到上面的结论，就是说这个<code>http</code>连接出现异常，未等到结果，抛出了<code>SocketTimeoutException</code>，那么根据这个异常，我们可以定位到根本原因了</li>
-<li>接着看<code>java.net.SocketTimeoutException</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Signals that a timeout has occurred on a socket read or accept.</span><br><span class="line"> *</span><br><span class="line"> * @since   1.4</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">public class SocketTimeoutException extends java.io.InterruptedIOException &#123;</span><br><span class="line">    private static final long serialVersionUID &#x3D; -8846654841826352300L;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Constructs a new SocketTimeoutException with a detail</span><br><span class="line">     * message.</span><br><span class="line">     * @param msg the detail message</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException(String msg) &#123;</span><br><span class="line">        super(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Construct a new SocketTimeoutException with no detailed message.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这个类非常简短，但是很清晰告诉我们，会抛出<code>SocketTimeoutException</code>异常的原因只能是一个<code>socket</code>读取或者接收时发生了超时</li>
-<li>题外话什么是<code>socket</code><br><code>socket</code>的含义就是两个应用程序通过一个双向的通信连接实现数据的交换，连接的一段就是一个<code>socket</code>，又称为套接字。实现一个<code>socket</code>连接通信至少需要两个套接字，一个运行在服务端（插孔），一个运行在客户端（插头）。套接字用于描述<code>IP</code>地址和端口，是一个通信链的句柄。应用程序通过套接字向网络发出请求或应答网络请求。注意的是套接字既不是程序也不是协议，只是操作系统提供给通信层的一组抽象<code>API</code>接口。<br><code>socket</code>是应用层与<code>TCP/IP</code>协议簇通信的中间抽象层，是一组接口。在设计模式中其实就是门面模式。<code>Socket</code>将复杂的<code>TCP/IP</code>协议簇隐藏在接口后面，对于用户而言，一组接口即可让<code>Socket</code>去组织数据，以符合指定的协议。<br><img src="/images/clickhouse/jdbc/1.png" alt="1"></li>
-</ul>
-<h3 id="回归正题，什么是Read-Timed-Out"><a href="#回归正题，什么是Read-Timed-Out" class="headerlink" title="回归正题，什么是Read Timed Out"></a>回归正题，什么是Read Timed Out</h3><p>所谓<code>read timed out</code>就是读超时，<code>http</code>连接已创建，客户端等待服务端返回结果，等待时间超过了超时时间，所以客户端连接断开，抛出<code>SocketTimeoutException</code>异常。我们可以模拟出这个过程，代码如下<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class ReadTimedOutTest &#123;</span><br><span class="line"></span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      ServerSocket serverSocket &#x3D; new ServerSocket(8888, 200);</span><br><span class="line">      Thread.sleep(66666666);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Test</span><br><span class="line">  public void tetReadTimedOut() &#123;</span><br><span class="line">    Socket socket &#x3D; new Socket();</span><br><span class="line">    long starTime &#x3D; 0;</span><br><span class="line">    try &#123;</span><br><span class="line">      socket.connect(new InetSocketAddress(&quot;127.0.0.1&quot;, 8888), 10000);</span><br><span class="line">      System.out.println(&quot;socket连接成功。。。。&quot;);</span><br><span class="line">      socket.setSoTimeout(2000);</span><br><span class="line">      starTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      int read &#x3D; socket.getInputStream().read();</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      long endTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      System.out.println(&quot;执行时间：&quot;+(endTime - starTime));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>报错信息如下截图：<br><img src="/images/clickhouse/jdbc/2.png" alt="2"><br>意思是说已连接服务端的8888端口，握手是正常的，然后开始传输数据，因为限制了服务端<code>Thread.sleep</code>，让服务端无法给客户端传输数据</p>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p><code>clickhouse-jdbc</code>默认给<code>SOCKET_TIMEOUT</code>设置的时间是30s，由于服务端不知道何时能返回结果（此时间受<code>settings.max_execution_time</code>影响），所以我们最好给<code>jdbc</code>设置一个<strong>socket_timeout=max_execution_time+10s</strong>，防止服务端还在处理，而客户端已经超时断开连接。<br><img src="/images/clickhouse/jdbc/3.png" alt="3"><br>下面这个方法，主要是解析<strong>jdbc:clickhouse://127.0.0.1:8023?socket_timeout=500000&amp;connection_timeout=500000</strong><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">static Properties parseUriQueryPart(String query, Properties defaults) &#123;</span><br><span class="line">  if (query &#x3D;&#x3D; null) &#123;</span><br><span class="line">      return defaults;</span><br><span class="line">  &#125;</span><br><span class="line">  Properties urlProps &#x3D; new Properties(defaults);</span><br><span class="line">  String queryKeyValues[] &#x3D; query.split(&quot;&amp;&quot;);</span><br><span class="line">  for (String keyValue : queryKeyValues) &#123;</span><br><span class="line">      String keyValueTokens[] &#x3D; keyValue.split(&quot;&#x3D;&quot;);</span><br><span class="line">      if (keyValueTokens.length &#x3D;&#x3D; 2) &#123;</span><br><span class="line">          urlProps.put(keyValueTokens[0], keyValueTokens[1]);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          logger.warn(&quot;don&#39;t know how to handle parameter pair: &#123;&#125;&quot;, keyValue);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return urlProps;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><img src="/images/clickhouse/jdbc/4.png" alt="4"><br><img src="/images/clickhouse/jdbc/5.png" alt="5"></p>
-<h3 id="clickhouse-jdbc执行过程"><a href="#clickhouse-jdbc执行过程" class="headerlink" title="clickhouse-jdbc执行过程"></a>clickhouse-jdbc执行过程</h3><h4 id="实例化ClickHouseDataSource对象"><a href="#实例化ClickHouseDataSource对象" class="headerlink" title="实例化ClickHouseDataSource对象"></a>实例化ClickHouseDataSource对象</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseDataSource dataSource &#x3D; new ClickHouseDataSource(jdbc, properties);</span><br></pre></td></tr></table></figure>
-<p>该构造函数主要是将<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url进行解析，若涉及clickhouse默认参数，则会覆盖<code>clickhouse</code>默认配置，返回<code>ClickHouseProperties</code>d对象<br><img src="/images/clickhouse/jdbc/6.png" alt="6"></p>
-<h4 id="获取ClickHouseConnectionImpl连接"><a href="#获取ClickHouseConnectionImpl连接" class="headerlink" title="获取ClickHouseConnectionImpl连接"></a>获取ClickHouseConnectionImpl连接</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; (ClickHouseConnectionImpl) dataSource.getConnection();</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>1、实例化ClickHouseConnectionImpl对象</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; new ClickHouseConnectionImpl(url, properties);</span><br></pre></td></tr></table></figure>
-<p><img src="/images/clickhouse/jdbc/7.png" alt="7"><br><img src="/images/clickhouse/jdbc/8.png" alt="8"><br>这里主要是干2件事，1、首先要实例化出<code>ClickHouseHttpClientBuilder</code>客户端对象构造器，这个构造器会把我们在<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url里的<strong>key1=value1&amp;key2=value2</strong>传入给<code>CloseableHttpClient</code>类型的<code>httpclient</code>，2、再去初始化连接，获取<code>clickhouse</code>服务端的时区和版本，所以我们每次连接<code>clickhouse-jdbc</code>，都会看到发出一条sql<code>select timezone(), version()</code></p>
-</li>
-<li><p>2、把连接存到<code>Collections.synchronizedMap</code>线程安全的<code>map</code>里</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">registerConnection(connection);</span><br></pre></td></tr></table></figure></li>
-<li>3、返回连接对象</li>
-</ul>
-<h4 id="执行sql过程"><a href="#执行sql过程" class="headerlink" title="执行sql过程"></a>执行sql过程</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">connection.createStatement().executeQuery(sql);</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>先初始化<code>ClickHouseStatementImpl</code>对象</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public ClickHouseStatement createStatement(int resultSetType) throws SQLException &#123;</span><br><span class="line">    return LogProxy.wrap(</span><br><span class="line">        ClickHouseStatement.class,</span><br><span class="line">        new ClickHouseStatementImpl(</span><br><span class="line">            httpclient,</span><br><span class="line">            this,</span><br><span class="line">            properties,</span><br><span class="line">            resultSetType));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>再执行<code>sql</code><br>1、方法<code>getLastInputStream</code>，支持<code>multi-query</code>用法，多条sql去查<br><img src="/images/clickhouse/jdbc/9.png" alt="9"><br>2、调用的<code>getInputStream</code>方法其实就是构造http的post请求，去执行和返回结果，出错则抛出异常<br><img src="/images/clickhouse/jdbc/10.png" alt="10"><br>3、获取最后的执行结果<br><img src="/images/clickhouse/jdbc/11.png" alt="11"><br>4、返回最后sql的结果集<code>ResultSet</code>，select查询类按配置取到最后结果，其他为null</p>
-</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
-<li><code>Read timed out</code>表示已经连接成功(即三次握手已经完成)，但是服务器没有及时返回数据(没有在设定的时间内返回数据)，导致读超时。</li>
-<li><code>java</code>在<code>linux</code>中的 <code>Read timed out</code> 并不是通过<code>C</code>函数<code>setSockOpt(SO_RCVTIMEO)</code>来设置的，而是通过<code>select(s, timeout)</code>来实现定时器，并抛出<code>JNI</code>异常来控制的</li>
-<li><code>java socket</code>读超时的设置是在<code>read()</code>方法被调用的时候传入的，所以只要在<code>read()</code>调用之前设置即可</li>
-</ul>
-]]></content>
-      <categories>
-        <category>bigdata</category>
-      </categories>
-      <tags>
-        <tag>clickhouse</tag>
-        <tag>http</tag>
-        <tag>tcp</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ClickHouse解析器大揭秘</title>
     <url>/2022/11/04/clickhouse-parser/</url>
     <content><![CDATA[<h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>我们知道语法分析器的作用是根据给定的<a href="https://baike.baidu.com/item/%E5%BD%A2%E5%BC%8F%E6%96%87%E6%B3%95/2447403" target="_blank" rel="noopener">形式文法</a>对由词法单元（Token）序列构成的输入进行语法检查、并构建由输入的词法单元（Token）组成的数据结构（一般是<a href="https://baike.baidu.com/item/%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E6%A0%91/20452541" target="_blank" rel="noopener">语法分析树</a>、<a href="https://baike.baidu.com/item/%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91/6129952" target="_blank" rel="noopener">抽象语法树</a>等层次化的数据结构）。而一提到语法解析目前市面上有很多语法解析器，其中解析sql更是数不胜数，例如最为人所知的antlr和jflex，而本文的主人公ClickHouse却自己去纯手工打造实现了一套sql解析器，本篇文章就来聊聊 ClickHouse 的纯手工解析器，看看它们的底层工作机制。</p>
@@ -978,6 +928,56 @@
       </categories>
       <tags>
         <tag>clickhouse</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ClickHouse Read Timed Out追踪过程</title>
+    <url>/2021/12/21/clickhouse-read-timed-out/</url>
+    <content><![CDATA[<h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>最近经常遇到<code>Read timed out</code>报错，具体内容看下面，从字面意思判断我们知道是读超时，那为什么会发生读超时呢？<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 159, host: bigdata-clickhouse-xxxx.ys, port: 8023; Read timed out	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.getException(ClickHouseExceptionSpecifier.java:86)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:56)	at ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier.specify(ClickHouseExceptionSpecifier.java:25)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getInputStream(ClickHouseStatementImpl.java:797)	at ru.yandex.clickhouse.ClickHouseStatementImpl.getLastInputStream(ClickHouseStatementImpl.java:691)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:340)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:324)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:319)	at ru.yandex.clickhouse.ClickHouseStatementImpl.executeQuery(ClickHouseStatementImpl.java:314)	at</span><br></pre></td></tr></table></figure></p>
+<h3 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h3><ul>
+<li>从抛出的堆栈入手，先读<code>ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> &#x2F;**</span><br><span class="line">  * Here we expect the ClickHouse error message to be of the following format:</span><br><span class="line">  * &quot;Code: 10, e.displayText() &#x3D; DB::Exception: ...&quot;.</span><br><span class="line">  *&#x2F;</span><br><span class="line">private static ClickHouseException specify(String clickHouseMessage, Throwable cause, String host, int port) &#123;</span><br><span class="line">    if (Utils.isNullOrEmptyString(clickHouseMessage) &amp;&amp; cause !&#x3D; null) &#123;</span><br><span class="line">        return getException(cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        int code;</span><br><span class="line">        if (clickHouseMessage.startsWith(&quot;Poco::Exception. Code: 1000, &quot;)) &#123;</span><br><span class="line">            code &#x3D; 1000;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            &#x2F;&#x2F; Code: 175, e.displayText() &#x3D; DB::Exception:</span><br><span class="line">            code &#x3D; getErrorCode(clickHouseMessage);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; ошибку в изначальном виде все-таки укажем</span><br><span class="line">        Throwable messageHolder &#x3D; cause !&#x3D; null ? cause : new Throwable(clickHouseMessage);</span><br><span class="line">        if (code &#x3D;&#x3D; -1) &#123;</span><br><span class="line">            return getException(messageHolder, host, port);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return new ClickHouseException(code, messageHolder, host, port);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        log.error(&quot;Unsupported ClickHouse error format, please fix ClickHouseExceptionSpecifier, message: &#123;&#125;, error: &#123;&#125;&quot;, clickHouseMessage, e.getMessage());</span><br><span class="line">        return new ClickHouseUnknownException(clickHouseMessage, cause, host, port);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">private static ClickHouseException getException(Throwable cause, String host, int port) &#123;</span><br><span class="line">        if (cause instanceof SocketTimeoutException)</span><br><span class="line">        &#x2F;&#x2F; if we&#39;ve got SocketTimeoutException, we&#39;ll say that the query is not good. This is not the same as SOCKET_TIMEOUT of clickhouse</span><br><span class="line">        &#x2F;&#x2F; but it actually could be a failing ClickHouse</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED.code, cause, host, port);</span><br><span class="line">        &#125; else if (cause instanceof ConnectTimeoutException || cause instanceof ConnectException)</span><br><span class="line">        &#x2F;&#x2F; couldn&#39;t connect to ClickHouse during connectTimeout</span><br><span class="line">        &#123;</span><br><span class="line">            return new ClickHouseException(ClickHouseErrorCode.NETWORK_ERROR.code, cause, host, port);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return new ClickHouseUnknownException(cause, host, port);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+注意到上文中异常类型是<code>SocketTimeoutException</code>，为啥会是这个异常呢？</li>
+<li>继续阅读<code>ru.yandex.clickhouse.ClickHouseStatementImpl</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">private InputStream getInputStream(</span><br><span class="line">  ClickHouseSqlStatement parsedStmt,</span><br><span class="line">  Map&lt;ClickHouseQueryParam, String&gt; additionalClickHouseDBParams,</span><br><span class="line">  List&lt;ClickHouseExternalData&gt; externalData,</span><br><span class="line">  Map&lt;String, String&gt; additionalRequestParams</span><br><span class="line">) throws ClickHouseException &#123;</span><br><span class="line">  .............................</span><br><span class="line">  HttpEntity entity &#x3D; null;</span><br><span class="line">  try &#123;</span><br><span class="line">      uri &#x3D; followRedirects(uri);</span><br><span class="line">      HttpPost post &#x3D; new HttpPost(uri);</span><br><span class="line">      post.setEntity(requestEntity);</span><br><span class="line"></span><br><span class="line">      if (parsedStmt.isIdemponent()) &#123;</span><br><span class="line">          httpContext.setAttribute(&quot;is_idempotent&quot;, Boolean.TRUE);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          httpContext.removeAttribute(&quot;is_idempotent&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      HttpResponse response &#x3D; client.execute(post, httpContext);</span><br><span class="line">      entity &#x3D; response.getEntity();</span><br><span class="line">      checkForErrorAndThrow(entity, response);</span><br><span class="line"></span><br><span class="line">      InputStream is;</span><br><span class="line">      if (entity.isStreaming()) &#123;</span><br><span class="line">          is &#x3D; entity.getContent();</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          FastByteArrayOutputStream baos &#x3D; new FastByteArrayOutputStream();</span><br><span class="line">          entity.writeTo(baos);</span><br><span class="line">          is &#x3D; baos.convertToInputStream();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      &#x2F;&#x2F; retrieve response summary</span><br><span class="line">      if (isQueryParamSet(ClickHouseQueryParam.SEND_PROGRESS_IN_HTTP_HEADERS, additionalClickHouseDBParams, additionalRequestParams)) &#123;</span><br><span class="line">          Header summaryHeader &#x3D; response.getFirstHeader(&quot;X-ClickHouse-Summary&quot;);</span><br><span class="line">          currentSummary &#x3D; summaryHeader !&#x3D; null ? Jackson.getObjectMapper().readValue(summaryHeader.getValue(), ClickHouseResponseSummary.class) : null;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      return is;</span><br><span class="line">  &#125; catch (ClickHouseException e) &#123;</span><br><span class="line">      throw e;</span><br><span class="line">  &#125; catch (Exception e) &#123;</span><br><span class="line">      log.info(&quot;Error during connection to &#123;&#125;, reporting failure to data source, message: &#123;&#125;&quot;, properties, e.getMessage());</span><br><span class="line">      EntityUtils.consumeQuietly(entity);</span><br><span class="line">      log.info(&quot;Error sql: &#123;&#125;&quot;, sql);</span><br><span class="line">      throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+注意到这是建立一个<code>http</code>连接，使用<code>post</code>方式，等到数据传输完成，返回执行结果，如果有任何<code>ClickHouseException</code>则直接抛掉，否则捕获未知异常<code>Exception</code>，格式化成固定文本的错误信息，这个错误信息就是在<code>ClickHouseExceptionSpecifier.specify</code>方法里被处理成<code>Code: 10, e.displayText() = DB::Exception: ...</code>这种结构。<br>所以回到上面的结论，就是说这个<code>http</code>连接出现异常，未等到结果，抛出了<code>SocketTimeoutException</code>，那么根据这个异常，我们可以定位到根本原因了</li>
+<li>接着看<code>java.net.SocketTimeoutException</code>类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Signals that a timeout has occurred on a socket read or accept.</span><br><span class="line"> *</span><br><span class="line"> * @since   1.4</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">public class SocketTimeoutException extends java.io.InterruptedIOException &#123;</span><br><span class="line">    private static final long serialVersionUID &#x3D; -8846654841826352300L;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Constructs a new SocketTimeoutException with a detail</span><br><span class="line">     * message.</span><br><span class="line">     * @param msg the detail message</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException(String msg) &#123;</span><br><span class="line">        super(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Construct a new SocketTimeoutException with no detailed message.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public SocketTimeoutException() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这个类非常简短，但是很清晰告诉我们，会抛出<code>SocketTimeoutException</code>异常的原因只能是一个<code>socket</code>读取或者接收时发生了超时</li>
+<li>题外话什么是<code>socket</code><br><code>socket</code>的含义就是两个应用程序通过一个双向的通信连接实现数据的交换，连接的一段就是一个<code>socket</code>，又称为套接字。实现一个<code>socket</code>连接通信至少需要两个套接字，一个运行在服务端（插孔），一个运行在客户端（插头）。套接字用于描述<code>IP</code>地址和端口，是一个通信链的句柄。应用程序通过套接字向网络发出请求或应答网络请求。注意的是套接字既不是程序也不是协议，只是操作系统提供给通信层的一组抽象<code>API</code>接口。<br><code>socket</code>是应用层与<code>TCP/IP</code>协议簇通信的中间抽象层，是一组接口。在设计模式中其实就是门面模式。<code>Socket</code>将复杂的<code>TCP/IP</code>协议簇隐藏在接口后面，对于用户而言，一组接口即可让<code>Socket</code>去组织数据，以符合指定的协议。<br><img src="/images/clickhouse/jdbc/1.png" alt="1"></li>
+</ul>
+<h3 id="回归正题，什么是Read-Timed-Out"><a href="#回归正题，什么是Read-Timed-Out" class="headerlink" title="回归正题，什么是Read Timed Out"></a>回归正题，什么是Read Timed Out</h3><p>所谓<code>read timed out</code>就是读超时，<code>http</code>连接已创建，客户端等待服务端返回结果，等待时间超过了超时时间，所以客户端连接断开，抛出<code>SocketTimeoutException</code>异常。我们可以模拟出这个过程，代码如下<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class ReadTimedOutTest &#123;</span><br><span class="line"></span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      ServerSocket serverSocket &#x3D; new ServerSocket(8888, 200);</span><br><span class="line">      Thread.sleep(66666666);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Test</span><br><span class="line">  public void tetReadTimedOut() &#123;</span><br><span class="line">    Socket socket &#x3D; new Socket();</span><br><span class="line">    long starTime &#x3D; 0;</span><br><span class="line">    try &#123;</span><br><span class="line">      socket.connect(new InetSocketAddress(&quot;127.0.0.1&quot;, 8888), 10000);</span><br><span class="line">      System.out.println(&quot;socket连接成功。。。。&quot;);</span><br><span class="line">      socket.setSoTimeout(2000);</span><br><span class="line">      starTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      int read &#x3D; socket.getInputStream().read();</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      long endTime &#x3D; System.currentTimeMillis();</span><br><span class="line">      System.out.println(&quot;执行时间：&quot;+(endTime - starTime));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>报错信息如下截图：<br><img src="/images/clickhouse/jdbc/2.png" alt="2"><br>意思是说已连接服务端的8888端口，握手是正常的，然后开始传输数据，因为限制了服务端<code>Thread.sleep</code>，让服务端无法给客户端传输数据</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p><code>clickhouse-jdbc</code>默认给<code>SOCKET_TIMEOUT</code>设置的时间是30s，由于服务端不知道何时能返回结果（此时间受<code>settings.max_execution_time</code>影响），所以我们最好给<code>jdbc</code>设置一个<strong>socket_timeout=max_execution_time+10s</strong>，防止服务端还在处理，而客户端已经超时断开连接。<br><img src="/images/clickhouse/jdbc/3.png" alt="3"><br>下面这个方法，主要是解析<strong>jdbc:clickhouse://127.0.0.1:8023?socket_timeout=500000&amp;connection_timeout=500000</strong><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">static Properties parseUriQueryPart(String query, Properties defaults) &#123;</span><br><span class="line">  if (query &#x3D;&#x3D; null) &#123;</span><br><span class="line">      return defaults;</span><br><span class="line">  &#125;</span><br><span class="line">  Properties urlProps &#x3D; new Properties(defaults);</span><br><span class="line">  String queryKeyValues[] &#x3D; query.split(&quot;&amp;&quot;);</span><br><span class="line">  for (String keyValue : queryKeyValues) &#123;</span><br><span class="line">      String keyValueTokens[] &#x3D; keyValue.split(&quot;&#x3D;&quot;);</span><br><span class="line">      if (keyValueTokens.length &#x3D;&#x3D; 2) &#123;</span><br><span class="line">          urlProps.put(keyValueTokens[0], keyValueTokens[1]);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          logger.warn(&quot;don&#39;t know how to handle parameter pair: &#123;&#125;&quot;, keyValue);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return urlProps;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><img src="/images/clickhouse/jdbc/4.png" alt="4"><br><img src="/images/clickhouse/jdbc/5.png" alt="5"></p>
+<h3 id="clickhouse-jdbc执行过程"><a href="#clickhouse-jdbc执行过程" class="headerlink" title="clickhouse-jdbc执行过程"></a>clickhouse-jdbc执行过程</h3><h4 id="实例化ClickHouseDataSource对象"><a href="#实例化ClickHouseDataSource对象" class="headerlink" title="实例化ClickHouseDataSource对象"></a>实例化ClickHouseDataSource对象</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseDataSource dataSource &#x3D; new ClickHouseDataSource(jdbc, properties);</span><br></pre></td></tr></table></figure>
+<p>该构造函数主要是将<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url进行解析，若涉及clickhouse默认参数，则会覆盖<code>clickhouse</code>默认配置，返回<code>ClickHouseProperties</code>d对象<br><img src="/images/clickhouse/jdbc/6.png" alt="6"></p>
+<h4 id="获取ClickHouseConnectionImpl连接"><a href="#获取ClickHouseConnectionImpl连接" class="headerlink" title="获取ClickHouseConnectionImpl连接"></a>获取ClickHouseConnectionImpl连接</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; (ClickHouseConnectionImpl) dataSource.getConnection();</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>1、实例化ClickHouseConnectionImpl对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ClickHouseConnectionImpl connection &#x3D; new ClickHouseConnectionImpl(url, properties);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/jdbc/7.png" alt="7"><br><img src="/images/clickhouse/jdbc/8.png" alt="8"><br>这里主要是干2件事，1、首先要实例化出<code>ClickHouseHttpClientBuilder</code>客户端对象构造器，这个构造器会把我们在<strong>jdbc:clickhouse//ip:port/database?key1=value1&amp;key2=value2</strong>这个url里的<strong>key1=value1&amp;key2=value2</strong>传入给<code>CloseableHttpClient</code>类型的<code>httpclient</code>，2、再去初始化连接，获取<code>clickhouse</code>服务端的时区和版本，所以我们每次连接<code>clickhouse-jdbc</code>，都会看到发出一条sql<code>select timezone(), version()</code></p>
+</li>
+<li><p>2、把连接存到<code>Collections.synchronizedMap</code>线程安全的<code>map</code>里</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">registerConnection(connection);</span><br></pre></td></tr></table></figure></li>
+<li>3、返回连接对象</li>
+</ul>
+<h4 id="执行sql过程"><a href="#执行sql过程" class="headerlink" title="执行sql过程"></a>执行sql过程</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">connection.createStatement().executeQuery(sql);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>先初始化<code>ClickHouseStatementImpl</code>对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public ClickHouseStatement createStatement(int resultSetType) throws SQLException &#123;</span><br><span class="line">    return LogProxy.wrap(</span><br><span class="line">        ClickHouseStatement.class,</span><br><span class="line">        new ClickHouseStatementImpl(</span><br><span class="line">            httpclient,</span><br><span class="line">            this,</span><br><span class="line">            properties,</span><br><span class="line">            resultSetType));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再执行<code>sql</code><br>1、方法<code>getLastInputStream</code>，支持<code>multi-query</code>用法，多条sql去查<br><img src="/images/clickhouse/jdbc/9.png" alt="9"><br>2、调用的<code>getInputStream</code>方法其实就是构造http的post请求，去执行和返回结果，出错则抛出异常<br><img src="/images/clickhouse/jdbc/10.png" alt="10"><br>3、获取最后的执行结果<br><img src="/images/clickhouse/jdbc/11.png" alt="11"><br>4、返回最后sql的结果集<code>ResultSet</code>，select查询类按配置取到最后结果，其他为null</p>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><code>Read timed out</code>表示已经连接成功(即三次握手已经完成)，但是服务器没有及时返回数据(没有在设定的时间内返回数据)，导致读超时。</li>
+<li><code>java</code>在<code>linux</code>中的 <code>Read timed out</code> 并不是通过<code>C</code>函数<code>setSockOpt(SO_RCVTIMEO)</code>来设置的，而是通过<code>select(s, timeout)</code>来实现定时器，并抛出<code>JNI</code>异常来控制的</li>
+<li><code>java socket</code>读超时的设置是在<code>read()</code>方法被调用的时候传入的，所以只要在<code>read()</code>调用之前设置即可</li>
+</ul>
+]]></content>
+      <categories>
+        <category>bigdata</category>
+      </categories>
+      <tags>
+        <tag>clickhouse</tag>
+        <tag>http</tag>
+        <tag>tcp</tag>
       </tags>
   </entry>
   <entry>
@@ -1251,6 +1251,67 @@
       </tags>
   </entry>
   <entry>
+    <title>clickhouse副本不同步问题排查</title>
+    <url>/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse的Replicated**MergeTree表是通过zookeeper来完成同一个shard之间的副本数据的同步，因为clickhouse本身不是master/slave的架构，我们通过proxy的方式，设定了同一个shard里某个副本是读/写节点角色，另一个节点是读角色，当用户写入时，proxy会路由到读/写节点去完成写入操作，然后通过zk发起同步任务，把日志进入到system.replcation_queue。<br>今天早上用户和我们反馈说数据查询时每一次结果都不一样，用户查询也是通过连我们的proxy进行读节点的路由，所以用户反馈的结果不一致，其实是第一次路由到读/写节点查询结果是a，第二次路由到读节点，查询结果是b，由于a和b两个副本数据没有同步，导致了查询结果不一致，下面是排查的过程。</p>
+<h3 id="system-replication-queue"><a href="#system-replication-queue" class="headerlink" title="system.replication_queue"></a>system.replication_queue</h3><blockquote>
+<p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/replication_queue/" target="_blank" rel="noopener">官方地址</a>所解释,该表记录了当前的副本任务队列的所有信息，如下图所示，我们看到当前副本同步出现大量异常错误  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.replication_queue where data_files &gt; 0</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/replicas_data_diff/1.png" alt="clickhouse"><br>如下图所示，<strong>type</strong>字段可以查看到当前是什么类型的操作导致的，发现是<strong>MUTATE_PART</strong>操作，<strong>last_exception</strong>字段显示当前我们在操作ttl时创建的元数据目录下columns.txt无法打开，这个是已知bug。<br><img src="/images/clickhouse/replicas_data_diff/2.png" alt="clickhouse"></p>
+<h3 id="system-mutations"><a href="#system-mutations" class="headerlink" title="system.mutations"></a>system.mutations</h3><blockquote>
+<p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/mutations" target="_blank" rel="noopener">官方地址</a>，该表包含了所有mutation操作的日志信息，<a href="https://clickhouse.com/docs/en/sql-reference/statements/alter/#mutations" target="_blank" rel="noopener">mutation</a>操作包括修改字段类型/修改表ttl操作/按条件删表的数据/按条件更新表的数据等，这些操作都是异步后台线程去处理，都会去回溯该表的所有parts，需要rewrite每个part的信息并且这个操作还不是原子性的，所以如果某个节点操作失败，可能引发该表无法使用。  </p>
+</blockquote>
+<p>该表包含字段如下：</p>
+<ul>
+<li><p>database (String) — 数据库名称.</p>
+</li>
+<li><p>table (String) — 表名称.</p>
+</li>
+<li><p>data_path (String) — 本地文件的路径.</p>
+</li>
+<li><p>mutation_id (String) — mutation的唯一标识，可通过该标识直接kill mutation.</p>
+</li>
+<li><p>command (String) — mutation命令.</p>
+</li>
+<li><p>create_time (DateTime) —  mutation创建时间.</p>
+</li>
+<li><p>block_numbers (Map) — partition_id：需要进行mutation操作的分区id，number：需要进行mutation的分区对应的block序号.</p>
+</li>
+<li><p>parts_to_do_names (Array) — 即将完成的需要进行mutation的数组.</p>
+</li>
+<li><p>parts_to_do (Int64) — 准备进行mutation操作的part序号.</p>
+</li>
+<li><p>is_done (UInt8) — 该操作是否已完成.</p>
+</li>
+<li><p>latest_failed_part (String) — mutation操作最后失败的part名称.</p>
+</li>
+<li><p>latest_fail_time (DateTime) — 最后失败的时间.</p>
+</li>
+<li><p>latest_fail_reason (String) — 最后失败的原因.</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.mutations where latest_failed_part !&#x3D; &#39;&#39;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/clickhouse/replicas_data_diff/3.png" alt="clickhouse"></p>
+<blockquote>
+<p>根据异常错误的<strong>command</strong>字段，我们看到错误是通过<code>MATERIALIZE TTL FAST 16070400</code>引起的，mutation操作在写节点处理完成后，也会通过zookeeper进行副本数据同步</p>
+</blockquote>
+<h3 id="解决副本不同步问题"><a href="#解决副本不同步问题" class="headerlink" title="解决副本不同步问题"></a>解决副本不同步问题</h3><ul>
+<li>终止该失败的mutation<br>具体操作语句可以查看<a href="https://clickhouse.com/docs/zh/sql-reference/statements/kill/#:~:text=KILL%20MUTATION%E2%80%8B&amp;text=Tries%20to%20cancel%20and%20remove,list%20of%20mutations%20to%20stop." target="_blank" rel="noopener">官方文档</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill mutation where database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39; and mutation_id &#x3D; &#39;zz&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>操作之后，可以通过查询shard里每个副本的count是否一致来判断数据是否已经进行同步<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select count(dt), dt from xx.yy group by dt;</span><br></pre></td></tr></table></figure></li>
+<li>操作之后，可以通过上面的<code>system.replication_queue</code>表来观察是否开始进行副本数据同步<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.replication_queue where type&#x3D;&#39;GET_PART&#39; and database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39;</span><br></pre></td></tr></table></figure></li>
+<li>如果还没恢复，则去对应出错的副本节点，将本地表删除后重建（出错节点可以从上一步里看出来）<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">drop table if exists xx.yy</span><br><span class="line">create table xx.yy</span><br></pre></td></tr></table></figure></li>
+<li>此时再查询replication_queue表出错的队列应该已经被清理掉了<br>可以继续操作元数据修改</li>
+</ul>
+]]></content>
+      <categories>
+        <category>bigdata</category>
+      </categories>
+      <tags>
+        <tag>clickhouse</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>按日切割使用docker安装的nginx容器</title>
     <url>/2020/02/17/docke-nginx-logrotate/</url>
     <content><![CDATA[<h2 id="了解几个相关命令"><a href="#了解几个相关命令" class="headerlink" title="了解几个相关命令"></a>了解几个相关命令</h2><ul>
@@ -1465,38 +1526,6 @@
       </tags>
   </entry>
   <entry>
-    <title>vscode代码自动提示利器eslint</title>
-    <url>/2019/11/22/esLint/</url>
-    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
-<ul>
-<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
-<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
-<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
-<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
-<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
-</blockquote>
-</li>
-<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
-++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
-<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
-++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-        <tag>vuejs</tag>
-        <tag>eslint</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>前端基于docker的生产环境部署方案</title>
     <url>/2020/07/20/frontend-docker-product/</url>
     <content><![CDATA[<ul>
@@ -1534,67 +1563,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>clickhouse副本不同步问题排查</title>
-    <url>/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse的Replicated**MergeTree表是通过zookeeper来完成同一个shard之间的副本数据的同步，因为clickhouse本身不是master/slave的架构，我们通过proxy的方式，设定了同一个shard里某个副本是读/写节点角色，另一个节点是读角色，当用户写入时，proxy会路由到读/写节点去完成写入操作，然后通过zk发起同步任务，把日志进入到system.replcation_queue。<br>今天早上用户和我们反馈说数据查询时每一次结果都不一样，用户查询也是通过连我们的proxy进行读节点的路由，所以用户反馈的结果不一致，其实是第一次路由到读/写节点查询结果是a，第二次路由到读节点，查询结果是b，由于a和b两个副本数据没有同步，导致了查询结果不一致，下面是排查的过程。</p>
-<h3 id="system-replication-queue"><a href="#system-replication-queue" class="headerlink" title="system.replication_queue"></a>system.replication_queue</h3><blockquote>
-<p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/replication_queue/" target="_blank" rel="noopener">官方地址</a>所解释,该表记录了当前的副本任务队列的所有信息，如下图所示，我们看到当前副本同步出现大量异常错误  </p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.replication_queue where data_files &gt; 0</span><br></pre></td></tr></table></figure>
-<p><img src="/images/clickhouse/replicas_data_diff/1.png" alt="clickhouse"><br>如下图所示，<strong>type</strong>字段可以查看到当前是什么类型的操作导致的，发现是<strong>MUTATE_PART</strong>操作，<strong>last_exception</strong>字段显示当前我们在操作ttl时创建的元数据目录下columns.txt无法打开，这个是已知bug。<br><img src="/images/clickhouse/replicas_data_diff/2.png" alt="clickhouse"></p>
-<h3 id="system-mutations"><a href="#system-mutations" class="headerlink" title="system.mutations"></a>system.mutations</h3><blockquote>
-<p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/mutations" target="_blank" rel="noopener">官方地址</a>，该表包含了所有mutation操作的日志信息，<a href="https://clickhouse.com/docs/en/sql-reference/statements/alter/#mutations" target="_blank" rel="noopener">mutation</a>操作包括修改字段类型/修改表ttl操作/按条件删表的数据/按条件更新表的数据等，这些操作都是异步后台线程去处理，都会去回溯该表的所有parts，需要rewrite每个part的信息并且这个操作还不是原子性的，所以如果某个节点操作失败，可能引发该表无法使用。  </p>
-</blockquote>
-<p>该表包含字段如下：</p>
-<ul>
-<li><p>database (String) — 数据库名称.</p>
-</li>
-<li><p>table (String) — 表名称.</p>
-</li>
-<li><p>data_path (String) — 本地文件的路径.</p>
-</li>
-<li><p>mutation_id (String) — mutation的唯一标识，可通过该标识直接kill mutation.</p>
-</li>
-<li><p>command (String) — mutation命令.</p>
-</li>
-<li><p>create_time (DateTime) —  mutation创建时间.</p>
-</li>
-<li><p>block_numbers (Map) — partition_id：需要进行mutation操作的分区id，number：需要进行mutation的分区对应的block序号.</p>
-</li>
-<li><p>parts_to_do_names (Array) — 即将完成的需要进行mutation的数组.</p>
-</li>
-<li><p>parts_to_do (Int64) — 准备进行mutation操作的part序号.</p>
-</li>
-<li><p>is_done (UInt8) — 该操作是否已完成.</p>
-</li>
-<li><p>latest_failed_part (String) — mutation操作最后失败的part名称.</p>
-</li>
-<li><p>latest_fail_time (DateTime) — 最后失败的时间.</p>
-</li>
-<li><p>latest_fail_reason (String) — 最后失败的原因.</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.mutations where latest_failed_part !&#x3D; &#39;&#39;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/clickhouse/replicas_data_diff/3.png" alt="clickhouse"></p>
-<blockquote>
-<p>根据异常错误的<strong>command</strong>字段，我们看到错误是通过<code>MATERIALIZE TTL FAST 16070400</code>引起的，mutation操作在写节点处理完成后，也会通过zookeeper进行副本数据同步</p>
-</blockquote>
-<h3 id="解决副本不同步问题"><a href="#解决副本不同步问题" class="headerlink" title="解决副本不同步问题"></a>解决副本不同步问题</h3><ul>
-<li>终止该失败的mutation<br>具体操作语句可以查看<a href="https://clickhouse.com/docs/zh/sql-reference/statements/kill/#:~:text=KILL%20MUTATION%E2%80%8B&amp;text=Tries%20to%20cancel%20and%20remove,list%20of%20mutations%20to%20stop." target="_blank" rel="noopener">官方文档</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kill mutation where database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39; and mutation_id &#x3D; &#39;zz&#39;;</span><br></pre></td></tr></table></figure></li>
-<li>操作之后，可以通过查询shard里每个副本的count是否一致来判断数据是否已经进行同步<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select count(dt), dt from xx.yy group by dt;</span><br></pre></td></tr></table></figure></li>
-<li>操作之后，可以通过上面的<code>system.replication_queue</code>表来观察是否开始进行副本数据同步<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from system.replication_queue where type&#x3D;&#39;GET_PART&#39; and database &#x3D; &#39;xx&#39; and table &#x3D; &#39;yy&#39;</span><br></pre></td></tr></table></figure></li>
-<li>如果还没恢复，则去对应出错的副本节点，将本地表删除后重建（出错节点可以从上一步里看出来）<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">drop table if exists xx.yy</span><br><span class="line">create table xx.yy</span><br></pre></td></tr></table></figure></li>
-<li>此时再查询replication_queue表出错的队列应该已经被清理掉了<br>可以继续操作元数据修改</li>
-</ul>
-]]></content>
-      <categories>
-        <category>bigdata</category>
-      </categories>
-      <tags>
-        <tag>clickhouse</tag>
       </tags>
   </entry>
   <entry>
@@ -1683,6 +1651,38 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>vscode代码自动提示利器eslint</title>
+    <url>/2019/11/22/esLint/</url>
+    <content><![CDATA[<h2 id="eslint安装"><a href="#eslint安装" class="headerlink" title="eslint安装"></a>eslint安装</h2><p>eslint：Find and fix problems in your JavaScript code</p>
+<ul>
+<li>打开Teminal，进入到你的项目根目录后，输入下面命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint --save-dev</span><br></pre></td></tr></table></figure></li>
+<li>vscode安装eslint插件<br>如上面截图的logo，请安装对应的eslint插件</li>
+<li>验证安装成功<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint -v</span><br></pre></td></tr></table></figure></li>
+<li>生成eslintrc.js配置文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;node_modules&#x2F;.bin&#x2F;eslint --init</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 下面是安装流程提示文字</span><br><span class="line">? How would you like to use ESLint? </span><br><span class="line">To check syntax and find problems</span><br><span class="line">? What type of modules does your project use? </span><br><span class="line">JavaScript modules (import&#x2F;export)</span><br><span class="line">? Which framework does your project use? </span><br><span class="line">Vue.js</span><br><span class="line">? Does your project use TypeScript? </span><br><span class="line">No</span><br><span class="line">? Where does your code run? </span><br><span class="line">Browser</span><br><span class="line">? What format do you want your config file to be in? </span><br><span class="line">JavaScript</span><br><span class="line">The config that you&#39;ve selected requires the following dependencies:</span><br></pre></td></tr></table></figure></li>
+<li>最终生成eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">    &quot;env&quot;: &#123;</span><br><span class="line">        &quot;browser&quot;: true,</span><br><span class="line">        &quot;es6&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;extends&quot;: [</span><br><span class="line">        &quot;eslint:recommended&quot; &#x2F;&#x2F; eslint</span><br><span class="line">    ],</span><br><span class="line">    &quot;globals&quot;: &#123;</span><br><span class="line">        &quot;Atomics&quot;: &quot;readonly&quot;,</span><br><span class="line">        &quot;SharedArrayBuffer&quot;: &quot;readonly&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;parserOptions&quot;: &#123;</span><br><span class="line">        &quot;ecmaVersion&quot;: 2018,</span><br><span class="line">        &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;plugins&quot;: [</span><br><span class="line">        &quot;vue&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;rules&quot;: &#123;</span><br><span class="line">        &quot;semi&quot;: [&quot;error&quot;, &quot;always&quot;],</span><br><span class="line">        &quot;quotes&quot;: [&quot;error&quot;, &quot;double&quot;],</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eslintrc配置规则（rules）<br>“off” or 0 - turn the rule off<br>“warn” or 1 - turn the rule on as a warning (doesn’t affect exit code)<br>“error” or 2 - turn the rule on as an error (exit code will be 1)</p>
+</blockquote>
+</li>
+<li>安装eslint-plugin-vue<br>Official ESLint plugin for Vue.js.<br>This plugin allows us to check the template and script of .vue files with ESLint.<br>Finds syntax errors.<br>Finds the wrong use of Vue.js Directives.<br>Finds the violation for Vue.js Style Guide.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev eslint-plugin-vue</span><br></pre></td></tr></table></figure>
+++ 修改eslintrc.js文件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; ... other options</span><br><span class="line">extends: [</span><br><span class="line">    &quot;plugin:vue&#x2F;essential&quot; &#x2F;&#x2F;eslint规则</span><br><span class="line">    &#39;plugin:vue&#x2F;recommended&#39; &#x2F;&#x2F;eslint-plugin-vue规则</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure></li>
+<li>安装eslint-loader<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install eslint-loader eslint-friendly-formatter --save-dev</span><br></pre></td></tr></table></figure>
+++ 修改webpack配置<br>这样你的 .vue 文件会在开发期间每次保存时自动检验。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; webpack.base.config.js</span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  &#x2F;&#x2F; ... other options</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: &#x2F;\.(js|vue)$&#x2F;,</span><br><span class="line">        loader: &quot;eslint-loader&quot;,</span><br><span class="line">        exclude: &#x2F;node_modules&#x2F;</span><br><span class="line">        enforce: &quot;pre&quot;,</span><br><span class="line">        include: [resolve(&quot;src&quot;), resolve(&quot;test&quot;)],</span><br><span class="line">        options: &#123;</span><br><span class="line">          formatter: require(&quot;eslint-friendly-formatter&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改.vscode/settings.json<br>You have to configure the eslint.validate option of the extension to check .vue files because the extension targets only <em>.js or </em>.jsx files by default.<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;editor.formatOnSave&quot;: true, &#x2F;&#x2F;保存时自动格式化</span><br><span class="line">&quot;eslint.validate&quot;: [</span><br><span class="line">  &quot;javascript&quot;,</span><br><span class="line">  &quot;javascriptreact&quot;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;html&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;language&quot;: &quot;vue&quot;,</span><br><span class="line">    &quot;autoFix&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line">&quot;eslint.autoFixOnSave&quot;: true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先推荐使用vscode这个编辑器来开发vuejs项目，最优秀的轻量级编辑器，迅速加载项目，即使你的项目里有数百个node_modules。<br>其实eslint可以帮助你解决日常开发中遇到的代码bug，有友好的提示效果。<br>vue官方推荐使用eslint-plugin-vue插件来兼容eslint对于vue代码的检查。<br>另外想要关闭eslint的检查，可以在文件顶部加入<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You may use special comments to disable some warnings.</span><br><span class="line">Use &#x2F;&#x2F; eslint-disable-next-line to ignore the next line.</span><br><span class="line">Use &#x2F;* eslint-disable *&#x2F; to ignore all warnings in a file.</span><br></pre></td></tr></table></figure><br>参考地址如下：<br><a href="https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html" target="_blank" rel="noopener">https://vue-loader-v14.vuejs.org/zh-cn/workflow/linting.html</a><br><a href="https://eslint.org/docs/user-guide/getting-started" target="_blank" rel="noopener">https://eslint.org/docs/user-guide/getting-started</a><br><a href="https://eslint.vuejs.org/user-guide/#faq" target="_blank" rel="noopener">https://eslint.vuejs.org/user-guide/#faq</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
+        <tag>vuejs</tag>
+        <tag>eslint</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>聊聊go环境安装及go.mod的使用</title>
     <url>/2019/12/05/go-mod-hello/</url>
     <content><![CDATA[<p>下面流程安装在<strong><em>unix（MacBook）环境</em></strong></p>
@@ -1741,33 +1741,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>grafana持久化用户操作日志</title>
-    <url>/2020/05/20/grafana-open-log-file/</url>
-    <content><![CDATA[<blockquote>
-<p>Grafana v6.6.2 (3fa63cfc34)</p>
-</blockquote>
-<ul>
-<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
-<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
-<li><p>[server]</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>docker启动</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
-</blockquote>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>grafana</tag>
       </tags>
   </entry>
   <entry>
@@ -1858,6 +1831,33 @@ http://ip:8082
       </tags>
   </entry>
   <entry>
+    <title>grafana持久化用户操作日志</title>
+    <url>/2020/05/20/grafana-open-log-file/</url>
+    <content><![CDATA[<blockquote>
+<p>Grafana v6.6.2 (3fa63cfc34)</p>
+</blockquote>
+<ul>
+<li>[log]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Either &quot;console&quot;, &quot;file&quot;, &quot;syslog&quot;. Default is console and file</span><br><span class="line"># Use space to separate multiple modes, e.g. &quot;console file&quot;</span><br><span class="line">mode &#x3D; console file</span><br></pre></td></tr></table></figure></li>
+<li>[paths]<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Directory where grafana can store logs</span><br><span class="line">logs &#x3D; data&#x2F;log</span><br></pre></td></tr></table></figure></li>
+<li><p>[server]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span><br><span class="line">data &#x3D; data</span><br><span class="line"># Log web requests</span><br><span class="line">router_logging &#x3D; false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker启动</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker run -d --name grafana-log   \</span><br><span class="line">-p 3000:3000 \</span><br><span class="line">-e GF_LOG_MODE&#x3D;&quot;console file&quot; \</span><br><span class="line">-e GF_PATHS_LOGS&#x3D;&#39;&#x2F;var&#x2F;log&#x2F;grafana&#39;   \</span><br><span class="line">-e GF_SERVER_ROUTER_LOGGING&#x3D;true \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana:&#x2F;var&#x2F;lib&#x2F;grafana   \</span><br><span class="line">-v &#x2F;Users&#x2F;blank&#x2F;grafana&#x2F;log:&#x2F;var&#x2F;log&#x2F;grafana   \</span><br><span class="line">grafana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果错误提示：【Failed to start grafana. error: failed to initialize file handler: open /var/log/grafana/grafana.log: permission denied】请配置目录/Users/blank/grafana权限为777</p>
+</blockquote>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>grafana</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>centos7下安装mysql5.7</title>
     <url>/2020/05/13/install-mysql/</url>
     <content><![CDATA[<h2 id="使用rpm包方式安装mysql"><a href="#使用rpm包方式安装mysql" class="headerlink" title="使用rpm包方式安装mysql"></a>使用rpm包方式安装mysql</h2><ul>
@@ -1911,31 +1911,6 @@ http://ip:8082
       </categories>
       <tags>
         <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>alibaba.druid配置</title>
-    <url>/2022/03/21/java-druid-config/</url>
-    <content><![CDATA[<h4 id="两种思路"><a href="#两种思路" class="headerlink" title="两种思路"></a>两种思路</h4><ul>
-<li>后端服务主动淘汰空闲超时120s的连接，然后再主动创建连接。</li>
-<li>后端服务对空闲连接保活，周期小于120秒进行一次mysql.ping或select 1操作。（确认过dba两个操作均可使dbproxy保活连接）</li>
-</ul>
-<h4 id="hikari连接池能否支持上述方案："><a href="#hikari连接池能否支持上述方案：" class="headerlink" title="hikari连接池能否支持上述方案："></a>hikari连接池能否支持上述方案：</h4><ul>
-<li>idleTimeout：设置最大空闲时间小于120秒，空闲超时主动淘汰链接，并且hikari会自动创建新连接填充。实际发现该参数不能解决此问题，因为该参数优先级低于minimumIdle，若池中已经保持低于minimumIdle的连接数就不会再进行空闲连接淘汰。所以该参数不能解决问题。</li>
-<li>maxLifetime：设置最大生存时间小于120秒，生存超时主动淘汰连接，并且hikari会自动创建新连接填充。能够解决该问题，但是会每120s就要淘汰且新建连接。</li>
-</ul>
-<h4 id="druid连接池能否支持上述方案："><a href="#druid连接池能否支持上述方案：" class="headerlink" title="druid连接池能否支持上述方案："></a>druid连接池能否支持上述方案：</h4><ul>
-<li>testWhileIdle：设置true开启周期性健康检查 会主动淘汰掉失效的连接。</li>
-<li>maxEvictableIdleTimeMillis：最大空闲时间设置小于120s，该参数不受minIdle参数约束，只要超过最大空闲时间就会自动淘汰连接。<br>看似上面两个参数均能解决，但是由于durid默认不会主动创建新链接，所以上面两个参数使连接清空后 查询时仍旧会因创建连接而耗时增加。</li>
-<li>keepAlive：设置true开启保活机制，可解决该问题</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">druid:</span><br><span class="line"># 初始化大小</span><br><span class="line">initialSize: 10</span><br><span class="line"># 最大连接数</span><br><span class="line">maxActive: 30</span><br><span class="line"># 最小空闲数（周期性清除时保留的最小连接数）</span><br><span class="line">minIdle: 10</span><br><span class="line"># 最大空闲数（返还连接时若超过最大空闲连接数就丢弃）</span><br><span class="line">maxIdle: 20</span><br><span class="line"># 有效性校验</span><br><span class="line">validationQuery: select 1</span><br><span class="line"># 周期性check空闲连接</span><br><span class="line">testWhileIdle: true</span><br><span class="line"># 借出时check（影响性能）</span><br><span class="line">testOnBorrow: false</span><br><span class="line"># 返还时check（影响性能）</span><br><span class="line">testOnReturn: false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 周期性检查的间隔时间，单位是毫秒</span><br><span class="line">timeBetweenEvictionRunsMillis: 60000</span><br><span class="line"># 连接的最小空闲时间，小于该时间不会被周期性check清除。单位是毫秒</span><br><span class="line">minEvictableIdleTimeMillis: 50000</span><br><span class="line"># 连接的最大空闲时间，大于该时间会被周期性check清除，且优先级大于minIdle。单位是毫秒</span><br><span class="line">maxEvictableIdleTimeMillis: 100000</span><br><span class="line"># 开启连接保活策略。作用：https:&#x2F;&#x2F;www.bookstack.cn&#x2F;read&#x2F;Druid&#x2F;d90f9643acdca5c0.md</span><br><span class="line">keepAlive: true</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>sre</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-        <tag>druid</tag>
       </tags>
   </entry>
   <entry>
@@ -2039,6 +2014,52 @@ http://ip:8082
         <tag>java</tag>
         <tag>cpu</tag>
         <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>java面试常见问题</title>
+    <url>/2021/10/10/java-interview/</url>
+    <content><![CDATA[<h3 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h3><h3 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h3><ul>
+<li>目的：参数化类型</li>
+<li>用法：泛型类、泛型接口、泛型方法<ul>
+<li>泛型类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 简单范型</span><br><span class="line">class Test&lt;T&gt; &#123;</span><br><span class="line">  private T var;</span><br><span class="line">  public T getVar() &#123;</span><br><span class="line">    return var;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setVar(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">&#125; </span><br><span class="line">&#x2F;&#x2F; 多元泛型</span><br><span class="line">class TestKV&lt;K,V&gt; &#123;</span><br><span class="line">  private K key;</span><br><span class="line">  private V value;</span><br><span class="line">  public K getKey() &#123;</span><br><span class="line">    return key;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setKey(K key) &#123;</span><br><span class="line">    this.key &#x3D; key;</span><br><span class="line">  &#125;</span><br><span class="line">  public V getValue() &#123;</span><br><span class="line">    return value;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setValue(V value) &#123;</span><br><span class="line">    this.value &#x3D; value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Demo &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Test&lt;String&gt; test &#x3D; new Test&lt;String&gt;();</span><br><span class="line">    test.setVar(&quot;aa&quot;);</span><br><span class="line">    System.out.println(test.getVar());</span><br><span class="line"></span><br><span class="line">    TestKV&lt;String, String&gt; testKV &#x3D; new TestKV&lt;String, String&gt;();</span><br><span class="line">    testKV.setKey(&quot;hello&quot;);</span><br><span class="line">    testKV.setValue(&quot;world&quot;);</span><br><span class="line">    System.out.println(testKV.getKey() +&quot;:&quot;+testKV.getValue());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>泛型接口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">interface Test&lt;T&gt; &#123;</span><br><span class="line">  public T getVar();</span><br><span class="line">&#125;</span><br><span class="line">class TestImpl&lt;T&gt; implement Test&lt;T&gt; &#123;</span><br><span class="line">  private T var;</span><br><span class="line">  public TEstImpl(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">  public T getVar() &#123;</span><br><span class="line">    return var;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setVar(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Demo&#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Test&lt;String&gt; test &#x3D; new TestImpl&lt;String&gt;(&quot;tom&quot;);</span><br><span class="line">    System.out.pringln(test.getVar());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>泛型方法<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Demo &#123;</span><br><span class="line">  public &lt;T&gt; T getObject(Class&lt;T&gt; c) &#123;</span><br><span class="line">    T t &#x3D; c.newInstance();</span><br><span class="line">    retrun t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h3>]]></content>
+      <categories>
+        <category>interview</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>alibaba.druid配置</title>
+    <url>/2022/03/21/java-druid-config/</url>
+    <content><![CDATA[<h4 id="两种思路"><a href="#两种思路" class="headerlink" title="两种思路"></a>两种思路</h4><ul>
+<li>后端服务主动淘汰空闲超时120s的连接，然后再主动创建连接。</li>
+<li>后端服务对空闲连接保活，周期小于120秒进行一次mysql.ping或select 1操作。（确认过dba两个操作均可使dbproxy保活连接）</li>
+</ul>
+<h4 id="hikari连接池能否支持上述方案："><a href="#hikari连接池能否支持上述方案：" class="headerlink" title="hikari连接池能否支持上述方案："></a>hikari连接池能否支持上述方案：</h4><ul>
+<li>idleTimeout：设置最大空闲时间小于120秒，空闲超时主动淘汰链接，并且hikari会自动创建新连接填充。实际发现该参数不能解决此问题，因为该参数优先级低于minimumIdle，若池中已经保持低于minimumIdle的连接数就不会再进行空闲连接淘汰。所以该参数不能解决问题。</li>
+<li>maxLifetime：设置最大生存时间小于120秒，生存超时主动淘汰连接，并且hikari会自动创建新连接填充。能够解决该问题，但是会每120s就要淘汰且新建连接。</li>
+</ul>
+<h4 id="druid连接池能否支持上述方案："><a href="#druid连接池能否支持上述方案：" class="headerlink" title="druid连接池能否支持上述方案："></a>druid连接池能否支持上述方案：</h4><ul>
+<li>testWhileIdle：设置true开启周期性健康检查 会主动淘汰掉失效的连接。</li>
+<li>maxEvictableIdleTimeMillis：最大空闲时间设置小于120s，该参数不受minIdle参数约束，只要超过最大空闲时间就会自动淘汰连接。<br>看似上面两个参数均能解决，但是由于durid默认不会主动创建新链接，所以上面两个参数使连接清空后 查询时仍旧会因创建连接而耗时增加。</li>
+<li>keepAlive：设置true开启保活机制，可解决该问题</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">druid:</span><br><span class="line"># 初始化大小</span><br><span class="line">initialSize: 10</span><br><span class="line"># 最大连接数</span><br><span class="line">maxActive: 30</span><br><span class="line"># 最小空闲数（周期性清除时保留的最小连接数）</span><br><span class="line">minIdle: 10</span><br><span class="line"># 最大空闲数（返还连接时若超过最大空闲连接数就丢弃）</span><br><span class="line">maxIdle: 20</span><br><span class="line"># 有效性校验</span><br><span class="line">validationQuery: select 1</span><br><span class="line"># 周期性check空闲连接</span><br><span class="line">testWhileIdle: true</span><br><span class="line"># 借出时check（影响性能）</span><br><span class="line">testOnBorrow: false</span><br><span class="line"># 返还时check（影响性能）</span><br><span class="line">testOnReturn: false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 周期性检查的间隔时间，单位是毫秒</span><br><span class="line">timeBetweenEvictionRunsMillis: 60000</span><br><span class="line"># 连接的最小空闲时间，小于该时间不会被周期性check清除。单位是毫秒</span><br><span class="line">minEvictableIdleTimeMillis: 50000</span><br><span class="line"># 连接的最大空闲时间，大于该时间会被周期性check清除，且优先级大于minIdle。单位是毫秒</span><br><span class="line">maxEvictableIdleTimeMillis: 100000</span><br><span class="line"># 开启连接保活策略。作用：https:&#x2F;&#x2F;www.bookstack.cn&#x2F;read&#x2F;Druid&#x2F;d90f9643acdca5c0.md</span><br><span class="line">keepAlive: true</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>sre</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>druid</tag>
       </tags>
   </entry>
   <entry>
@@ -2182,27 +2203,6 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </tags>
   </entry>
   <entry>
-    <title>java面试常见问题</title>
-    <url>/2021/10/10/java-interview/</url>
-    <content><![CDATA[<h3 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h3><h3 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h3><ul>
-<li>目的：参数化类型</li>
-<li>用法：泛型类、泛型接口、泛型方法<ul>
-<li>泛型类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 简单范型</span><br><span class="line">class Test&lt;T&gt; &#123;</span><br><span class="line">  private T var;</span><br><span class="line">  public T getVar() &#123;</span><br><span class="line">    return var;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setVar(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">&#125; </span><br><span class="line">&#x2F;&#x2F; 多元泛型</span><br><span class="line">class TestKV&lt;K,V&gt; &#123;</span><br><span class="line">  private K key;</span><br><span class="line">  private V value;</span><br><span class="line">  public K getKey() &#123;</span><br><span class="line">    return key;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setKey(K key) &#123;</span><br><span class="line">    this.key &#x3D; key;</span><br><span class="line">  &#125;</span><br><span class="line">  public V getValue() &#123;</span><br><span class="line">    return value;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setValue(V value) &#123;</span><br><span class="line">    this.value &#x3D; value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Demo &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Test&lt;String&gt; test &#x3D; new Test&lt;String&gt;();</span><br><span class="line">    test.setVar(&quot;aa&quot;);</span><br><span class="line">    System.out.println(test.getVar());</span><br><span class="line"></span><br><span class="line">    TestKV&lt;String, String&gt; testKV &#x3D; new TestKV&lt;String, String&gt;();</span><br><span class="line">    testKV.setKey(&quot;hello&quot;);</span><br><span class="line">    testKV.setValue(&quot;world&quot;);</span><br><span class="line">    System.out.println(testKV.getKey() +&quot;:&quot;+testKV.getValue());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>泛型接口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">interface Test&lt;T&gt; &#123;</span><br><span class="line">  public T getVar();</span><br><span class="line">&#125;</span><br><span class="line">class TestImpl&lt;T&gt; implement Test&lt;T&gt; &#123;</span><br><span class="line">  private T var;</span><br><span class="line">  public TEstImpl(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">  public T getVar() &#123;</span><br><span class="line">    return var;</span><br><span class="line">  &#125;</span><br><span class="line">  public void setVar(T var) &#123;</span><br><span class="line">    this.var &#x3D; var;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Demo&#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Test&lt;String&gt; test &#x3D; new TestImpl&lt;String&gt;(&quot;tom&quot;);</span><br><span class="line">    System.out.pringln(test.getVar());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>泛型方法<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Demo &#123;</span><br><span class="line">  public &lt;T&gt; T getObject(Class&lt;T&gt; c) &#123;</span><br><span class="line">    T t &#x3D; c.newInstance();</span><br><span class="line">    retrun t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h3>]]></content>
-      <categories>
-        <category>interview</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>聊聊linux下的软硬链接</title>
     <url>/2022/02/16/linux-ln/</url>
     <content><![CDATA[<h3 id="链接概念"><a href="#链接概念" class="headerlink" title="链接概念"></a>链接概念</h3><p>Linux链接分两种，一种被称为硬链接（Hard Link），另一种被称为符号链接（Symbolic Link）。<br>默认情况下，ln命令产生硬链接。</p>
@@ -2226,7 +2226,7 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
   </entry>
   <entry>
     <title>常用的linux排查命令</title>
-    <url>/2022/12/30/linux%E5%B8%B8%E7%94%A8%E6%8E%92%E6%9F%A5%E5%91%BD%E4%BB%A4/</url>
+    <url>/2023/01/04/linux%E5%B8%B8%E7%94%A8%E6%8E%92%E6%9F%A5%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="如何看查占用cpu最多的进程？"><a href="#如何看查占用cpu最多的进程？" class="headerlink" title="如何看查占用cpu最多的进程？"></a>如何看查占用cpu最多的进程？</h2><ul>
 <li><p>方法一<br>核心指令：ps<br>实际命令：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ps H -eo pid,pcpu | sort -nk2 | tail</span><br></pre></td></tr></table></figure>
@@ -2375,6 +2375,112 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </tags>
   </entry>
   <entry>
+    <title>记一次线上fgc排查过程</title>
+    <url>/2022/01/19/java_full_gc/</url>
+    <content><![CDATA[<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>用户反馈api请求时快时慢，慢的时候网页打开很久都没有结果，直到超时给出500错误</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><h4 id="初步怀疑"><a href="#初步怀疑" class="headerlink" title="初步怀疑"></a>初步怀疑</h4><p>当前程序分布式部署在多个节点上，通过<code>vip</code>进行负载均衡，所以对于直接将反馈慢的页面打开的请求通过<code>curl</code>方式登陆生产环境所有节点，进行轮训一遍，发现其中02节点需要等待很久，其他节点均正常，所以问题应该出在02节点，<br>注意：这个定位过程当然也可以使用监控图就一目了然了。推荐使用<code>grafana prometheus spring boot dashboard</code>在<code>google</code>搜寻下相关配置就可以了。<br><img src="/images/java/fgc/8.png" alt="cgi"></p>
+<h4 id="查询该节点负载"><a href="#查询该节点负载" class="headerlink" title="查询该节点负载"></a>查询该节点负载</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 得到进程的pid</span><br><span class="line">jps -mlv </span><br><span class="line"># 通过top命令查询节点实际负载</span><br><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/1.png" alt="cgi"></p>
+<blockquote>
+<p>通过top命令发现该节点memory使用了接近<code>90%</code>，怀疑出现内存泄露</p>
+</blockquote>
+<h4 id="查询该节点内存使用情况"><a href="#查询该节点内存使用情况" class="headerlink" title="查询该节点内存使用情况"></a>查询该节点内存使用情况</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jstat -gcutil pid 1000</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/2.png" alt="cgi"></p>
+<blockquote>
+<p>如我所料，几乎不到<code>1s</code>就开始做一次<code>fgc</code>，所以服务才越来越慢响应</p>
+</blockquote>
+<h3 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h3><h4 id="使用jmap分析内存概要"><a href="#使用jmap分析内存概要" class="headerlink" title="使用jmap分析内存概要"></a>使用jmap分析内存概要</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -heap pid ｜ head -n20</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/10.png" alt="cgi"></p>
+<h4 id="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"><a href="#使用jmap打印堆内存的对象，带上live，则只统计活着的对象" class="headerlink" title="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"></a>使用jmap打印堆内存的对象，带上live，则只统计活着的对象</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -histo pid ｜ head -n20</span><br><span class="line">jmap -histo:live pid ｜ head -n20</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/11.png" alt="cgi"></p>
+<h4 id="打印进程的内存使用情况"><a href="#打印进程的内存使用情况" class="headerlink" title="打印进程的内存使用情况"></a>打印进程的内存使用情况</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -dump:format&#x3D;b,file&#x3D;dumpFileName pid</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java/fgc/3.png" alt="cgi"></p>
+<blockquote>
+<p>dump出来了<code>12G</code>的文件，通过scp工具转存到本地</p>
+</blockquote>
+<h4 id="jprofiler分析堆内存"><a href="#jprofiler分析堆内存" class="headerlink" title="jprofiler分析堆内存"></a>jprofiler分析堆内存</h4><ul>
+<li>1、把dumpFileName文件转存为.hprof格式后直接双击打开，按照instance count逆序排列<br><img src="/images/java/fgc/5.png" alt="cgi"></li>
+<li>2、会发现有hashmap类型占了最大头，但是这个类型，双击它，选择<code>merged incoming reference</code>，查看合并后的来源引用统计<br><img src="/images/java/fgc/6.png" alt="cgi"></li>
+<li>3、还是选最大头的文件数一直拆到最里层，找出来源引用是<code>org.apache.ibatis.executor.result.DefaultResultHandler</code>这个类，基本能定位到问题根源了，是我们连接<code>clickhouse</code>客户端去查询结果时，未对结果集做限制，导致了一个很大的结果集返回到内存中。<br><img src="/images/java/fgc/7.png" alt="cgi"></li>
+</ul>
+<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><p>当然是对结果集做限制，检测用户输入的sql，是否包含limit条数限制，若未限制，则对sql进行改写，增加<code>500</code>条数限制<br><img src="/images/java/fgc/9.png" alt="cgi"></p>
+<h3 id="GC的运行原理"><a href="#GC的运行原理" class="headerlink" title="GC的运行原理"></a>GC的运行原理</h3><p><code>GC</code>（<code>garbage collection</code>）：垃圾回收，主要是指<code>YGC</code>和<code>FGC</code><br><code>YGC</code>（minor garbage collection）：新生代垃圾回收<br><code>FGC</code>（major garbage collection）：老年代垃圾回收</p>
+<h4 id="堆内存结构"><a href="#堆内存结构" class="headerlink" title="堆内存结构"></a>堆内存结构</h4><p><img src="/images/java/fgc/12.png" alt="cgi"><br>堆内存采用了分代结构，包括新生代和老年代，新生代分为：<code>eden</code>区、<code>from survivor</code>区（简称<code>s0</code>）、<code>to survivor</code>区（简称<code>s1</code>），三者默认比例上8:1:1，另外新生代和老年代的比例则是1:2。<br>堆内存之所以采用分代结构，是因为绝大多数对象都是短生命周期的，这样设计可以把不同的生命周期的对象放在不同的区域中，然后针对新生代和老年代采用不同的垃圾回收算法，从而使得<code>GC</code>效率最高。</p>
+<h4 id="YGC是什么时候触发的？"><a href="#YGC是什么时候触发的？" class="headerlink" title="YGC是什么时候触发的？"></a>YGC是什么时候触发的？</h4><p>大多数情况下，对象直接在年轻代中的<code>Eden</code>区进行分配，如果<code>Eden</code>区域没有足够的空间，那么就会触发<code>YGC</code>（<code>Minor GC</code>），<code>YGC</code>处理的区域只有新生代。因为大部分对象在短时间内都是可收回掉的，因此YGC后只有极少数的对象能存活下来，而被移动到S0区（采用的是复制算法）。<br>当触发下一次YGC时，会将Eden区和S0区的存活对象移动到S1区，同时清空Eden区和S0区。当再次触发YGC时，这时候处理的区域就变成了Eden区和S1区（即S0和S1进行角色交换）。每经过一次YGC，存活对象的年龄就会加1。</p>
+<h4 id="FGC是什么时候触发的？"><a href="#FGC是什么时候触发的？" class="headerlink" title="FGC是什么时候触发的？"></a>FGC是什么时候触发的？</h4><ul>
+<li><p>1、<code>YGC</code>时，<code>To Survivor</code>区不足以存放存活的对象，对象会直接进入到老年代。经过多次<code>YGC</code>后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中。动态年龄判定规则，<code>To Survivor</code>区中相同年龄的对象，如果其大小之和占到了 <code>To Survivor</code> 区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。大对象：由<code>-XX:PretenureSizeThreshold</code>启动参数控制，若对象大小大于此值，就会绕过新生代, 直接在老年代中分配。当晋升到老年代的对象大于了老年代的剩余空间时，就会触发<code>FGC</code>（<code>Major GC</code>），<code>FGC</code>处理的区域同时包括新生代和老年代。老年代的内存使用率达到了一定阈值（可通过参数调整），直接触发<code>FGC</code>。</p>
+</li>
+<li><p>2、空间分配担保：在<code>YGC</code>之前，会先检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果小于，说明<code>YGC</code>是不安全的，则会查看参数 <code>HandlePromotionFailure</code> 是否被设置成了允许担保失败，如果不允许则直接触发<code>Full GC</code>；如果允许，那么会进一步检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果小于也会触发 <code>Full GC</code>。</p>
+</li>
+<li><p>3、<code>Metaspace</code>（元空间）在空间不足时会进行扩容，当扩容到了<code>-XX:MetaspaceSize</code> 参数的指定值时，也会触发<code>FGC</code>。</p>
+</li>
+<li><p>4、<code>System.gc</code>() 或者<code>Runtime.gc</code>() 被显式调用时，触发<code>FGC</code>。</p>
+</li>
+</ul>
+<h4 id="GC对程序会产生什么影响"><a href="#GC对程序会产生什么影响" class="headerlink" title="GC对程序会产生什么影响"></a>GC对程序会产生什么影响</h4><p>不管是YGC还是FGC，都会造成一定程度上的程序卡顿（stop the world问题：GC线程开始工作，其他工作线程被挂起），即使采用ParNew、CMS、G1这些更先进的垃圾回收算法，也只是减少卡顿的时间，并不能完全消除卡顿</p>
+<ul>
+<li>FGC过于频繁：<br>FGC通常是比较慢的，少则几百号秒，多则几秒，正常情况下FGC每隔几个小时或者几天才会执行一次，对系统的影响是可接受的，所以一旦出现FGC频繁（比如几分钟/几十分钟出现一次）会导致工作线程频繁被停掉，让系统看起来就一直卡顿，使得程序的整体性能变差。</li>
+<li>YGC耗时过长：<br>一般来说YGC的总耗时指需要几十毫秒或上百毫秒，对于系统来说几乎无感知，所以如果YGC耗时达到1秒甚至几秒（快赶上FGC的耗时），那么卡顿就会加剧，加上YGC本身会比较频繁发生，就可能导致服务响应时间超时。</li>
+<li>FGC耗时过长：<br>FGC耗时增加，卡顿时间也会随之增加，尤其对于高并发服务，可能导致FGC期间比较多的超时问题，可用性降低，这种也需要关注</li>
+<li>YGC过于频繁：<br>即使YGC不会引起服务超时，但是YGC过于频繁也会降低服务的整体性能，对于高并发服务也是需要关注的。</li>
+</ul>
+<blockquote>
+<p>其中，「FGC过于频繁」和「YGC耗时过长」，这两种情况属于比较典型的GC问题，大概率会对程序的服务质量产生影响。剩余两种情况的严重程度低一些，但是对于高并发或者高可用的程序也需要关注。</p>
+</blockquote>
+<h4 id="导致FGC的原因总结"><a href="#导致FGC的原因总结" class="headerlink" title="导致FGC的原因总结"></a>导致FGC的原因总结</h4><ul>
+<li>大对象：系统一次性加载了过多数据到内存中（比如SQL查询未做分页），导致大对象进入了老年代。（即本文中的案例）</li>
+<li>内存泄漏：频繁创建了大量对象，但是无法被回收（比如IO对象使用完后未调用close方法释放资源），先引发FGC，最后导致OOM.</li>
+<li>程序频繁生成一些长生命周期的对象，当这些对象的存活年龄超过分代年龄时便会进入老年代，最后引发FGC. </li>
+<li>程序BUG导致动态生成了很多新类，使得 Metaspace 不断被占用，先引发FGC，最后导致OOM.</li>
+<li>代码中显式调用了gc方法，包括自己的代码甚至框架中的代码。</li>
+<li>JVM参数设置问题：包括总内存大小、新生代和老年代的大小、Eden区和S区的大小、元空间大小、垃圾回收算法等等。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>sre</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>springboot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql在使用order by limit时出现数据重复的问题</title>
+    <url>/2019/12/04/mysql-priority-que/</url>
+    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
+<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
+</blockquote>
+</li>
+<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
+<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
+<p>很明显，模式1能够极大的减少回表的随机IO。</p>
+</blockquote>
+</li>
+<li>priority query</li>
+</ul>
+<ol>
+<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
+<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
+<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
+</ol>
+<ul>
+<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
+<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
+<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>database</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>mysql锁相关</title>
     <url>/2021/12/17/mysql-lock/</url>
     <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><code>SpringBoot</code>的<code>schedule</code>模块可以支持定时脚本，原理其实就是<code>SchedulingTaskExecutor</code>类，它实现了<code>java.util.concurrent.Executor</code>接口，这个接口主要是定义了线程的执行，例如我们日常常用的线程池执行器<code>ThreadPoolExecutor</code>类就是实现了<code>Executor</code>接口。此文重点不是介绍<code>SpringBoot</code>的<code>schedule</code>模块，所以具体实现逻辑及源码部分解析，在此略过。但问题是<code>schedule</code>模块不支持分布式部署，而我们当前的业务需要部署在多个节点上，为了实现多个节点上在某个时刻只执行某个定时脚本，其他节点不重复执行，我们调研了<code>MYSQL</code>的锁，用以实现分布式锁场景。</p>
@@ -2449,76 +2555,6 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </tags>
   </entry>
   <entry>
-    <title>记一次线上fgc排查过程</title>
-    <url>/2022/01/19/java_full_gc/</url>
-    <content><![CDATA[<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>用户反馈api请求时快时慢，慢的时候网页打开很久都没有结果，直到超时给出500错误</p>
-<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><h4 id="初步怀疑"><a href="#初步怀疑" class="headerlink" title="初步怀疑"></a>初步怀疑</h4><p>当前程序分布式部署在多个节点上，通过<code>vip</code>进行负载均衡，所以对于直接将反馈慢的页面打开的请求通过<code>curl</code>方式登陆生产环境所有节点，进行轮训一遍，发现其中02节点需要等待很久，其他节点均正常，所以问题应该出在02节点，<br>注意：这个定位过程当然也可以使用监控图就一目了然了。推荐使用<code>grafana prometheus spring boot dashboard</code>在<code>google</code>搜寻下相关配置就可以了。<br><img src="/images/java/fgc/8.png" alt="cgi"></p>
-<h4 id="查询该节点负载"><a href="#查询该节点负载" class="headerlink" title="查询该节点负载"></a>查询该节点负载</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 得到进程的pid</span><br><span class="line">jps -mlv </span><br><span class="line"># 通过top命令查询节点实际负载</span><br><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java/fgc/1.png" alt="cgi"></p>
-<blockquote>
-<p>通过top命令发现该节点memory使用了接近<code>90%</code>，怀疑出现内存泄露</p>
-</blockquote>
-<h4 id="查询该节点内存使用情况"><a href="#查询该节点内存使用情况" class="headerlink" title="查询该节点内存使用情况"></a>查询该节点内存使用情况</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jstat -gcutil pid 1000</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java/fgc/2.png" alt="cgi"></p>
-<blockquote>
-<p>如我所料，几乎不到<code>1s</code>就开始做一次<code>fgc</code>，所以服务才越来越慢响应</p>
-</blockquote>
-<h3 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h3><h4 id="使用jmap分析内存概要"><a href="#使用jmap分析内存概要" class="headerlink" title="使用jmap分析内存概要"></a>使用jmap分析内存概要</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -heap pid ｜ head -n20</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java/fgc/10.png" alt="cgi"></p>
-<h4 id="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"><a href="#使用jmap打印堆内存的对象，带上live，则只统计活着的对象" class="headerlink" title="使用jmap打印堆内存的对象，带上live，则只统计活着的对象"></a>使用jmap打印堆内存的对象，带上live，则只统计活着的对象</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -histo pid ｜ head -n20</span><br><span class="line">jmap -histo:live pid ｜ head -n20</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java/fgc/11.png" alt="cgi"></p>
-<h4 id="打印进程的内存使用情况"><a href="#打印进程的内存使用情况" class="headerlink" title="打印进程的内存使用情况"></a>打印进程的内存使用情况</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jmap -dump:format&#x3D;b,file&#x3D;dumpFileName pid</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java/fgc/3.png" alt="cgi"></p>
-<blockquote>
-<p>dump出来了<code>12G</code>的文件，通过scp工具转存到本地</p>
-</blockquote>
-<h4 id="jprofiler分析堆内存"><a href="#jprofiler分析堆内存" class="headerlink" title="jprofiler分析堆内存"></a>jprofiler分析堆内存</h4><ul>
-<li>1、把dumpFileName文件转存为.hprof格式后直接双击打开，按照instance count逆序排列<br><img src="/images/java/fgc/5.png" alt="cgi"></li>
-<li>2、会发现有hashmap类型占了最大头，但是这个类型，双击它，选择<code>merged incoming reference</code>，查看合并后的来源引用统计<br><img src="/images/java/fgc/6.png" alt="cgi"></li>
-<li>3、还是选最大头的文件数一直拆到最里层，找出来源引用是<code>org.apache.ibatis.executor.result.DefaultResultHandler</code>这个类，基本能定位到问题根源了，是我们连接<code>clickhouse</code>客户端去查询结果时，未对结果集做限制，导致了一个很大的结果集返回到内存中。<br><img src="/images/java/fgc/7.png" alt="cgi"></li>
-</ul>
-<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><p>当然是对结果集做限制，检测用户输入的sql，是否包含limit条数限制，若未限制，则对sql进行改写，增加<code>500</code>条数限制<br><img src="/images/java/fgc/9.png" alt="cgi"></p>
-<h3 id="GC的运行原理"><a href="#GC的运行原理" class="headerlink" title="GC的运行原理"></a>GC的运行原理</h3><p><code>GC</code>（<code>garbage collection</code>）：垃圾回收，主要是指<code>YGC</code>和<code>FGC</code><br><code>YGC</code>（minor garbage collection）：新生代垃圾回收<br><code>FGC</code>（major garbage collection）：老年代垃圾回收</p>
-<h4 id="堆内存结构"><a href="#堆内存结构" class="headerlink" title="堆内存结构"></a>堆内存结构</h4><p><img src="/images/java/fgc/12.png" alt="cgi"><br>堆内存采用了分代结构，包括新生代和老年代，新生代分为：<code>eden</code>区、<code>from survivor</code>区（简称<code>s0</code>）、<code>to survivor</code>区（简称<code>s1</code>），三者默认比例上8:1:1，另外新生代和老年代的比例则是1:2。<br>堆内存之所以采用分代结构，是因为绝大多数对象都是短生命周期的，这样设计可以把不同的生命周期的对象放在不同的区域中，然后针对新生代和老年代采用不同的垃圾回收算法，从而使得<code>GC</code>效率最高。</p>
-<h4 id="YGC是什么时候触发的？"><a href="#YGC是什么时候触发的？" class="headerlink" title="YGC是什么时候触发的？"></a>YGC是什么时候触发的？</h4><p>大多数情况下，对象直接在年轻代中的<code>Eden</code>区进行分配，如果<code>Eden</code>区域没有足够的空间，那么就会触发<code>YGC</code>（<code>Minor GC</code>），<code>YGC</code>处理的区域只有新生代。因为大部分对象在短时间内都是可收回掉的，因此YGC后只有极少数的对象能存活下来，而被移动到S0区（采用的是复制算法）。<br>当触发下一次YGC时，会将Eden区和S0区的存活对象移动到S1区，同时清空Eden区和S0区。当再次触发YGC时，这时候处理的区域就变成了Eden区和S1区（即S0和S1进行角色交换）。每经过一次YGC，存活对象的年龄就会加1。</p>
-<h4 id="FGC是什么时候触发的？"><a href="#FGC是什么时候触发的？" class="headerlink" title="FGC是什么时候触发的？"></a>FGC是什么时候触发的？</h4><ul>
-<li><p>1、<code>YGC</code>时，<code>To Survivor</code>区不足以存放存活的对象，对象会直接进入到老年代。经过多次<code>YGC</code>后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中。动态年龄判定规则，<code>To Survivor</code>区中相同年龄的对象，如果其大小之和占到了 <code>To Survivor</code> 区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。大对象：由<code>-XX:PretenureSizeThreshold</code>启动参数控制，若对象大小大于此值，就会绕过新生代, 直接在老年代中分配。当晋升到老年代的对象大于了老年代的剩余空间时，就会触发<code>FGC</code>（<code>Major GC</code>），<code>FGC</code>处理的区域同时包括新生代和老年代。老年代的内存使用率达到了一定阈值（可通过参数调整），直接触发<code>FGC</code>。</p>
-</li>
-<li><p>2、空间分配担保：在<code>YGC</code>之前，会先检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果小于，说明<code>YGC</code>是不安全的，则会查看参数 <code>HandlePromotionFailure</code> 是否被设置成了允许担保失败，如果不允许则直接触发<code>Full GC</code>；如果允许，那么会进一步检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果小于也会触发 <code>Full GC</code>。</p>
-</li>
-<li><p>3、<code>Metaspace</code>（元空间）在空间不足时会进行扩容，当扩容到了<code>-XX:MetaspaceSize</code> 参数的指定值时，也会触发<code>FGC</code>。</p>
-</li>
-<li><p>4、<code>System.gc</code>() 或者<code>Runtime.gc</code>() 被显式调用时，触发<code>FGC</code>。</p>
-</li>
-</ul>
-<h4 id="GC对程序会产生什么影响"><a href="#GC对程序会产生什么影响" class="headerlink" title="GC对程序会产生什么影响"></a>GC对程序会产生什么影响</h4><p>不管是YGC还是FGC，都会造成一定程度上的程序卡顿（stop the world问题：GC线程开始工作，其他工作线程被挂起），即使采用ParNew、CMS、G1这些更先进的垃圾回收算法，也只是减少卡顿的时间，并不能完全消除卡顿</p>
-<ul>
-<li>FGC过于频繁：<br>FGC通常是比较慢的，少则几百号秒，多则几秒，正常情况下FGC每隔几个小时或者几天才会执行一次，对系统的影响是可接受的，所以一旦出现FGC频繁（比如几分钟/几十分钟出现一次）会导致工作线程频繁被停掉，让系统看起来就一直卡顿，使得程序的整体性能变差。</li>
-<li>YGC耗时过长：<br>一般来说YGC的总耗时指需要几十毫秒或上百毫秒，对于系统来说几乎无感知，所以如果YGC耗时达到1秒甚至几秒（快赶上FGC的耗时），那么卡顿就会加剧，加上YGC本身会比较频繁发生，就可能导致服务响应时间超时。</li>
-<li>FGC耗时过长：<br>FGC耗时增加，卡顿时间也会随之增加，尤其对于高并发服务，可能导致FGC期间比较多的超时问题，可用性降低，这种也需要关注</li>
-<li>YGC过于频繁：<br>即使YGC不会引起服务超时，但是YGC过于频繁也会降低服务的整体性能，对于高并发服务也是需要关注的。</li>
-</ul>
-<blockquote>
-<p>其中，「FGC过于频繁」和「YGC耗时过长」，这两种情况属于比较典型的GC问题，大概率会对程序的服务质量产生影响。剩余两种情况的严重程度低一些，但是对于高并发或者高可用的程序也需要关注。</p>
-</blockquote>
-<h4 id="导致FGC的原因总结"><a href="#导致FGC的原因总结" class="headerlink" title="导致FGC的原因总结"></a>导致FGC的原因总结</h4><ul>
-<li>大对象：系统一次性加载了过多数据到内存中（比如SQL查询未做分页），导致大对象进入了老年代。（即本文中的案例）</li>
-<li>内存泄漏：频繁创建了大量对象，但是无法被回收（比如IO对象使用完后未调用close方法释放资源），先引发FGC，最后导致OOM.</li>
-<li>程序频繁生成一些长生命周期的对象，当这些对象的存活年龄超过分代年龄时便会进入老年代，最后引发FGC. </li>
-<li>程序BUG导致动态生成了很多新类，使得 Metaspace 不断被占用，先引发FGC，最后导致OOM.</li>
-<li>代码中显式调用了gc方法，包括自己的代码甚至框架中的代码。</li>
-<li>JVM参数设置问题：包括总内存大小、新生代和老年代的大小、Eden区和S区的大小、元空间大小、垃圾回收算法等等。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>sre</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-        <tag>springboot</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql5.7忘记root密码</title>
     <url>/2020/07/16/mysql5.7-forget-password/</url>
     <content><![CDATA[<ul>
@@ -2534,42 +2570,6 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
 ]]></content>
       <categories>
         <category>tool</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mysql在使用order by limit时出现数据重复的问题</title>
-    <url>/2019/12/04/mysql-priority-que/</url>
-    <content><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用户反馈说分页数据重复，查看日志，发现说这样的sql：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select column1,column2 </span><br><span class="line">from table</span><br><span class="line">where columnx &#x3D; &#39;xxx&#39;</span><br><span class="line">order by columny</span><br><span class="line">limit current,size</span><br></pre></td></tr></table></figure></p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>mysql版本<br>mysql5.7.20<br>查看mysql的<a href="https://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-16.html" target="_blank" rel="noopener">changes list</a>  <blockquote>
-<p>MySQL 5.6 has only one way one can check whether filesort used priority queue. You need to enable optimizer_trace (set optimizer_trace=1), and then run the query (not EXPLAIN, but the query itself). Then, you can look into the optimizer trace </p>
-</blockquote>
-</li>
-<li>order by<br>MySQL 执行查询语句， 对于order by谓词，可能会使用filesort或者temporary。比如explain一条语句的时候，会看到Extra字段中可能会出现，using filesort和using temporary。下面我们就来探讨下两个的区别和适用场景。</li>
-<li>filesort<br>filesort主要用于查询数据结果集的排序操作，首先MySQL会使用<strong>sort_buffer_size</strong>大小的内存进行排序，如果结果集超过了<strong>sort_buffer_size</strong>大小，会把这一个排序后的<strong>chunk</strong>转移到<strong>file</strong>上，最后使用<strong>多路归并排序</strong>完成所有数据的排序操作。<br>filesort有两种使用模式:<br>模式1: sort的item保存了所需要的所有字段，排序完成后，没有必要再回表扫描。<br>模式2: sort的item仅包括，待排序完成后，根据rowid查询所需要的columns。<blockquote>
-<p>很明显，模式1能够极大的减少回表的随机IO。</p>
-</blockquote>
-</li>
-<li>priority query</li>
-</ul>
-<ol>
-<li>打开optimizer_trace<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set session optimizer_trace&#x3D;’enabled&#x3D;on&#39;;</span><br></pre></td></tr></table></figure></li>
-<li>查询information_schema.optimizer_trace表<br>主要分为三个部分<br>join_preparation：SQL的准备阶段，sql被格式化<br>对应函数 JOIN::prepare<br>join_optimization：SQL优化阶段<br>对应函数JOIN::optimize<br>join_execution：SQL执行阶段<br>对应函数：JOIN::exec</li>
-<li>查看sql执行阶段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;join_execution&quot;: &#123;</span><br><span class="line">&quot;select#&quot;: 1,</span><br><span class="line">&quot;steps&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">    &quot;filesort_information&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">        &quot;direction&quot;: &quot;asc&quot;,</span><br><span class="line">        &quot;table&quot;: &quot;&#96;film&#96;&quot;,</span><br><span class="line">        &quot;field&quot;: &quot;actor_age&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_priority_queue_optimization&quot;: &#123;</span><br><span class="line">        &quot;usable&quot;: false,</span><br><span class="line">        &quot;cause&quot;: &quot;not applicable (no LIMIT)&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;filesort_execution&quot;: [</span><br><span class="line">    ],</span><br><span class="line">    &quot;filesort_summary&quot;: &#123;</span><br><span class="line">        &quot;rows&quot;: 1,</span><br><span class="line">        &quot;examined_rows&quot;: 5,</span><br><span class="line">        &quot;number_of_tmp_files&quot;: 0,</span><br><span class="line">        &quot;sort_buffer_size&quot;: 261872,</span><br><span class="line">        &quot;sort_mode&quot;: &quot;&lt;sort_key, packed_additional_fields&gt;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-当使用order by limit时，filesort_priority_queue_optimization给出的useable为true，在mysql5.6之后（包括5.6）做了一个优化，即<strong>priority queue</strong>，使用<strong>priority queue</strong>的目的是为了加快查询，如果sql中未使用到索引有序性时，<strong>order by limit</strong>会在满足<strong>buffer size</strong>设置后返回只保证返回<strong>limit size</strong>，但不保证排序出来的结果和读出来的数据顺序一致，这就是堆排序对效果，先select出符合条件的rows，再order by column，如果这个column没有明确的唯一性，则再limit后，只是会随机出limit的size条数，这个随机性不保证数据是否重复<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3></li>
-</ol>
-<ul>
-<li>使用有序索引排序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table where xx order by column desc,id desc limit size</span><br></pre></td></tr></table></figure></li>
-<li>给order by 的column加上索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter table add index (column)</span><br></pre></td></tr></table></figure></li>
-<li>强制使用索引<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select from table force index(column) order by column limit size</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>database</category>
       </categories>
       <tags>
         <tag>mysql</tag>
@@ -2660,6 +2660,32 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </tags>
   </entry>
   <entry>
+    <title>centos7源码安装nginx</title>
+    <url>/2020/08/11/nginx-install/</url>
+    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
+<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>路径整理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>web server</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>centos7源码安装php7.2</title>
     <url>/2020/08/11/php7.2-install/</url>
     <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
@@ -2710,32 +2736,6 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </categories>
       <tags>
         <tag>php7.2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos7源码安装nginx</title>
-    <url>/2020/08/11/nginx-install/</url>
-    <content><![CDATA[<h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>web server</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -2880,6 +2880,30 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
       </tags>
   </entry>
   <entry>
+    <title>clickhouse离线导入大揭秘</title>
+    <url>/2022/09/26/replace-trigger/</url>
+    <content><![CDATA[<h3 id="如何按照hive表的表结构创建clickhouse表"><a href="#如何按照hive表的表结构创建clickhouse表" class="headerlink" title="如何按照hive表的表结构创建clickhouse表"></a>如何按照hive表的表结构创建clickhouse表</h3><p>点击<a href="http://studio.data.didichuxing.com/stream/create-table?tableType=clickHouse" target="_blank" rel="noopener">链接</a>通过数梦的实时平台可以快捷创建对应hive表结构的ck表，如下图所示：<br><img src="/images/clickhouse/hive2clickhouse/1.png" alt="clickhouse"></p>
+<h3 id="hive表的数据如何导入clickhouse表"><a href="#hive表的数据如何导入clickhouse表" class="headerlink" title="hive表的数据如何导入clickhouse表"></a>hive表的数据如何导入clickhouse表</h3><h4 id="创建同步任务"><a href="#创建同步任务" class="headerlink" title="创建同步任务"></a>创建同步任务</h4><p>点击<a href="http://sync.data-pre.didichuxing.com/job/offline/edit/818177?step=1" target="_blank" rel="noopener">链接</a>通过数梦的同步中心可以快捷创建hive表映射到ck表的同步任务，如下图所示<br><img src="/images/clickhouse/hive2clickhouse/2.png" alt="clickhouse"></p>
+<h4 id="同步任务流程"><a href="#同步任务流程" class="headerlink" title="同步任务流程"></a>同步任务流程</h4><p>如下图所示，我们按照这个流程处理hive数据导入到clickhouse<br><img src="/images/clickhouse/hive2clickhouse/3.png" alt="clickhouse"></p>
+<ul>
+<li><ol>
+<li>创建临时表<br>按照ck表的表结构，我们会在集群的所有写节点创建同样表结构的单机表（MergeTree）引擎</li>
+</ol>
+</li>
+<li><ol>
+<li>起spark任务，利用clickhouse-local工具将hive表导入到临时表<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat data.orc | clickhouse-local \</span><br><span class="line">--format&#x3D;Native \</span><br><span class="line">--query&#x3D;&#39;CREATE TABLE input (col1 String, col2 String, col3 String) ENGINE &#x3D; File(ORC, stdin);CREATE TABLE target_table (col1 String, col2 String, col3 String) ENGINE &#x3D; MergeTree() partition by tuple() order by col1;insert into target_table select *,&quot;$year&quot; as year,&quot;$month&quot; as month, &quot;$day&quot; as day from input;optimize table target_table final&#39; \</span><br><span class="line">--config-file&#x3D;config.xmls</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>bigdata</category>
+      </categories>
+      <tags>
+        <tag>clickhouse</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>线程知识点</title>
     <url>/2021/10/20/thread-basic/</url>
     <content><![CDATA[<h3 id="进程是什么"><a href="#进程是什么" class="headerlink" title="进程是什么"></a>进程是什么</h3><blockquote>
@@ -2943,121 +2967,6 @@ The default initial and maximum heap sizes work similarly on the server JVM as i
 <h3 id="线程的应用实践"><a href="#线程的应用实践" class="headerlink" title="线程的应用实践"></a>线程的应用实践</h3><ul>
 <li>Thread类<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class ThreadStatusTest &#123;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">        Thread t &#x3D; new Thread(() -&gt; &#123;</span><br><span class="line">            System.out.println(&quot;hello&quot;);</span><br><span class="line">            try &#123;</span><br><span class="line">                Thread.sleep(100000);</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        System.out.println(&quot;start&quot;);</span><br><span class="line">        System.out.println(&quot;&#x3D;&#x3D;1&#x3D;&#x3D;&quot;+t.getState());</span><br><span class="line">        t.start();</span><br><span class="line">        System.out.println(&quot;&#x3D;&#x3D;2&#x3D;&#x3D;&quot;+t.getState());</span><br><span class="line">        t.join();</span><br><span class="line">        System.out.println(&quot;&#x3D;&#x3D;3&#x3D;&#x3D;&quot;+t.getState());</span><br><span class="line">        System.out.println(&quot;end&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 如上图<br><img src="/images/java_thread_basic/4.png" alt="avatar"><br><img src="/images/java_thread_basic/5.png" alt="avatar"></li>
-</ul>
-]]></content>
-      <categories>
-        <category>interview</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>线程池相关</title>
-    <url>/2021/10/17/thread-pool/</url>
-    <content><![CDATA[<h3 id="如何判断程序类型"><a href="#如何判断程序类型" class="headerlink" title="如何判断程序类型"></a>如何判断程序类型</h3><ul>
-<li><p>CPU密集型</p>
-<blockquote>
-<p> <code>CPU</code> 密集型简单理解就是利用 <code>CPU</code> 计算能力的任务,比如你在内存中对大量数据进行排序</p>
-</blockquote>
-</li>
-<li><p>I/O密集型</p>
-<blockquote>
-<p>但凡涉及到网络读取，文件读取这类都是 <code>IO</code> 密集型，这类任务的特点是 <code>CPU</code> 计算耗费时间相比于等待 <code>IO</code> 操作完成的时间来说很少，大部分时间都花在了等待 <code>IO</code> 操作完成上。</p>
-</blockquote>
-</li>
-</ul>
-<h3 id="线程池设置"><a href="#线程池设置" class="headerlink" title="线程池设置"></a>线程池设置</h3><ul>
-<li><p>CPU 密集型任务(CPU核数 + 1)： </p>
-<blockquote>
-<p>这种任务消耗的主要是 <code>CPU</code> 资源，可以将线程数设置为 <code>N</code>（<code>CPU</code> 核心数）+1，比 <code>CPU</code> 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，<code>CPU</code> 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。</p>
-</blockquote>
-</li>
-<li><p>I/O 密集型任务(CPU核数 * 2)： </p>
-<blockquote>
-<p>这种任务应用起来，系统会用大部分的时间来处理 <code>I/O</code> 交互，而线程在处理 <code>I/O</code> 的时间段内不会占用 <code>CPU</code> 来处理，这时就可以将 <code>CPU</code> 交出给其它线程使用。因此在 I/O 密集型任务的应用中，我们可以多配置一些线程，具体的计算方法是 <code>2N</code>。</p>
-</blockquote>
-</li>
-<li><p>参数介绍</p>
-<ul>
-<li>corePoolSize：核心线程数，定义了最小可以同时运行的线程数量</li>
-<li>maximumPoolSize：当队列中存放的任务达到队列容量时，当前可以同时运行的线程数量变为最大线程数</li>
-<li>workQueue：当新任务来的时候，先判断当前运行的线程数量是否达到核心线程数（corePoolSize），如果达到，则新任务会被存放到队列中</li>
-<li>keepAliveTime：当线程池中的线程数量大于核心线程池（corePoolSize）时，如果没有新任务提交，核心线程外的线程（maximumPoolSize - corePoolSize）不会被立即销毁，而是等到keepAliveTime时间后，才会被回收销毁</li>
-<li>unit：keepAliveTime的时间单位（TimeUnit类中的成员变量）</li>
-<li>threadFactory：executor创建线程的工厂类</li>
-<li>handler：饱和策略<blockquote>
-<p>如果当前同时运行的线程数量达到最大线程数（maximumPoolSize），并且队列（workQueue）已经满了，ThreadPoolExecutory就会执行一些策略</p>
-<ul>
-<li>AbortPolicy：抛出 RejectExecutionExeception 来拒绝新任务加入 （默认）</li>
-<li>CallerRunsPolicy：调用执行自己的线程运行拒绝任务</li>
-<li>DiscardPolicy：不处理新任务，直接丢弃</li>
-<li>DiscardOldestPolicy：丢弃最早的未处理的任务</li>
-</ul>
-</blockquote>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="/images/java_thread_pool/1.png" alt="avatar"></p>
-<h3 id="线程池原理分析"><a href="#线程池原理分析" class="headerlink" title="线程池原理分析"></a>线程池原理分析</h3><ul>
-<li><p>ThreadPoolExecutor</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class ThreadPoolExecutor extends AbstractExecutorService &#123;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>ThreadPoolExecutor类 继承了 AbstractExecutorService类</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public abstract class AbstractExecutorService implements ExecutorService &#123;</span><br></pre></td></tr></table></figure>
-<p>AbstractExecutorService类 实现了 ExecutorService接口</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public interface ExecutorService extends Executor &#123;</span><br></pre></td></tr></table></figure>
-<p>ExecutorService接口 继承了 Executor类</p>
-</blockquote>
-</li>
-<li><p>线程池demo</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package blank.lin.thread;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.ArrayBlockingQueue;</span><br><span class="line">import java.util.concurrent.ThreadPoolExecutor;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">public class ThreadPoolTest &#123;</span><br><span class="line">    private static ThreadPoolExecutor threadPoolExecutor &#x3D; new ThreadPoolExecutor(</span><br><span class="line">            1,</span><br><span class="line">            2,</span><br><span class="line">            0L,</span><br><span class="line">            TimeUnit.MILLISECONDS,</span><br><span class="line">            new ArrayBlockingQueue&lt;Runnable&gt;(1)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第1个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第1个任务，线程池刚刚初始化，没有可以执行任务的核心线程，创建一个核心线程来执行任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第2个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第2个任务，没有可以执行任务的核心线程，且任务数大于corePoolSize，新加入任务被放在了阻塞队列中&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第3个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第3个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第4个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第4个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第1个任务执行完毕，核心线程空闲，阻塞队列的任务被取出来，使用核心线程来执行&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第2个任务执行完毕，核心线程空闲，非核心线程在执行第3个任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第3个任务执行完毕，非核心线程被销毁，核心线程保留&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void printCount() &#123;</span><br><span class="line">        System.out.println(&quot;------------------------------------&quot;);</span><br><span class="line">        System.out.println(&quot;当前活跃线程数:&quot;+threadPoolExecutor.getActiveCount());</span><br><span class="line">        System.out.println(&quot;当前核心线程数:&quot;+threadPoolExecutor.getCorePoolSize());</span><br><span class="line">        System.out.println(&quot;阻塞队列中的任务数:&quot;+threadPoolExecutor.getQueue().size());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>threadPoolExecutor.execute源码分析</p>
-<blockquote>
-<p>处理过程一共3步  </p>
-</blockquote>
-<ul>
-<li>首先判断核心线程池是否满了，未满则开启新线程执行任务，addWorker调用会原子性检查线程运行状态和线程数，并且<blockquote>
-<ol>
-<li>If fewer than corePoolSize threads are running, try to start a new thread with the given command as its first task.  The call to addWorker atomically checks runState and workerCount, and so prevents false alarms that would add threads when it shouldn’t, by returning false.</li>
-</ol>
-</blockquote>
-</li>
-<li>如果一个任务被成功加入到队列里，也会重复检查是否应该新添加一个线程去执行，因为自上次检查后现存线程可以已死，或者线程池在进入这个方法后就关闭了，所以我们会重复检查状态，并且判断是否需要回滚队列，或者开启新线程<blockquote>
-<ol>
-<li>If a task can be successfully queued, then we still need to double-check whether we should have added a thread (because existing ones died since last checking) or that the pool shut down since entry into this method. So we recheck state and if necessary roll back the enqueuing if stopped, or start a new thread if there are none.</li>
-</ol>
-</blockquote>
-</li>
-<li>如果无法加入队列任务，我们会尝试新添加一个线程，如果新线程添加失败，我们知道线程被关闭了或者已经满了，所以任务会被拒绝<blockquote>
-<ol>
-<li>If we cannot queue task, then we try to add a new thread.  If it fails, we know we are shut down or saturated and so reject the task.  </li>
-</ol>
-</blockquote>
-</li>
-</ul>
-</li>
-<li>源码   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public void execute(Runnable command) &#123;</span><br><span class="line">        &#x2F;&#x2F; 任务为空，抛异常</span><br><span class="line">        if (command &#x3D;&#x3D; null)</span><br><span class="line">            throw new NullPointerException();</span><br><span class="line">         &#x2F;&#x2F; ctl中保存的线程池当前的一些任务状态</span><br><span class="line">        int c &#x3D; ctl.get();</span><br><span class="line">        &#x2F;&#x2F; 上面介绍的3步从这里开始</span><br><span class="line">        &#x2F;&#x2F; 第一步，判断当前线程池中的任务数量是否小于核心线程数</span><br><span class="line">        &#x2F;&#x2F; 如果小于的话通过addWorker新建一个线程，并将任务添加到线程去执行</span><br><span class="line">        if (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">            if (addWorker(command, true))</span><br><span class="line">                return;</span><br><span class="line">            c &#x3D; ctl.get();</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第二步，如果当前线程数已经大于等于核心线程数了</span><br><span class="line">        &#x2F;&#x2F; 通过isRunning来判断线程池状态，线程池处于RUNNING状态，才会将任务加入到workQueue队列中</span><br><span class="line">        if (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">            int recheck &#x3D; ctl.get();</span><br><span class="line">            &#x2F;&#x2F; 再次获取线程池状态，如果线程池不是RUNNING状态了，就需要从workQueue中移除任务</span><br><span class="line">            if (! isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">                &#x2F;&#x2F; 执行拒绝策略</span><br><span class="line">                reject(command);</span><br><span class="line">            &#x2F;&#x2F; 当前线程池为空，则重新创建线程去执行任务</span><br><span class="line">            else if (workerCountOf(recheck) &#x3D;&#x3D; 0)</span><br><span class="line">                addWorker(null, false);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第三步</span><br><span class="line">        &#x2F;&#x2F; 创建线程执行任务失败，执行相应的拒绝任务</span><br><span class="line">        else if (!addWorker(command, false))</span><br><span class="line">            reject(command);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<img src="/images/java_thread_pool/2.png" alt="avatar"></li>
-</ul>
-<h3 id="查看机器cpu信息"><a href="#查看机器cpu信息" class="headerlink" title="查看机器cpu信息"></a>查看机器cpu信息</h3><ul>
-<li><p>查看物理cpu个数</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java_thread_pool/4.png" alt="avatar"></p>
-</li>
-<li><p>查看每个物理cpu中core的个数（即核数）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;cpu cores&quot;| uniq</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java_thread_pool/5.png" alt="avatar"></p>
-</li>
-<li><p>查看逻辑cpu的个数</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;processor&quot;| wc -l</span><br><span class="line">&#x2F;&#x2F; 在java里也可以这样查询</span><br><span class="line">Runtime.getRuntime().avaliableProcessor();</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java_thread_pool/3.png" alt="avatar"></p>
-</li>
-<li><p>查看cpu型号</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep name | uniq | cut -f2 -d:</span><br></pre></td></tr></table></figure>
-<p><img src="/images/java_thread_pool/6.png" alt="avatar"></p>
-</li>
 </ul>
 ]]></content>
       <categories>
@@ -3301,27 +3210,118 @@ LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
       </tags>
   </entry>
   <entry>
-    <title>clickhouse离线导入大揭秘</title>
-    <url>/2022/09/26/replace-trigger/</url>
-    <content><![CDATA[<h3 id="如何按照hive表的表结构创建clickhouse表"><a href="#如何按照hive表的表结构创建clickhouse表" class="headerlink" title="如何按照hive表的表结构创建clickhouse表"></a>如何按照hive表的表结构创建clickhouse表</h3><p>点击<a href="http://studio.data.didichuxing.com/stream/create-table?tableType=clickHouse" target="_blank" rel="noopener">链接</a>通过数梦的实时平台可以快捷创建对应hive表结构的ck表，如下图所示：<br><img src="/images/clickhouse/hive2clickhouse/1.png" alt="clickhouse"></p>
-<h3 id="hive表的数据如何导入clickhouse表"><a href="#hive表的数据如何导入clickhouse表" class="headerlink" title="hive表的数据如何导入clickhouse表"></a>hive表的数据如何导入clickhouse表</h3><h4 id="创建同步任务"><a href="#创建同步任务" class="headerlink" title="创建同步任务"></a>创建同步任务</h4><p>点击<a href="http://sync.data-pre.didichuxing.com/job/offline/edit/818177?step=1" target="_blank" rel="noopener">链接</a>通过数梦的同步中心可以快捷创建hive表映射到ck表的同步任务，如下图所示<br><img src="/images/clickhouse/hive2clickhouse/2.png" alt="clickhouse"></p>
-<h4 id="同步任务流程"><a href="#同步任务流程" class="headerlink" title="同步任务流程"></a>同步任务流程</h4><p>如下图所示，我们按照这个流程处理hive数据导入到clickhouse<br><img src="/images/clickhouse/hive2clickhouse/3.png" alt="clickhouse"></p>
-<ul>
-<li><ol>
-<li>创建临时表<br>按照ck表的表结构，我们会在集群的所有写节点创建同样表结构的单机表（MergeTree）引擎</li>
-</ol>
+    <title>线程池相关</title>
+    <url>/2021/10/17/thread-pool/</url>
+    <content><![CDATA[<h3 id="如何判断程序类型"><a href="#如何判断程序类型" class="headerlink" title="如何判断程序类型"></a>如何判断程序类型</h3><ul>
+<li><p>CPU密集型</p>
+<blockquote>
+<p> <code>CPU</code> 密集型简单理解就是利用 <code>CPU</code> 计算能力的任务,比如你在内存中对大量数据进行排序</p>
+</blockquote>
 </li>
-<li><ol>
-<li>起spark任务，利用clickhouse-local工具将hive表导入到临时表<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat data.orc | clickhouse-local \</span><br><span class="line">--format&#x3D;Native \</span><br><span class="line">--query&#x3D;&#39;CREATE TABLE input (col1 String, col2 String, col3 String) ENGINE &#x3D; File(ORC, stdin);CREATE TABLE target_table (col1 String, col2 String, col3 String) ENGINE &#x3D; MergeTree() partition by tuple() order by col1;insert into target_table select *,&quot;$year&quot; as year,&quot;$month&quot; as month, &quot;$day&quot; as day from input;optimize table target_table final&#39; \</span><br><span class="line">--config-file&#x3D;config.xmls</span><br></pre></td></tr></table></figure></li>
+<li><p>I/O密集型</p>
+<blockquote>
+<p>但凡涉及到网络读取，文件读取这类都是 <code>IO</code> 密集型，这类任务的特点是 <code>CPU</code> 计算耗费时间相比于等待 <code>IO</code> 操作完成的时间来说很少，大部分时间都花在了等待 <code>IO</code> 操作完成上。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="线程池设置"><a href="#线程池设置" class="headerlink" title="线程池设置"></a>线程池设置</h3><ul>
+<li><p>CPU 密集型任务(CPU核数 + 1)： </p>
+<blockquote>
+<p>这种任务消耗的主要是 <code>CPU</code> 资源，可以将线程数设置为 <code>N</code>（<code>CPU</code> 核心数）+1，比 <code>CPU</code> 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，<code>CPU</code> 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。</p>
+</blockquote>
+</li>
+<li><p>I/O 密集型任务(CPU核数 * 2)： </p>
+<blockquote>
+<p>这种任务应用起来，系统会用大部分的时间来处理 <code>I/O</code> 交互，而线程在处理 <code>I/O</code> 的时间段内不会占用 <code>CPU</code> 来处理，这时就可以将 <code>CPU</code> 交出给其它线程使用。因此在 I/O 密集型任务的应用中，我们可以多配置一些线程，具体的计算方法是 <code>2N</code>。</p>
+</blockquote>
+</li>
+<li><p>参数介绍</p>
+<ul>
+<li>corePoolSize：核心线程数，定义了最小可以同时运行的线程数量</li>
+<li>maximumPoolSize：当队列中存放的任务达到队列容量时，当前可以同时运行的线程数量变为最大线程数</li>
+<li>workQueue：当新任务来的时候，先判断当前运行的线程数量是否达到核心线程数（corePoolSize），如果达到，则新任务会被存放到队列中</li>
+<li>keepAliveTime：当线程池中的线程数量大于核心线程池（corePoolSize）时，如果没有新任务提交，核心线程外的线程（maximumPoolSize - corePoolSize）不会被立即销毁，而是等到keepAliveTime时间后，才会被回收销毁</li>
+<li>unit：keepAliveTime的时间单位（TimeUnit类中的成员变量）</li>
+<li>threadFactory：executor创建线程的工厂类</li>
+<li>handler：饱和策略<blockquote>
+<p>如果当前同时运行的线程数量达到最大线程数（maximumPoolSize），并且队列（workQueue）已经满了，ThreadPoolExecutory就会执行一些策略</p>
+<ul>
+<li>AbortPolicy：抛出 RejectExecutionExeception 来拒绝新任务加入 （默认）</li>
+<li>CallerRunsPolicy：调用执行自己的线程运行拒绝任务</li>
+<li>DiscardPolicy：不处理新任务，直接丢弃</li>
+<li>DiscardOldestPolicy：丢弃最早的未处理的任务</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/images/java_thread_pool/1.png" alt="avatar"></p>
+<h3 id="线程池原理分析"><a href="#线程池原理分析" class="headerlink" title="线程池原理分析"></a>线程池原理分析</h3><ul>
+<li><p>ThreadPoolExecutor</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class ThreadPoolExecutor extends AbstractExecutorService &#123;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ThreadPoolExecutor类 继承了 AbstractExecutorService类</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public abstract class AbstractExecutorService implements ExecutorService &#123;</span><br></pre></td></tr></table></figure>
+<p>AbstractExecutorService类 实现了 ExecutorService接口</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public interface ExecutorService extends Executor &#123;</span><br></pre></td></tr></table></figure>
+<p>ExecutorService接口 继承了 Executor类</p>
+</blockquote>
+</li>
+<li><p>线程池demo</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package blank.lin.thread;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.ArrayBlockingQueue;</span><br><span class="line">import java.util.concurrent.ThreadPoolExecutor;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">public class ThreadPoolTest &#123;</span><br><span class="line">    private static ThreadPoolExecutor threadPoolExecutor &#x3D; new ThreadPoolExecutor(</span><br><span class="line">            1,</span><br><span class="line">            2,</span><br><span class="line">            0L,</span><br><span class="line">            TimeUnit.MILLISECONDS,</span><br><span class="line">            new ArrayBlockingQueue&lt;Runnable&gt;(1)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第1个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第1个任务，线程池刚刚初始化，没有可以执行任务的核心线程，创建一个核心线程来执行任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第2个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第2个任务，没有可以执行任务的核心线程，且任务数大于corePoolSize，新加入任务被放在了阻塞队列中&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第3个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第3个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        threadPoolExecutor.execute(new Runnable() &#123;</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(500);</span><br><span class="line">                    System.out.println(&quot;第4个任务执行完成&quot;);</span><br><span class="line">                &#125; catch (Exception exception) &#123;</span><br><span class="line">                    exception.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;加入第4个任务，此时，阻塞队列已满，新建非核心线程执行新加入任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第1个任务执行完毕，核心线程空闲，阻塞队列的任务被取出来，使用核心线程来执行&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第2个任务执行完毕，核心线程空闲，非核心线程在执行第3个任务&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(600);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        printCount();</span><br><span class="line">        System.out.println(&quot;第3个任务执行完毕，非核心线程被销毁，核心线程保留&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void printCount() &#123;</span><br><span class="line">        System.out.println(&quot;------------------------------------&quot;);</span><br><span class="line">        System.out.println(&quot;当前活跃线程数:&quot;+threadPoolExecutor.getActiveCount());</span><br><span class="line">        System.out.println(&quot;当前核心线程数:&quot;+threadPoolExecutor.getCorePoolSize());</span><br><span class="line">        System.out.println(&quot;阻塞队列中的任务数:&quot;+threadPoolExecutor.getQueue().size());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>threadPoolExecutor.execute源码分析</p>
+<blockquote>
+<p>处理过程一共3步  </p>
+</blockquote>
+<ul>
+<li>首先判断核心线程池是否满了，未满则开启新线程执行任务，addWorker调用会原子性检查线程运行状态和线程数，并且<blockquote>
+<ol>
+<li>If fewer than corePoolSize threads are running, try to start a new thread with the given command as its first task.  The call to addWorker atomically checks runState and workerCount, and so prevents false alarms that would add threads when it shouldn’t, by returning false.</li>
 </ol>
+</blockquote>
+</li>
+<li>如果一个任务被成功加入到队列里，也会重复检查是否应该新添加一个线程去执行，因为自上次检查后现存线程可以已死，或者线程池在进入这个方法后就关闭了，所以我们会重复检查状态，并且判断是否需要回滚队列，或者开启新线程<blockquote>
+<ol>
+<li>If a task can be successfully queued, then we still need to double-check whether we should have added a thread (because existing ones died since last checking) or that the pool shut down since entry into this method. So we recheck state and if necessary roll back the enqueuing if stopped, or start a new thread if there are none.</li>
+</ol>
+</blockquote>
+</li>
+<li>如果无法加入队列任务，我们会尝试新添加一个线程，如果新线程添加失败，我们知道线程被关闭了或者已经满了，所以任务会被拒绝<blockquote>
+<ol>
+<li>If we cannot queue task, then we try to add a new thread.  If it fails, we know we are shut down or saturated and so reject the task.  </li>
+</ol>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>源码   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public void execute(Runnable command) &#123;</span><br><span class="line">        &#x2F;&#x2F; 任务为空，抛异常</span><br><span class="line">        if (command &#x3D;&#x3D; null)</span><br><span class="line">            throw new NullPointerException();</span><br><span class="line">         &#x2F;&#x2F; ctl中保存的线程池当前的一些任务状态</span><br><span class="line">        int c &#x3D; ctl.get();</span><br><span class="line">        &#x2F;&#x2F; 上面介绍的3步从这里开始</span><br><span class="line">        &#x2F;&#x2F; 第一步，判断当前线程池中的任务数量是否小于核心线程数</span><br><span class="line">        &#x2F;&#x2F; 如果小于的话通过addWorker新建一个线程，并将任务添加到线程去执行</span><br><span class="line">        if (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">            if (addWorker(command, true))</span><br><span class="line">                return;</span><br><span class="line">            c &#x3D; ctl.get();</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第二步，如果当前线程数已经大于等于核心线程数了</span><br><span class="line">        &#x2F;&#x2F; 通过isRunning来判断线程池状态，线程池处于RUNNING状态，才会将任务加入到workQueue队列中</span><br><span class="line">        if (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">            int recheck &#x3D; ctl.get();</span><br><span class="line">            &#x2F;&#x2F; 再次获取线程池状态，如果线程池不是RUNNING状态了，就需要从workQueue中移除任务</span><br><span class="line">            if (! isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">                &#x2F;&#x2F; 执行拒绝策略</span><br><span class="line">                reject(command);</span><br><span class="line">            &#x2F;&#x2F; 当前线程池为空，则重新创建线程去执行任务</span><br><span class="line">            else if (workerCountOf(recheck) &#x3D;&#x3D; 0)</span><br><span class="line">                addWorker(null, false);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 第三步</span><br><span class="line">        &#x2F;&#x2F; 创建线程执行任务失败，执行相应的拒绝任务</span><br><span class="line">        else if (!addWorker(command, false))</span><br><span class="line">            reject(command);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<img src="/images/java_thread_pool/2.png" alt="avatar"></li>
+</ul>
+<h3 id="查看机器cpu信息"><a href="#查看机器cpu信息" class="headerlink" title="查看机器cpu信息"></a>查看机器cpu信息</h3><ul>
+<li><p>查看物理cpu个数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/4.png" alt="avatar"></p>
+</li>
+<li><p>查看每个物理cpu中core的个数（即核数）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;cpu cores&quot;| uniq</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/5.png" alt="avatar"></p>
+</li>
+<li><p>查看逻辑cpu的个数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo| grep &quot;processor&quot;| wc -l</span><br><span class="line">&#x2F;&#x2F; 在java里也可以这样查询</span><br><span class="line">Runtime.getRuntime().avaliableProcessor();</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/3.png" alt="avatar"></p>
+</li>
+<li><p>查看cpu型号</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo | grep name | uniq | cut -f2 -d:</span><br></pre></td></tr></table></figure>
+<p><img src="/images/java_thread_pool/6.png" alt="avatar"></p>
 </li>
 </ul>
 ]]></content>
       <categories>
-        <category>bigdata</category>
+        <category>interview</category>
       </categories>
       <tags>
-        <tag>clickhouse</tag>
+        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -3503,24 +3503,6 @@ LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
 <p>欢迎大佬们加入<code>StarRocks</code>用户群，我们<code>OLAP</code>团队竭诚欢迎滴滴内部各项业务合作！</p>
 <p><img src="/images/starrocks/helloworld/21.png" alt="1"> —&gt;</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>macbook使用code .命令在vscode打开当前目录</title>
-    <url>/2020/02/17/vscode-open-project/</url>
-    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
-<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
-<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
-<blockquote>
-<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
-</blockquote>
-</blockquote>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>vscode</tag>
-      </tags>
   </entry>
   <entry>
     <title>关于时间的思考和总结</title>
@@ -3875,6 +3857,24 @@ LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
       </categories>
       <tags>
         <tag>HowToWriteMarkDownArticle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>macbook使用code .命令在vscode打开当前目录</title>
+    <url>/2020/02/17/vscode-open-project/</url>
+    <content><![CDATA[<h3 id="在vscode里使用快捷键如下"><a href="#在vscode里使用快捷键如下" class="headerlink" title="在vscode里使用快捷键如下"></a>在vscode里使用快捷键如下</h3><p>Open the Command Palette via (⇧⌘P)</p>
+<h3 id="在弹出框中输入命令如下"><a href="#在弹出框中输入命令如下" class="headerlink" title="在弹出框中输入命令如下"></a>在弹出框中输入命令如下</h3><p>shell command<br><img src="/images/vscode-code-command.png" alt="vscode"></p>
+<h3 id="重启vscode"><a href="#重启vscode" class="headerlink" title="重启vscode"></a>重启vscode</h3><blockquote>
+<blockquote>
+<p>After executing the command, restart the terminal for the new $PATH value to take effect. You’ll be able to simply type ‘code .’ in any folder to start editing files in that folder. The “.” Simply means “current directory”</p>
+</blockquote>
+</blockquote>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>vscode</tag>
       </tags>
   </entry>
 </search>
