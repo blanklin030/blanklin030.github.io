@@ -150,6 +150,179 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/02/wireshard3.4.8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/02/wireshard3.4.8/" class="post-title-link" itemprop="url">wireshark3.4.8保姆级入门教程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-02 10:09:55" itemprop="dateCreated datePublished" datetime="2021-10-02T10:09:55+08:00">2021-10-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/introduction/" itemprop="url" rel="index"><span itemprop="name">introduction</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="wireshark3-4-8，主界面"><a href="#wireshark3-4-8，主界面" class="headerlink" title="wireshark3.4.8，主界面"></a>wireshark3.4.8，主界面</h2><p><img src="/images/wireshark/1.png" alt="avatar"></p>
+<h2 id="通过ping简单入门"><a href="#通过ping简单入门" class="headerlink" title="通过ping简单入门"></a>通过ping简单入门</h2><ul>
+<li>启动wireshark后，wireshark处于抓包状态中<br><img src="/images/wireshark/2.png" alt="avatar"></li>
+<li>在终端输入ping命令后<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com</span><br></pre></td></tr></table></figure>
+<img src="/images/wireshark/3.png" alt="avatar"></li>
+<li>通过过滤栏设置过滤条件进行数据包列表过滤<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.addr &#x3D;&#x3D; 180.101.49.12 and icmp</span><br></pre></td></tr></table></figure>
+<img src="/images/wireshark/4.png" alt="avatar"></li>
+</ul>
+<blockquote>
+<p>ICMP（Internet Control Message Protocol）Internet控制报文协议。它是TCP/IP协议簇的一个子协议，用于在IP主机、路由器之间传递控制消息。控制消息是指网络通不通、主机是否可达、路由是否可用等网络本身的消息。这些控制消息虽然并不传输用户数据，但是对于用户数据的传递起着重要的作用。 ICMP协议是一种面向无连接的协议。</p>
+</blockquote>
+<h2 id="wireshark抓包界面介绍"><a href="#wireshark抓包界面介绍" class="headerlink" title="wireshark抓包界面介绍"></a>wireshark抓包界面介绍</h2><p><img src="/images/wireshark/5.png" alt="avatar"></p>
+<ul>
+<li>Display Filter(显示过滤器)，  用于设置过滤条件进行数据包列表过滤。菜单路径：Analyze —&gt; Display Filters。</li>
+<li>Packet List Pane(数据包列表)， 显示捕获到的数据包，每个数据包包含编号，时间戳，源地址，目标地址，协议，长度，以及数据包信息。 不同协议的数据包使用了不同的颜色区分显示</li>
+<li>Packet Details Pane(数据包详细信息), 在数据包列表中选择指定数据包，在数据包详细信息中会显示数据包的所有详细信息内容。数据包详细信息面板是最重要的，用来查看协议中的每一个字段。各行信息分别为<br>（1）Frame:   物理层的数据帧概况<br>（2）Ethernet II: 数据链路层以太网帧头部信息<br>（3）Internet Protocol Version 4: 互联网层IP包头部信息<br>（4）Transmission Control Protocol:  传输层T的数据段头部信息，此处是TCP<br>（5）Hypertext Transfer Protocol:  应用层的信息，此处是HTTP协议<br><img src="/images/wireshark/6.png" alt="avatar"></li>
+</ul>
+<h3 id="TCP包的具体内容"><a href="#TCP包的具体内容" class="headerlink" title="TCP包的具体内容"></a>TCP包的具体内容</h3><p><img src="/images/wireshark/7.png" alt="avatar"></p>
+<h3 id="抓包过滤器语法"><a href="#抓包过滤器语法" class="headerlink" title="抓包过滤器语法"></a>抓包过滤器语法</h3><ul>
+<li>抓包过滤器语法和实例<blockquote>
+<p>抓包过滤器类型Type（host、net、port）、方向Dir（src、dst）、协议Proto（ether、ip、tcp、udp、http、icmp、ftp等）、逻辑运算符（&amp;&amp; 与、|| 或、！非）</p>
+</blockquote>
+</li>
+</ul>
+<p>（1）协议过滤</p>
+<p>  比较简单，直接在抓包过滤框中直接输入协议名即可。</p>
+<p>  TCP，只显示TCP协议的数据包列表</p>
+<p>  HTTP，只查看HTTP协议的数据包列表</p>
+<p>  ICMP，只显示ICMP协议的数据包列表</p>
+<p>（2）IP过滤</p>
+<p>  host 192.168.1.104</p>
+<p>  src host 192.168.1.104</p>
+<p>  dst host 192.168.1.104</p>
+<p>（3）端口过滤</p>
+<p>  port 80</p>
+<p>  src port 80</p>
+<p>  dst port 80</p>
+<p>（4）逻辑运算符&amp;&amp; 与、|| 或、！非</p>
+<p>  src host 192.168.1.104 &amp;&amp; dst port 80 抓取主机地址为192.168.1.80、目的端口为80的数据包</p>
+<p>  host 192.168.1.104 || host 192.168.1.102 抓取主机为192.168.1.104或者192.168.1.102的数据包</p>
+<p>  ！broadcast 不抓取广播数据包</p>
+<p>2、显示过滤器语法和实例</p>
+<p>（1）比较操作符</p>
+<p>  比较操作符有== 等于、！= 不等于、&gt; 大于、&lt; 小于、&gt;= 大于等于、&lt;=小于等于。</p>
+<p>（2）协议过滤</p>
+<p>  比较简单，直接在Filter框中直接输入协议名即可。注意：协议名称需要输入小写。</p>
+<p>  tcp，只显示TCP协议的数据包列表</p>
+<p>  http，只查看HTTP协议的数据包列表</p>
+<p>  icmp，只显示ICMP协议的数据包列表  </p>
+<p>（3） ip过滤</p>
+<p>   ip.src ==192.168.1.104 显示源地址为192.168.1.104的数据包列表</p>
+<p>   ip.dst==192.168.1.104, 显示目标地址为192.168.1.104的数据包列表</p>
+<p>   ip.addr == 192.168.1.104 显示源IP地址或目标IP地址为192.168.1.104的数据包列表</p>
+<p>（4）端口过滤</p>
+<p>  tcp.port ==80,  显示源主机或者目的主机端口为80的数据包列表。</p>
+<p>  tcp.srcport == 80,  只显示TCP协议的源主机端口为80的数据包列表。</p>
+<p>  tcp.dstport == 80，只显示TCP协议的目的主机端口为80的数据包列表。  </p>
+<p>（5） Http模式过滤</p>
+<p>  http.request.method==”GET”,   只显示HTTP GET方法的。</p>
+<p>（6）逻辑运算符为 and/or/not</p>
+<p>  过滤多个条件组合时，使用and/or。比如获取IP地址为192.168.1.104的ICMP数据包表达式为ip.addr == 192.168.1.104 and icmp</p>
+<h3 id="wireshark抓包分析tcp3次握手"><a href="#wireshark抓包分析tcp3次握手" class="headerlink" title="wireshark抓包分析tcp3次握手"></a>wireshark抓包分析tcp3次握手</h3><blockquote>
+<p>以某天气预报api举例,<a href="http://jisutianqi.market.alicloudapi.com/weather/query" target="_blank" rel="noopener">http://jisutianqi.market.alicloudapi.com/weather/query</a></p>
+<ul>
+<li>启动wireshark</li>
+<li>用浏览器访问<a href="http://jisutianqi.market.alicloudapi.com/weather/query" target="_blank" rel="noopener">地址</a></li>
+<li>在终端输入，得到实际ip地址<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping jisutianqi.market.alicloudapi.com</span><br></pre></td></tr></table></figure>
+<img src="/images/wireshark/8.png" alt="avatar"></li>
+<li>在wireshark上过滤<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.addr &#x3D;&#x3D; 47.97.242.71</span><br></pre></td></tr></table></figure>
+<img src="/images/wireshark/9.png" alt="avatar"><br>图中可以看到wireshark截获到了三次握手的三个数据包。第四个包才是HTTP的， 这说明HTTP的确是使用TCP建立连接的。</li>
+<li>第一次握手抓包<br>客户端发送一个TCP，标志位为SYN，序列号为0， 代表客户端请求建立连接。 如下图。<br><img src="/images/wireshark/10.png" alt="avatar"><br>数据包的关键属性如下：<ul>
+<li>SYN ：标志位，表示请求建立连接</li>
+<li>Seq = 0 ：初始建立连接值为0，数据包的相对序列号从0开始，表示当前还没有发送数据</li>
+<li>Ack =0：初始建立连接值为0，已经收到包的数量，表示当前没有接收到数据</li>
+</ul>
+</li>
+<li>第二次握手抓包<br>服务器发回确认包, 标志位为 SYN,ACK. 将确认序号(Acknowledgement Number)设置为客户的I S N加1以.即0+1=1, 如下图<br><img src="/images/wireshark/11.png" alt="avatar"><br>数据包的关键属性如下：<ul>
+<li>[SYN + ACK]: 标志位，同意建立连接，并回送SYN+ACK</li>
+<li>Seq = 0 ：初始建立值为0，表示当前还没有发送数据</li>
+<li>Ack = 1：表示当前端成功接收的数据位数，虽然客户端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据）</li>
+</ul>
+</li>
+<li>第三次握手抓包<br>客户端再次发送确认包(ACK) SYN标志位为0,ACK标志位为1.并且把服务器发来ACK的序号字段+1,放在确定字段中发送给对方.并且在数据段放写ISN的+1, 如下图:<br><img src="/images/wireshark/12.png" alt="avatar"><br>数据包的关键属性如下：<ul>
+<li>ACK ：标志位，表示已经收到记录</li>
+<li>Seq = 1 ：表示当前已经发送1个数据</li>
+<li>Ack = 1 : 表示当前端成功接收的数据位数，虽然服务端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据)。</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li>在TCP层，有个FLAGS字段，这个字段有以下几个标识：SYN, FIN, ACK, PSH, RST, URG。如下<br><img src="/images/wireshark/13.png" alt="avatar"><br>其中，对于我们日常的分析有用的就是前面的五个字段。它们的含义是：<ul>
+<li>SYN表示建立连接，</li>
+<li>FIN表示关闭连接，</li>
+<li>ACK表示响应，</li>
+<li>PSH表示有DATA数据传输，</li>
+<li>RST表示连接重置</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/01/clickhouse-mac-compile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1006,94 +1179,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/nginx-install/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/11/nginx-install/" class="post-title-link" itemprop="url">centos7源码安装nginx</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-08-11 14:10:40" itemprop="dateCreated datePublished" datetime="2020-08-11T14:10:40+08:00">2020-08-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/web-server/" itemprop="url" rel="index"><span itemprop="name">web server</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/php7.2-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1209,7 +1294,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/frontend-docker-product/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/nginx-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1223,7 +1308,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/07/20/frontend-docker-product/" class="post-title-link" itemprop="url">前端基于docker的生产环境部署方案</a>
+            <a href="/2020/08/11/nginx-install/" class="post-title-link" itemprop="url">centos7源码安装nginx</a>
         </h2>
 
         <div class="post-meta">
@@ -1233,7 +1318,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-07-20 19:28:55" itemprop="dateCreated datePublished" datetime="2020-07-20T19:28:55+08:00">2020-07-20</time>
+              <time title="创建时间：2020-08-11 14:10:40" itemprop="dateCreated datePublished" datetime="2020-08-11T14:10:40+08:00">2020-08-11</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
@@ -1248,7 +1333,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tool/" itemprop="url" rel="index"><span itemprop="name">tool</span></a>
+                  <a href="/categories/web-server/" itemprop="url" rel="index"><span itemprop="name">web server</span></a>
                 </span>
             </span>
 
@@ -1263,34 +1348,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <ul>
-<li>docker安装<ul>
-<li>brew install  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install docker</span><br></pre></td></tr></table></figure></li>
-<li>Docker Desktop install<br><a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac/" target="_blank" rel="noopener">download</a></li>
+          <h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
+<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>启动nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
+<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
+<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果示例：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
-<li>Dockerfile  </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"># 基础镜像</span><br><span class="line">FROM node as build</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR &#x2F;app</span><br><span class="line"></span><br><span class="line"># 把 &#96;&#x2F;app&#x2F;node_modules&#x2F;.bin&#96; 加到$PATH中</span><br><span class="line">ENV PATH &#x2F;app&#x2F;node_modules&#x2F;.bin:$PATH</span><br><span class="line"></span><br><span class="line"># 安装并缓存应用依赖</span><br><span class="line">COPY .&#x2F;package.json &#x2F;app&#x2F;package.json</span><br><span class="line">COPY .&#x2F;package-lock.json &#x2F;app&#x2F;package-lock.json</span><br><span class="line"># 切换npm源</span><br><span class="line">RUN npm config set registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"># 安装npm包</span><br><span class="line">RUN npm install</span><br><span class="line"></span><br><span class="line"># 编译应用</span><br><span class="line">COPY . &#x2F;app</span><br><span class="line">RUN npm run build</span><br><span class="line"></span><br><span class="line"># 删除无用文件</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;src</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;public</span><br><span class="line">RUN rm -fr &#x2F;app&#x2F;node_modules</span><br><span class="line"></span><br><span class="line"># production environment</span><br><span class="line">FROM nginx</span><br><span class="line">COPY --from&#x3D;build &#x2F;app&#x2F;build &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br><span class="line">COPY .&#x2F;nginx.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d</span><br><span class="line">EXPOSE 8082</span><br><span class="line">CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ nginx.conf配置</span><br></pre></td></tr></table></figure>
-<p>server {</p>
-<p>  listen 8082;</p>
-<h1 id="访问根目录强制到index-html"><a href="#访问根目录强制到index-html" class="headerlink" title="访问根目录强制到index.html"></a>访问根目录强制到index.html</h1><p>  location / {<br>    root   /usr/share/nginx/html;<br>    index  index.html index.htm;<br>    try_files $uri $uri/ /index.html;<br>  }</p>
-<h1 id="访问v1前缀都反向代理到server端地址"><a href="#访问v1前缀都反向代理到server端地址" class="headerlink" title="访问v1前缀都反向代理到server端地址"></a>访问v1前缀都反向代理到server端地址</h1><p>  location ~ ^/v1/ {<br>    rewrite ^/(.*)$ /$1 break;<br>    proxy_pass <a href="http://server:8081" target="_blank" rel="noopener">http://server:8081</a>;<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ Makefile</span><br></pre></td></tr></table></figure><br>.PHONY: clean build</p>
-<p>SHELL := /bin/bash</p>
-<p>NAME=aere<br>VERSION=0.1<br>MODULE=git.xxx.com/xx/frontend<br>BUILD_DATE=$(shell date ‘+%Y%m%d’)<br>BUILD_VERSION=$(shell git log -1 —pretty=format:%h)<br>REGISTRY=10.xx.xx.17:8001</p>
-<p>release:<br>    docker build —no-cache -f Dockerfile -t $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) .<br>    docker tag $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION) $(REGISTRY)/$(NAME)/frontend</p>
-<p>push:<br>    docker push $(REGISTRY)/$(NAME)/frontend:$(BUILD_DATE)-$(BUILD_VERSION)<br>    docker push $(REGISTRY)/$(NAME)/frontend<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ how to use  </span><br><span class="line"></span><br><span class="line">    + 本地开发环境编排容器</span><br></pre></td></tr></table></figure><br>    make release<br>    make push<br>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ 生产环境运行docker</span><br></pre></td></tr></table></figure></p>
-<pre><code>    # 注意docker run的参数,具体参数定义自行查找
-    docker run -it --rm -p 8082:8082 10.xx.xx.17:8001/aere/frontend
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ 浏览器访问</span><br></pre></td></tr></table></figure>
-http://ip:8082
-```
-</code></pre><ul>
-<li>问题与思考<ul>
-<li>npm打包太慢，每次build都得好几分钟，不知道各位有没有好办法进行优化</li>
-<li>可以使用docker compose进行编排，就不需要每次在生产环境输入长串命令</li>
-</ul>
-</li>
+<li><p>路径整理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
 </ul>
 
       
@@ -1376,7 +1447,7 @@ http://ip:8082
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">62</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1387,7 +1458,7 @@ http://ip:8082
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-count">37</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1414,7 +1485,7 @@ http://ip:8082
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
