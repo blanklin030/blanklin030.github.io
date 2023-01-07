@@ -150,6 +150,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/21/java-druid-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Blank Lin">
+      <meta itemprop="description" content="say something about me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BlankLin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/21/java-druid-config/" class="post-title-link" itemprop="url">alibaba.druid配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-21 15:09:55" itemprop="dateCreated datePublished" datetime="2022-03-21T15:09:55+08:00">2022-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-22 18:09:00" itemprop="dateModified" datetime="2022-08-22T18:09:00+08:00">2022-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="两种思路"><a href="#两种思路" class="headerlink" title="两种思路"></a>两种思路</h4><ul>
+<li>后端服务主动淘汰空闲超时120s的连接，然后再主动创建连接。</li>
+<li>后端服务对空闲连接保活，周期小于120秒进行一次mysql.ping或select 1操作。（确认过dba两个操作均可使dbproxy保活连接）</li>
+</ul>
+<h4 id="hikari连接池能否支持上述方案："><a href="#hikari连接池能否支持上述方案：" class="headerlink" title="hikari连接池能否支持上述方案："></a>hikari连接池能否支持上述方案：</h4><ul>
+<li>idleTimeout：设置最大空闲时间小于120秒，空闲超时主动淘汰链接，并且hikari会自动创建新连接填充。实际发现该参数不能解决此问题，因为该参数优先级低于minimumIdle，若池中已经保持低于minimumIdle的连接数就不会再进行空闲连接淘汰。所以该参数不能解决问题。</li>
+<li>maxLifetime：设置最大生存时间小于120秒，生存超时主动淘汰连接，并且hikari会自动创建新连接填充。能够解决该问题，但是会每120s就要淘汰且新建连接。</li>
+</ul>
+<h4 id="druid连接池能否支持上述方案："><a href="#druid连接池能否支持上述方案：" class="headerlink" title="druid连接池能否支持上述方案："></a>druid连接池能否支持上述方案：</h4><ul>
+<li>testWhileIdle：设置true开启周期性健康检查 会主动淘汰掉失效的连接。</li>
+<li>maxEvictableIdleTimeMillis：最大空闲时间设置小于120s，该参数不受minIdle参数约束，只要超过最大空闲时间就会自动淘汰连接。<br>看似上面两个参数均能解决，但是由于durid默认不会主动创建新链接，所以上面两个参数使连接清空后 查询时仍旧会因创建连接而耗时增加。</li>
+<li>keepAlive：设置true开启保活机制，可解决该问题</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">druid:</span><br><span class="line"># 初始化大小</span><br><span class="line">initialSize: 10</span><br><span class="line"># 最大连接数</span><br><span class="line">maxActive: 30</span><br><span class="line"># 最小空闲数（周期性清除时保留的最小连接数）</span><br><span class="line">minIdle: 10</span><br><span class="line"># 最大空闲数（返还连接时若超过最大空闲连接数就丢弃）</span><br><span class="line">maxIdle: 20</span><br><span class="line"># 有效性校验</span><br><span class="line">validationQuery: select 1</span><br><span class="line"># 周期性check空闲连接</span><br><span class="line">testWhileIdle: true</span><br><span class="line"># 借出时check（影响性能）</span><br><span class="line">testOnBorrow: false</span><br><span class="line"># 返还时check（影响性能）</span><br><span class="line">testOnReturn: false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 周期性检查的间隔时间，单位是毫秒</span><br><span class="line">timeBetweenEvictionRunsMillis: 60000</span><br><span class="line"># 连接的最小空闲时间，小于该时间不会被周期性check清除。单位是毫秒</span><br><span class="line">minEvictableIdleTimeMillis: 50000</span><br><span class="line"># 连接的最大空闲时间，大于该时间会被周期性check清除，且优先级大于minIdle。单位是毫秒</span><br><span class="line">maxEvictableIdleTimeMillis: 100000</span><br><span class="line"># 开启连接保活策略。作用：https:&#x2F;&#x2F;www.bookstack.cn&#x2F;read&#x2F;Druid&#x2F;d90f9643acdca5c0.md</span><br><span class="line">keepAlive: true</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/21/java-why-need-close-connection/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1113,300 +1199,6 @@
 <p><img src="/images/min_free_kbytes/1.png" alt="docker-bridge"></p>
 <p>min_free_kbytes大小的影响<br>min_free_kbytes设的越大，watermark的线越高，同时三个线之间的buffer量也相应会增加。这意味着会较早的启动kswapd进行回收，且会回收上来较多的内存（直至watermark[high]才会停止），这会使得系统预留过多的空闲内存，从而在一定程度上降低了应用程序可使用的内存量。极端情况下设置min_free_kbytes接近内存大小时，留给应用程序的内存就会太少而可能会频繁地导致OOM的发生。</p>
 <p>min_free_kbytes设的过小，则会导致系统预留内存过小。kswapd回收的过程中也会有少量的内存分配行为（会设上PF_MEMALLOC）标志，这个标志会允许kswapd使用预留内存；另外一种情况是被OOM选中杀死的进程在退出过程中，如果需要申请内存也可以使用预留部分。这两种情况下让他们使用预留内存可以避免系统进入deadlock状态。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/19/starrocks-load/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Blank Lin">
-      <meta itemprop="description" content="say something about me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BlankLin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/19/starrocks-load/" class="post-title-link" itemprop="url">starrocks离线构建</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-01-19 19:04:11" itemprop="dateCreated datePublished" datetime="2022-01-19T19:04:11+08:00">2022-01-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-24 21:18:39" itemprop="dateModified" datetime="2022-08-24T21:18:39+08:00">2022-08-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/sre/" itemprop="url" rel="index"><span itemprop="name">sre</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><ul>
-<li><p>入口文件-&gt;StarRocksFE.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.....</span><br><span class="line">feServer.start();</span><br><span class="line">httpServer.start();</span><br><span class="line">qeService.start();</span><br></pre></td></tr></table></figure>
-<p>主要是初始化配置和启动服务，分别是mysql server端口、thrift server端口、http端口</p>
-</li>
-<li><p>mysq服务启动-&gt;QeService.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public void start() throws IOException &#123;</span><br><span class="line">        if (!mysqlServer.start()) &#123;</span><br><span class="line">            LOG.error(&quot;mysql server start failed&quot;);</span><br><span class="line">            System.exit(-1);</span><br><span class="line">        &#125;</span><br><span class="line">        LOG.info(&quot;QE service start.&quot;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>MysqlServer.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; start MySQL protocol service</span><br><span class="line">&#x2F;&#x2F; return true if success, otherwise false</span><br><span class="line">public boolean start() &#123;</span><br><span class="line">    if (scheduler &#x3D;&#x3D; null) &#123;</span><br><span class="line">        LOG.warn(&quot;scheduler is NULL.&quot;);</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; open server socket</span><br><span class="line">    try &#123;</span><br><span class="line">        serverChannel &#x3D; ServerSocketChannel.open();</span><br><span class="line">        serverChannel.socket().bind(new InetSocketAddress(&quot;0.0.0.0&quot;, port), 2048);</span><br><span class="line">        serverChannel.configureBlocking(true);</span><br><span class="line">    &#125; catch (IOException e) &#123;</span><br><span class="line">        LOG.warn(&quot;Open MySQL network service failed.&quot;, e);</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; start accept thread</span><br><span class="line">    listener &#x3D; ThreadPoolManager.newDaemonCacheThreadPool(1, &quot;MySQL-Protocol-Listener&quot;, true);</span><br><span class="line">    running &#x3D; true;</span><br><span class="line">    listenerFuture &#x3D; listener.submit(new Listener());</span><br><span class="line"></span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Listener 监听线程，实现Runnable接口</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">    while (running &amp;&amp; serverChannel.isOpen()) &#123;</span><br><span class="line">        SocketChannel clientChannel;</span><br><span class="line">        try &#123;</span><br><span class="line">            clientChannel &#x3D; serverChannel.accept();</span><br><span class="line">            if (clientChannel &#x3D;&#x3D; null) &#123;</span><br><span class="line">                continue;</span><br><span class="line">            &#125;</span><br><span class="line">            &#x2F;&#x2F; submit this context to scheduler</span><br><span class="line">            ConnectContext context &#x3D; new ConnectContext(clientChannel);</span><br><span class="line">            &#x2F;&#x2F; Set catalog here.</span><br><span class="line">            context.setCatalog(Catalog.getCurrentCatalog());</span><br><span class="line">            if (!scheduler.submit(context)) &#123;</span><br><span class="line">                LOG.warn(&quot;Submit one connect request failed. Client&#x3D;&quot; + clientChannel.toString());</span><br><span class="line">                &#x2F;&#x2F; clear up context</span><br><span class="line">                context.cleanup();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            &#x2F;&#x2F; ClosedChannelException</span><br><span class="line">            &#x2F;&#x2F; AsynchronousCloseException</span><br><span class="line">            &#x2F;&#x2F; ClosedByInterruptException</span><br><span class="line">            &#x2F;&#x2F; Other IOException, for example &quot;to many open files&quot; ...</span><br><span class="line">            LOG.warn(&quot;Query server encounter exception.&quot;, e);</span><br><span class="line">            try &#123;</span><br><span class="line">                Thread.sleep(100);</span><br><span class="line">            &#125; catch (InterruptedException e1) &#123;</span><br><span class="line">                &#x2F;&#x2F; Do nothing</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (Throwable e) &#123;</span><br><span class="line">            &#x2F;&#x2F; NotYetBoundException</span><br><span class="line">            &#x2F;&#x2F; SecurityException</span><br><span class="line">            LOG.warn(&quot;Query server failed when calling accept.&quot;, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#96;&#96;&#96; </span><br><span class="line"></span><br><span class="line">+ submit提交连接的上下文给线程池</span><br></pre></td></tr></table></figure>
-<p>// submit one MysqlContext to this scheduler.<br>// return true, if this connection has been successfully submitted, otherwise return false.<br>// Caller should close ConnectContext if return false.<br>public boolean submit(ConnectContext context) {<br>  if (context == null) {</p>
-<pre><code>  return false;
-</code></pre><p>  }</p>
-<p>  context.setConnectionId(nextConnectionId.getAndAdd(1));<br>  // no necessary for nio.<br>  if (context instanceof NConnectContext) {</p>
-<pre><code>  return true;
-</code></pre><p>  }<br>  if (executor.submit(new LoopHandler(context)) == null) {</p>
-<pre><code>  LOG.warn(&quot;Submit one thread failed.&quot;);
-  return false;
-</code></pre><p>  }<br>  return true;<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ LoopHandler.java (实现Runnable接口)</span><br></pre></td></tr></table></figure>
-<p>public void run() {<br>  try {</p>
-<pre><code>  // Set thread local info
-  context.setThreadLocalInfo();
-  context.setConnectScheduler(ConnectScheduler.this);
-  // authenticate check failed.
-  if (!MysqlProto.negotiate(context)) {
-      return;
-  }
-
-  if (registerConnection(context)) {
-      MysqlProto.sendResponsePacket(context);
-  } else {
-      context.getState().setError(&quot;Reach limit of connections&quot;);
-      MysqlProto.sendResponsePacket(context);
-      return;
-  }
-
-  context.setStartTime();
-  ConnectProcessor processor = new ConnectProcessor(context);
-  processor.loop();
-</code></pre><p>  } catch (Exception e) {</p>
-<pre><code>  // for unauthrorized access such lvs probe request, may cause exception, just log it in debug level
-  if (context.getCurrentUserIdentity() != null) {
-      LOG.warn(&quot;connect processor exception because &quot;, e);
-  } else {
-      LOG.debug(&quot;connect processor exception because &quot;, e);
-  }
-</code></pre><p>  } finally {</p>
-<pre><code>  unregisterConnection(context);
-  context.cleanup();
-</code></pre><p>  }<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ ConnectProcessor.java -&gt; loop</span><br></pre></td></tr></table></figure>
-<p>public void loop() {<br>  while (!ctx.isKilled()) {</p>
-<pre><code>  try {
-      processOnce();
-  } catch (Exception e) {
-      // TODO(zhaochun): something wrong
-      LOG.warn(&quot;Exception happened in one seesion(&quot; + ctx + &quot;).&quot;, e);
-      ctx.setKilled();
-      break;
-  }
-</code></pre><p>  }<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ ConnectProcessor.java -&gt; processOnce</span><br></pre></td></tr></table></figure>
-<p>// handle one process<br>public void processOnce() throws IOException {<br>  // set status of query to OK.<br>  ctx.getState().reset();<br>  executor = null;</p>
-<p>  // reset sequence id of MySQL protocol<br>  final MysqlChannel channel = ctx.getMysqlChannel();<br>  channel.setSequenceId(0);<br>  // read packet from channel<br>  try {</p>
-<pre><code>  packetBuf = channel.fetchOnePacket();
-  if (packetBuf == null) {
-      throw new IOException(&quot;Error happened when receiving packet.&quot;);
-  }
-</code></pre><p>  } catch (AsynchronousCloseException e) {</p>
-<pre><code>  // when this happened, timeout checker close this channel
-  // killed flag in ctx has been already set, just return
-  return;
-</code></pre><p>  }</p>
-<p>  // dispatch<br>  dispatch();<br>  // finalize<br>  finalizeCommand();</p>
-<p>  ctx.setCommand(MysqlCommand.COM_SLEEP);<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ ConnectProcessor.java -&gt; dispatch</span><br></pre></td></tr></table></figure>
-<p>int code = packetBuf.get();<br>MysqlCommand command = MysqlCommand.fromCode(code);<br>….<br>ctx.setCommand(command);<br>….</p>
-</li>
-</ul>
-<p>switch (command) {<br>    case COM_INIT_DB:<br>        handleInitDb();<br>        break;<br>    case COM_QUIT:<br>        handleQuit();<br>        break;<br>    case COM_QUERY:<br>        handleQuery();<br>        ctx.setStartTime();<br>        break;<br>    case COM_FIELD_LIST:<br>        handleFieldList();<br>        break;<br>    case COM_CHANGE_USER:<br>        handleChangeUser();<br>        break;<br>    case COM_RESET_CONNECTION:<br>        handleResetConnnection();<br>        break;<br>    case COM_PING:<br>        handlePing();<br>        break;<br>    default:<br>        ctx.getState().setError(“Unsupported command(“ + command + “)”);<br>        LOG.warn(“Unsupported command(“ + command + “)”);<br>        break;<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ ConnectProcessor.java -&gt; handleQuery</span><br></pre></td></tr></table></figure><br>….<br>List<StatementBase> stmts = analyze(originStmt);<br>for (int i = 0; i &lt; stmts.size(); ++i) {<br>    ctx.getState().reset();<br>    if (i &gt; 0) {<br>        ctx.resetRetureRows();<br>        ctx.setQueryId(UUIDUtil.genUUID());<br>    }<br>    parsedStmt = stmts.get(i);<br>    parsedStmt.setOrigStmt(new OriginStatement(originStmt, i));</p>
-<pre><code>executor = new StmtExecutor(ctx, parsedStmt);
-ctx.setExecutor(executor);
-
-ctx.setIsLastStmt(i == stmts.size() - 1);
-
-executor.execute();
-
-// do not execute following stmt when current stmt failed, this is consistent with mysql server
-if (ctx.getState().getStateType() == QueryState.MysqlStateType.ERR) {
-    break;
-}
-
-if (i != stmts.size() - 1) {
-    // NOTE: set serverStatus after executor.execute(),
-    //      because when execute() throws exception, the following stmt will not execute
-    //      and the serverStatus with MysqlServerStatusFlag.SERVER_MORE_RESULTS_EXISTS will
-    //      cause client error: Packet sequence number wrong
-    ctx.getState().serverStatus |= MysqlServerStatusFlag.SERVER_MORE_RESULTS_EXISTS;
-    finalizeCommand();
-}
-</code></pre><p>}<br>….</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ ConnectProcessor.java -&gt; analyze</span><br></pre></td></tr></table></figure>
-<p>// analyze the origin stmt and return multi-statements<br>private List<StatementBase> analyze(String originStmt) throws AnalysisException {<br>    LOG.debug(“the originStmts are: {}”, originStmt);<br>    // Parse statement with parser generated by CUP&amp;FLEX<br>    SqlScanner input = new SqlScanner(new StringReader(originStmt), ctx.getSessionVariable().getSqlMode());<br>    SqlParser parser = new SqlParser(input);<br>    try {<br>        return SqlParserUtils.getMultiStmts(parser);<br>    } catch (Error e) {<br>        throw new AnalysisException(“Please check your sql, we meet an error when parsing.”, e);<br>    } catch (AnalysisException e) {<br>        LOG.warn(“origin_stmt: “ + originStmt + “; Analyze error message: “ + parser.getErrorMsg(originStmt), e);<br>        String errorMessage = parser.getErrorMsg(originStmt);<br>        if (errorMessage == null) {<br>            throw e;<br>        } else {<br>            throw new AnalysisException(errorMessage, e);<br>        }<br>    } catch (Exception e) {<br>        // TODO(lingbin): we catch ‘Exception’ to prevent unexpected error,<br>        // should be removed this try-catch clause future.<br>        LOG.warn(“origin_stmt: “ + originStmt + “; exception: “, e);<br>        String errorMessage = e.getMessage();<br>        if (errorMessage == null) {<br>            throw new AnalysisException(“Internal Error”);<br>        } else {<br>            throw new AnalysisException(“Internal Error: “ + errorMessage);<br>        }<br>    }<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ StmtExecutor.java -&gt; execute</span><br></pre></td></tr></table></figure><br>……..<br>} else if (parsedStmt instanceof DdlStmt) {<br>    handleDdlStmt();<br>}<br>……<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ StmtExecutor.java -&gt; handleDdlStmt</span><br></pre></td></tr></table></figure><br>private void handleDdlStmt() {<br>  try {<br>      DdlExecutor.execute(context.getCatalog(), (DdlStmt) parsedStmt);<br>      context.getState().setOk();<br>  } catch (QueryStateException e) {<br>      if (e.getQueryState().getStateType() != MysqlStateType.OK) {<br>          LOG.warn(“DDL statement(“ + originStmt.originStmt + “) process failed.”, e);<br>      }<br>      context.setState(e.getQueryState());<br>  } catch (UserException e) {<br>      LOG.warn(“DDL statement(“ + originStmt.originStmt + “) process failed.”, e);<br>      // Return message to info client what happened.<br>      context.getState().setError(e.getMessage());<br>  } catch (Exception e) {<br>      // Maybe our bug<br>      LOG.warn(“DDL statement(“ + originStmt.originStmt + “) process failed.”, e);<br>      context.getState().setError(“Unexpected exception: “ + e.getMessage());<br>  }<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ DdlExecutor.java -&gt; execute</span><br></pre></td></tr></table></figure><br>……..<br>else if (ddlStmt instanceof LoadStmt) {<br>    LoadStmt loadStmt = (LoadStmt) ddlStmt;<br>    EtlJobType jobType = loadStmt.getEtlJobType();<br>    if (jobType == EtlJobType.UNKNOWN) {<br>        throw new DdlException(“Unknown load job type”);<br>    }<br>    if (jobType == EtlJobType.HADOOP &amp;&amp; Config.disable_hadoop_load) {<br>        throw new DdlException(“Load job by hadoop cluster is disabled.”</p>
-<pre><code>            + &quot; Try using broker load. See &#39;help broker load;&#39;&quot;);
-}
-
-catalog.getLoadManager().createLoadJobFromStmt(loadStmt);
-</code></pre><p>}<br>……..<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ LoadManager.java -&gt; createLoadJobFromStmt</span><br></pre></td></tr></table></figure><br>public void createLoadJobFromStmt(LoadStmt stmt) throws DdlException {<br>  Database database = checkDb(stmt.getLabel().getDbName());<br>  long dbId = database.getId();<br>  LoadJob loadJob = null;<br>  writeLock();<br>  try {<br>      checkLabelUsed(dbId, stmt.getLabel().getLabelName());<br>      if (stmt.getBrokerDesc() == null &amp;&amp; stmt.getResourceDesc() == null) {<br>          throw new DdlException(“LoadManager only support the broker and spark load.”);<br>      }<br>      if (loadJobScheduler.isQueueFull()) {<br>          throw new DdlException(<br>                  “There are more than “ + Config.desired_max_waiting_jobs + “ load jobs in waiting queue, “</p>
-<pre><code>                      + &quot;please retry later.&quot;);
-  }
-  loadJob = BulkLoadJob.fromLoadStmt(stmt);
-  createLoadJob(loadJob);
-</code></pre><p>  } finally {<br>      writeUnlock();<br>  }<br>  Catalog.getCurrentCatalog().getEditLog().logCreateLoadJob(loadJob);</p>
-<p>  // The job must be submitted after edit log.<br>  // It guarantee that load job has not been changed before edit log.<br>  loadJobScheduler.submitJob(loadJob);<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">通过 &#96;createLoadJobFromStmt&#96; 创建load任务</span><br><span class="line">+ LoadJobScheduler.java -&gt; process</span><br><span class="line">注意：LoadJobScheduler 继承自 MasterDaemon，MasterDaemon 继承自 Daemon，</span><br><span class="line">Daemon继承自Thread，重载了run方法，里面有一个loop，主要执行runOneCycle</span><br><span class="line">MasterDaemon 又重写了 runOneCycle，执行 runAfterCatalogReady 函数</span><br><span class="line">LoadJobScheduler 又重写了 runAfterCatalogReady 主要就是干process处理，里面是一个死循环，不断从LinkedBlockingQueue类型的needScheduleJobs里出栈取要珍惜的job</span><br></pre></td></tr></table></figure><br>while (true) {<br>  // take one load job from queue<br>  LoadJob loadJob = needScheduleJobs.poll();<br>  if (loadJob == null) {<br>      return;<br>  }</p>
-<p>  // schedule job<br>  try {<br>      loadJob.execute();<br>  }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ LoadJob.java -&gt; execute</span><br></pre></td></tr></table></figure><br>/**</p>
-<ul>
-<li>create pending task for load job and add pending task into pool</li>
-<li>if job has been cancelled, this step will be ignored<br>*</li>
-<li>@throws LabelAlreadyUsedException  the job is duplicated</li>
-<li>@throws BeginTransactionException  the limit of load job is exceeded</li>
-<li>@throws AnalysisException          there are error params in job</li>
-<li><p>@throws DuplicatedRequestException<br>*/<br>public void execute() throws LabelAlreadyUsedException, BeginTransactionException, AnalysisException,</p>
-<pre><code>DuplicatedRequestException, LoadException {
-</code></pre><p>writeLock();<br>try {</p>
-<pre><code>unprotectedExecute();
-</code></pre><p>} finally {</p>
-<pre><code>writeUnlock();
-</code></pre><p>}<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">+ SparkLoadJob.java -&gt; unprotectedExecuteJob</span><br></pre></td></tr></table></figure>
-<p>protected void unprotectedExecuteJob() throws LoadException {<br>// create pending task<br>LoadTask task = new SparkLoadPendingTask(this, fileGroupAggInfo.getAggKeyToFileGroups(),</p>
-<pre><code>    sparkResource, brokerDesc);
-</code></pre><p>task.init();<br>idToTasks.put(task.getSignature(), task);<br>submitTask(Catalog.getCurrentCatalog().getPendingLoadTaskScheduler(), task);<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ SparkLoadPendingTask.java -&gt; init</span><br></pre></td></tr></table></figure>
-<p>public void init() throws LoadException {<br>createEtlJobConf();<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ LoadTask -&gt; exec</span><br></pre></td></tr></table></figure>
-<p>@Override<br>protected void exec() {<br>boolean isFinished = false;<br>try {</p>
-<pre><code>// execute pending task
-executeTask();
-// callback on pending task finished
-callback.onTaskFinished(attachment);
-isFinished = true;
-</code></pre><p>} catch (UserException e) {</p>
-<pre><code>failMsg.setMsg(e.getMessage() == null ? &quot;&quot; : e.getMessage());
-LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
-        .add(&quot;error_msg&quot;, &quot;Failed to execute load task&quot;).build(), e);
-</code></pre><p>} catch (Exception e) {</p>
-<pre><code>failMsg.setMsg(e.getMessage() == null ? &quot;&quot; : e.getMessage());
-LOG.warn(new LogBuilder(LogKey.LOAD_JOB, callback.getCallbackId())
-        .add(&quot;error_msg&quot;, &quot;Unexpected failed to execute load task&quot;).build(), e);
-</code></pre><p>} finally {</p>
-<pre><code>if (!isFinished) {
-    // callback on pending task failed
-    callback.onTaskFailed(signature, failMsg);
-}
-</code></pre><p>}<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ SparkLoadPendingTask.java -&gt; executeTask</span><br></pre></td></tr></table></figure>
-<p>void executeTask() throws LoadException {<br>LOG.info(“begin to execute spark pending task. load job id: {}”, loadJobId);<br>submitEtlJob();<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ SparkLoadPendingTask.java -&gt; submitEtlJob</span><br></pre></td></tr></table></figure>
-<p>private void submitEtlJob() throws LoadException {<br>SparkPendingTaskAttachment sparkAttachment = (SparkPendingTaskAttachment) attachment;<br>// retry different output path<br>etlJobConfig.outputPath = EtlJobConfig.getOutputPath(resource.getWorkingDir(), dbId, loadLabel, signature);<br>sparkAttachment.setOutputPath(etlJobConfig.outputPath);</p>
-<p>// handler submit etl job<br>SparkEtlJobHandler handler = new SparkEtlJobHandler();<br>handler.submitEtlJob(loadJobId, loadLabel, etlJobConfig, resource, brokerDesc, sparkLoadAppHandle,</p>
-<pre><code>    sparkAttachment);
-</code></pre><p>LOG.info(“submit spark etl job success. load job id: {}, attachment: {}”, loadJobId, sparkAttachment);<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ SparkEtlJobHandler.java -&gt; submitEtlJob</span><br></pre></td></tr></table></figure>
-<p>public void submitEtlJob(long loadJobId, String loadLabel, EtlJobConfig etlJobConfig, SparkResource resource,</p>
-<pre><code>                     BrokerDesc brokerDesc, SparkLoadAppHandle handle, SparkPendingTaskAttachment attachment)
-</code></pre><p>  throws LoadException {<br>// delete outputPath<br>// init local dir<br>// prepare dpp archive<br>SparkLauncher launcher = new SparkLauncher(envs);<br>// master      |  deployMode<br>// ——————|——————-<br>// yarn        |  cluster<br>// spark://xx  |  client<br>launcher.setMaster(resource.getMaster())</p>
-<pre><code>  .setDeployMode(resource.getDeployMode().name().toLowerCase())
-  .setAppResource(appResourceHdfsPath)
-  .setMainClass(SparkEtlJob.class.getCanonicalName())
-  .setAppName(String.format(ETL_JOB_NAME, loadLabel))
-  .setSparkHome(sparkHome)
-  .addAppArgs(jobConfigHdfsPath)
-  .redirectError();
-</code></pre><p>// spark configs</p>
-<p>// start app<br>State state = null;<br>String appId = null;<br>String logPath = null;<br>String errMsg = “start spark app failed. error: “;<br>try {<br>  Process process = launcher.launch();<br>  handle.setProcess(process);<br>  if (!FeConstants.runningUnitTest) {</p>
-<pre><code>  SparkLauncherMonitor.LogMonitor logMonitor = SparkLauncherMonitor.createLogMonitor(handle);
-  logMonitor.setSubmitTimeoutMs(GET_APPID_TIMEOUT_MS);
-  logMonitor.setRedirectLogPath(logFilePath);
-  logMonitor.start();
-  try {
-      logMonitor.join();
-  } catch (InterruptedException e) {
-      logMonitor.interrupt();
-      throw new LoadException(errMsg + e.getMessage());
-  }
-</code></pre><p>  }<br>  appId = handle.getAppId();<br>  state = handle.getState();<br>  logPath = handle.getLogPath();<br>} catch (IOException e) {<br>  LOG.warn(errMsg, e);<br>  throw new LoadException(errMsg + e.getMessage());<br>}<br>……….<br>// success<br>attachment.setAppId(appId);<br>attachment.setHandle(handle);<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ SparkLoadJob.java -&gt; onTaskFinished</span><br></pre></td></tr></table></figure>
-<p>public void onTaskFinished(TaskAttachment attachment) {<br>if (attachment instanceof SparkPendingTaskAttachment) {</p>
-<pre><code>onPendingTaskFinished((SparkPendingTaskAttachment) attachment);
-</code></pre><p>}<br>}</p>
-</li>
-</ul>
-<p>private void onPendingTaskFinished(SparkPendingTaskAttachment attachment) {<br>    writeLock();<br>    try {<br>        // check if job has been cancelled<br>        if (isTxnDone()) {<br>            LOG.warn(new LogBuilder(LogKey.LOAD_JOB, id)<br>                    .add(“state”, state)<br>                    .add(“error_msg”, “this task will be ignored when job is: “ + state)<br>                    .build());<br>            return;<br>        }</p>
-<pre><code>    if (finishedTaskIds.contains(attachment.getTaskId())) {
-        LOG.warn(new LogBuilder(LogKey.LOAD_JOB, id)
-                .add(&quot;task_id&quot;, attachment.getTaskId())
-                .add(&quot;error_msg&quot;, &quot;this is a duplicated callback of pending task &quot;
-                        + &quot;when broker already has loading task&quot;)
-                .build());
-        return;
-    }
-
-    // add task id into finishedTaskIds
-    finishedTaskIds.add(attachment.getTaskId());
-
-    sparkLoadAppHandle = attachment.getHandle();
-    appId = attachment.getAppId();
-    etlOutputPath = attachment.getOutputPath();
-
-    executeEtl();
-    // log etl state
-    unprotectedLogUpdateStateInfo();
-} finally {
-    writeUnlock();
-}
-</code></pre><p>}</p>
-<p>```</p>
 
       
     </div>
