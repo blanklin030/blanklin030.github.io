@@ -29,27 +29,8 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/20.png">
 <meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/19.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/1.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/2.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/3.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/4.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/5.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/7.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/6.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/8.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/9.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/10.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/11.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/12.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/13.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/14.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/15.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/16.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/17.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/18.png">
-<meta property="og:image" content="http://yoursite.com/images/starrocks/helloworld/21.png">
 <meta property="article:published_time" content="2022-10-17T06:48:24.803Z">
-<meta property="article:modified_time" content="2022-12-08T05:17:54.202Z">
+<meta property="article:modified_time" content="2023-01-07T15:53:33.781Z">
 <meta property="article:author" content="Blank Lin">
 <meta property="article:tag" content="lazy and boring">
 <meta name="twitter:card" content="summary">
@@ -205,7 +186,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-12-08 13:17:54" itemprop="dateModified" datetime="2022-12-08T13:17:54+08:00">2022-12-08</time>
+                <time title="修改时间：2023-01-07 23:53:33" itemprop="dateModified" datetime="2023-01-07T23:53:33+08:00">2023-01-07</time>
               </span>
 
           
@@ -328,72 +309,8 @@
 </ul>
 <h4 id="统一分析"><a href="#统一分析" class="headerlink" title="统一分析"></a>统一分析</h4><p>通过使用一套系统解决多维分析、高并发查询、实时分析和Ad-Hoc查询等场景，降低系统复杂度和多技术栈开发与维护成本。</p>
 <h3 id="如何使用StarRocks"><a href="#如何使用StarRocks" class="headerlink" title="如何使用StarRocks"></a>如何使用StarRocks</h3><blockquote>
-<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"><br>&lt;!— #### 创建库<br>登陆<a href="https://pam.data.didichuxing.com/" target="_blank" rel="noopener">项目管理平台</a>，切换到您所在项目，选择项目配置-》配置管理-》业务配置-》StarRocks关联集群，就可以创建数据库，如下图所示：<br><img src="/images/starrocks/helloworld/1.png" alt="1"><br>注意：<a href="https://pam.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东项目管理平台</a></p>
+<p>我们olap团队已经将<code>StarRocks</code>接入到滴滴各个平台，下面会介绍如何使用滴滴内部的平台和工具方便快捷的使用<code>StarRocks</code>引擎。<br><img src="/images/starrocks/helloworld/19.png" alt="1"></p>
 </blockquote>
-<h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><p>登陆<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以自定义创建表。<br>注意:<a href="https://studio.data.intra.didiglobal.com/database-table-manage/star-rocks/edit" target="_blank" rel="noopener">美东实时开发平台</a></p>
-<ul>
-<li><p>根据schema创建sr表<br><img src="/images/starrocks/helloworld/2.png" alt="1"></p>
-</li>
-<li><p>自定义创建sr表<br><img src="/images/starrocks/helloworld/3.png" alt="1"></p>
-</li>
-<li><p>根据hive表创建sr表<br><img src="/images/starrocks/helloworld/4.png" alt="1"><br>注意创建表时，请按照olap团队<a href="http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=808788439" target="_blank" rel="noopener">推荐方式</a>去建表！</p>
-</li>
-</ul>
-<h4 id="创建离线导入任务"><a href="#创建离线导入任务" class="headerlink" title="创建离线导入任务"></a>创建离线导入任务</h4><p>登陆<a href="https://sync.data.didichuxing.com/" target="_blank" rel="noopener">同步中心</a>，切换到您所在项目，新增同步任务。<br>注意：<a href="https://sync.data.intra.didiglobal.com/" target="_blank" rel="noopener">美东同步中心</a></p>
-<ul>
-<li>配置基本信息<br><img src="/images/starrocks/helloworld/5.png" alt="1"></li>
-<li>配置来源去向<br><img src="/images/starrocks/helloworld/7.png" alt="1"></li>
-<li>hive表和sr表的字段映射<br><img src="/images/starrocks/helloworld/6.png" alt="1"></li>
-<li>任务配置<br><img src="/images/starrocks/helloworld/8.png" alt="1"></li>
-</ul>
-<h4 id="创建实时导入任务"><a href="#创建实时导入任务" class="headerlink" title="创建实时导入任务"></a>创建实时导入任务</h4><p>登陆<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>，切换到您所在项目，可以创建实时导入任务。<br>注意:<a href="https://studio.data.intra.didiglobal.com/stream" target="_blank" rel="noopener">美东实时开发平台</a><br><img src="/images/starrocks/helloworld/9.png" alt="1"></p>
-<ul>
-<li>新建SQL任务<br><img src="/images/starrocks/helloworld/10.png" alt="1"></li>
-<li>再根据对应的source和sink选择后会自动创建flink SQL<br><img src="/images/starrocks/helloworld/11.png" alt="1"><br>注意1：详细参数可参考<a href="https://docs.starrocks.io/zh-cn/latest/loading/Flink-connector-starrocks" target="_blank" rel="noopener">官方文档</a><br>注意2：常见配置说明<br><img src="/images/starrocks/helloworld/12.png" alt="1"></li>
-</ul>
-<h4 id="如何查询数据"><a href="#如何查询数据" class="headerlink" title="如何查询数据"></a>如何查询数据</h4><ul>
-<li><ol>
-<li>通过<a href="https://studio.data.didichuxing.com/stream" target="_blank" rel="noopener">实时开发平台</a>进行临时查询  <blockquote>
-<p>切换到您所在项目，可以使用临时查询功能，直接查询sr表。<br><img src="/images/starrocks/helloworld/13.png" alt="1"><br><img src="/images/starrocks/helloworld/14.png" alt="1"><br><img src="/images/starrocks/helloworld/15.png" alt="1"></p>
-</blockquote>
-</li>
-</ol>
-</li>
-<li><ol>
-<li>通过数易平台进行报表开发<blockquote>
-<p>通过登陆<a href="https://bigdata.xiaojukeji.com/datae/" target="_blank" rel="noopener">数易平台</a>，选择顶部工作台-》左侧数据集-》弹出框选择StarRocks，可自定义SQL或者拖拽方式创建实时看板，可视化图表数据分析等。<br><img src="/images/starrocks/helloworld/16.png" alt="1"></p>
-</blockquote>
-</li>
-</ol>
-</li>
-<li><ol>
-<li>通过<a href="https://bigdata.xiaojukeji.com/dps_index/portal?projectName=datalink" target="_blank" rel="noopener">数链平台</a>进行api开发<blockquote>
-<p>选择左侧服务开发-》API列表-》新建APi，可以快速将starrocks表生成数据api<br><img src="/images/starrocks/helloworld/17.png" alt="1"></p>
-</blockquote>
-</li>
-</ol>
-</li>
-<li><ol>
-<li>通过<a href="http://datacenter.didichuxing.com/#/olapDataProduction/dataAccess" target="_blank" rel="noopener">QueryEngine平台</a><blockquote>
-<p>选择顶部数据接入-》左侧数据源管理-》StarRocks引擎，创建数据源，可直接创建数据服务，生成多维分析查询。<br><img src="/images/starrocks/helloworld/18.png" alt="1"></p>
-</blockquote>
-</li>
-</ol>
-</li>
-</ul>
-<h3 id="已接入StarRocks业务"><a href="#已接入StarRocks业务" class="headerlink" title="已接入StarRocks业务"></a>已接入StarRocks业务</h3><ol>
-<li>橙心业务</li>
-<li>两轮车/资产画像/围栏画像</li>
-<li>代驾业务</li>
-<li>货运业务</li>
-<li>能源业务</li>
-<li>滴滴展厅大屏</li>
-<li>金融业务</li>
-<li>达芬奇/车联网</li>
-<li>潮汐  </li>
-</ol>
-<p>欢迎大佬们加入<code>StarRocks</code>用户群，我们<code>OLAP</code>团队竭诚欢迎滴滴内部各项业务合作！</p>
-<p><img src="/images/starrocks/helloworld/21.png" alt="1"> —&gt;</p>
 
     </div>
 
@@ -474,7 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ClickHouse介绍"><span class="nav-number">1.1.</span> <span class="nav-text">ClickHouse介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StarRocks介绍"><span class="nav-number">1.2.</span> <span class="nav-text">StarRocks介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二者的对比"><span class="nav-number">1.3.</span> <span class="nav-text">二者的对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么推荐StarRocks"><span class="nav-number">1.4.</span> <span class="nav-text">为什么推荐StarRocks</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks特性"><span class="nav-number">2.</span> <span class="nav-text">StarRocks特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#架构精简"><span class="nav-number">2.1.</span> <span class="nav-text">架构精简</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全面向量化引擎"><span class="nav-number">2.2.</span> <span class="nav-text">全面向量化引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能查询优化"><span class="nav-number">2.3.</span> <span class="nav-text">智能查询优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#联邦查询"><span class="nav-number">2.4.</span> <span class="nav-text">联邦查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高效更新"><span class="nav-number">2.5.</span> <span class="nav-text">高效更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能物化视图"><span class="nav-number">2.6.</span> <span class="nav-text">智能物化视图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标准SQL"><span class="nav-number">2.7.</span> <span class="nav-text">标准SQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流批一体"><span class="nav-number">2.8.</span> <span class="nav-text">流批一体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高可用易扩展"><span class="nav-number">2.9.</span> <span class="nav-text">高可用易扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks应用场景"><span class="nav-number">3.</span> <span class="nav-text">StarRocks应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OLAP多维分析"><span class="nav-number">3.1.</span> <span class="nav-text">OLAP多维分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实时数仓"><span class="nav-number">3.2.</span> <span class="nav-text">实时数仓</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高并发查询"><span class="nav-number">3.3.</span> <span class="nav-text">高并发查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#统一分析"><span class="nav-number">3.4.</span> <span class="nav-text">统一分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用StarRocks"><span class="nav-number">4.</span> <span class="nav-text">如何使用StarRocks</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建表"><span class="nav-number">4.1.</span> <span class="nav-text">创建表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建离线导入任务"><span class="nav-number">4.2.</span> <span class="nav-text">创建离线导入任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建实时导入任务"><span class="nav-number">4.3.</span> <span class="nav-text">创建实时导入任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何查询数据"><span class="nav-number">4.4.</span> <span class="nav-text">如何查询数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已接入StarRocks业务"><span class="nav-number">5.</span> <span class="nav-text">已接入StarRocks业务</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ClickHouse介绍"><span class="nav-number">1.1.</span> <span class="nav-text">ClickHouse介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StarRocks介绍"><span class="nav-number">1.2.</span> <span class="nav-text">StarRocks介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二者的对比"><span class="nav-number">1.3.</span> <span class="nav-text">二者的对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么推荐StarRocks"><span class="nav-number">1.4.</span> <span class="nav-text">为什么推荐StarRocks</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks特性"><span class="nav-number">2.</span> <span class="nav-text">StarRocks特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#架构精简"><span class="nav-number">2.1.</span> <span class="nav-text">架构精简</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全面向量化引擎"><span class="nav-number">2.2.</span> <span class="nav-text">全面向量化引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能查询优化"><span class="nav-number">2.3.</span> <span class="nav-text">智能查询优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#联邦查询"><span class="nav-number">2.4.</span> <span class="nav-text">联邦查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高效更新"><span class="nav-number">2.5.</span> <span class="nav-text">高效更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能物化视图"><span class="nav-number">2.6.</span> <span class="nav-text">智能物化视图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标准SQL"><span class="nav-number">2.7.</span> <span class="nav-text">标准SQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流批一体"><span class="nav-number">2.8.</span> <span class="nav-text">流批一体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高可用易扩展"><span class="nav-number">2.9.</span> <span class="nav-text">高可用易扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StarRocks应用场景"><span class="nav-number">3.</span> <span class="nav-text">StarRocks应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OLAP多维分析"><span class="nav-number">3.1.</span> <span class="nav-text">OLAP多维分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实时数仓"><span class="nav-number">3.2.</span> <span class="nav-text">实时数仓</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高并发查询"><span class="nav-number">3.3.</span> <span class="nav-text">高并发查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#统一分析"><span class="nav-number">3.4.</span> <span class="nav-text">统一分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用StarRocks"><span class="nav-number">4.</span> <span class="nav-text">如何使用StarRocks</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
