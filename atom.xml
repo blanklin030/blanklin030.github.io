@@ -99,6 +99,32 @@
   </entry>
   
   <entry>
+    <title>clickhouse 表写入报readonly排查</title>
+    <link href="http://yoursite.com/2022/12/08/clickhouse%20%E8%A1%A8readonly%E9%97%AE%E9%A2%98/"/>
+    <id>http://yoursite.com/2022/12/08/clickhouse%20%E8%A1%A8readonly%E9%97%AE%E9%A2%98/</id>
+    <published>2022-12-08T08:04:11.000Z</published>
+    <updated>2023-01-15T05:30:48.750Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>clickhouse的Replicated<em>MergeTree表是通过zookeeper来完成同一个shard之间的副本数据的同步，当<em>*Table is in readonly mode</em></em>的原因是zookeeper当下压力过大，这个可以从system.replication_queue看到同步队列的数量，或者通过system.part_log看当前part的处理数量</p><h3 id="system-replicas"><a href="#system-replicas" class="headerlink" title="system.replicas"></a>system.replicas</h3><blockquote><p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/replicas" target="_blank" rel="noopener">官方地址</a>所解释,该表记录了驻留在本地服务器上的复制表的信息和状态，如下图所示，我们看到每个表的每个副本在zookeeper上的状态</p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select table,zookeeper_path,replica_path from &#96;system&#96;.replicas limit 10</span><br></pre></td></tr></table></figure><p><img src="/images/clickhouse/readonly/1.png" alt="clickhouse"><br>如上图所示，<strong>zookeeper_path</strong>字段可以查看到在哪个shard上的哪个副本处于readonly状态。</p><h3 id="system-part-log"><a href="#system-part-log" class="headerlink" title="system.part_log"></a>system.part_log</h3><blockquote><p>如<a href="https://clickhouse.com/docs/en/operations/system-tables/part_log" target="_blank" rel="noopener">官方地址</a>，该表包含part操作的所有记录，包括drop/merge/download/new等。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SELECT *    </span><br><span class="line">FROM system.part_log</span><br><span class="line">WHERE  concat(database, &#39;.&#39;, table) &#x3D; &#39;i9xiaoapp_stream.dwd_pope_core_action_diff_di_local&#39;</span><br><span class="line">and event_time &gt;&#x3D; &#39;2023-01-15 12:00:00&#39;</span><br><span class="line">order by event_time desc</span><br></pre></td></tr></table></figure><br><img src="/images/clickhouse/readonly/2.png" alt="clickhouse"></p></blockquote><h3 id="解决副本不同步问题"><a href="#解决副本不同步问题" class="headerlink" title="解决副本不同步问题"></a>解决副本不同步问题</h3><ul><li>根据system.replicas表给出的readonly状态的zookeeper_path，去到当前所指向的副本机器上，删除这个副本的表<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop table i9xiaoapp_stream.dwd_pope_core_action_diff_di_local</span><br></pre></td></tr></table></figure></li><li>操作之后，可以通过查询system.replicas里看是否还有处于readonly，发现已经消失<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select table,zookeeper_path,replica_path from &#96;system&#96;.replicas where concat(database, &#39;.&#39;, table) &#x3D; &#39;i9xiaoapp_stream.dwd_pope_core_action_diff_di_local&#39; limit 10</span><br></pre></td></tr></table></figure></li><li>再在出问题的副本上，重新创建该本，之后可通过system.replicas找到该副本再次出现，并且已恢复<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create table</span><br></pre></td></tr></table></figure></li><li>如果还没恢复，则去对应出错的副本节点，去检查一下zookeeper上的对应路径是否也已经删除<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rmr zookeeper_path</span><br></pre></td></tr></table></figure></li><li>此时再查询system.replicas表readonly的队列应该已经被清理掉了<br>可以继续操作元数据修改</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;背景介绍&quot;&gt;&lt;a href=&quot;#背景介绍&quot; class=&quot;headerlink&quot; title=&quot;背景介绍&quot;&gt;&lt;/a&gt;背景介绍&lt;/h3&gt;&lt;p&gt;clickhouse的Replicated&lt;em&gt;MergeTree表是通过zookeeper来完成同一个shard之间的副
+      
+    
+    </summary>
+    
+    
+      <category term="bigdata" scheme="http://yoursite.com/categories/bigdata/"/>
+    
+    
+      <category term="clickhouse" scheme="http://yoursite.com/tags/clickhouse/"/>
+    
+  </entry>
+  
+  <entry>
     <title>clickhouse副本不同步问题排查</title>
     <link href="http://yoursite.com/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/"/>
     <id>http://yoursite.com/2022/12/08/clickhouse%E5%89%AF%E6%9C%AC%E4%B8%8D%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/</id>
@@ -523,32 +549,6 @@
       <category term="cpp" scheme="http://yoursite.com/tags/cpp/"/>
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>clickhouse报错Metadata on replica的解决方法</title>
-    <link href="http://yoursite.com/2022/01/13/clickhouse-mutation-problem/"/>
-    <id>http://yoursite.com/2022/01/13/clickhouse-mutation-problem/</id>
-    <published>2022-01-13T11:04:11.000Z</published>
-    <updated>2022-08-22T10:09:00.256Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClickHouse exception, code: 517, host: xx.xx.xx.xx, port: xxxx; Code: 517, e.displayText() &#x3D; DB::Exception: Metadata on replica is not up to date with common metadata in Zookeeper. Cannot alter: Bad version</span><br></pre></td></tr></table></figure><p>我们在修改表结构（例如<code>alter table drop column xxx</code>）时经常会遇到以上报错，原因副本上的元数据和在zookeeper上的元数据不一致，无法更新，因为版本号不一样。</p><h3 id="查找system-replication-queue"><a href="#查找system-replication-queue" class="headerlink" title="查找system.replication_queue"></a>查找system.replication_queue</h3><ul><li>表介绍<br><a href="https://clickhouse.com/docs/en/operations/system-tables/replication_queue/" target="_blank" rel="noopener">链接地址</a>包含了所有<code>ReplicatedMergeTree</code>复制表家族在<code>zookeeper</code>上存储的副本任务队列的相关信息。</li><li><p>列信息</p><ul><li>database (String) — 数据库名称.</li><li>table (String) — 表名称.</li><li>replica_name (String) — zookeeper上副本名称，同表不同副本有不同名字.</li><li>position (UInt32) — 当前任务队列的位置.</li><li>node_name (String) — ZooKeeper上节点名称.</li><li>type (String) — 任务队列的名称，分别是:<ul><li>GET_PART — 从另一个副本拿到part.</li><li>ATTACH_PART — 加载part, 有可能来自我们自己的副本 (如果是在detached目录上发现). 您可以认为它是带有一些优化的GET_PART，因为他们接近相似.</li><li>MERGE_PARTS — 合并part.</li><li>DROP_RANGE — 删除指定范围内的指定分区列表.</li><li>CLEAR_COLUMN — 注意：从指定分区删除特殊列（已弃用）.</li><li>CLEAR_INDEX — 注意：从指定分区删除指定索引（已弃用）.</li><li>REPLACE_RANGE — 删除一定范围内的part，并用新part替换.</li><li>MUTATE_PART — 对part应用用一个或多个mutation.</li><li>ALTER_METADATA — 根据/metadata和/columns路径应用alter修改.</li></ul></li><li>create_time (Datetime) — 任务被提交执行后的时间.</li><li>required_quorum (UInt32) — 等待任务完成并且确认完成的副本数. 这个字段仅跟GET_PARTS任务相关.</li><li>source_replica (String) — 源副本的名称.</li><li>new_part_name (String) — 新part的名称.</li><li>parts_to_merge (Array (String)) — 要更新或者合并的part名称.</li><li>is_detach (UInt8) — DETACH_PARTS任务是否在任务队列里的标示位.</li><li>is_currently_executing (UInt8) — 当然任务是否正在执行的标示位.</li><li>num_tries (UInt32) — 尝试完成任务失败的次数.</li><li>last_exception (String) — 上次错误发生的详情.</li><li>last_attempt_time (Datetime) — 任务最后一次尝试的时间</li><li>num_postponed (UInt32) — 延期任务数.</li><li>postpone_reason (String) — 任务延期时间.</li><li>last_postpone_time (Datetime) — 任务上次延期的时间.</li><li>merge_type (String) — 当前合并的类型. 如果是mutation则为空.</li></ul></li><li><p>通过该表捞出zookeeper的节点副本信息</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select node_name from system.replication_queue where database &#x3D; &#39;xx&#39; and table &#x3D; &#39;xx&#39; and is_currently_executing &#x3D; 1</span><br></pre></td></tr></table></figure><h3 id="system-replcas"><a href="#system-replcas" class="headerlink" title="system.replcas"></a>system.replcas</h3></li></ul><h3 id="system-mutations"><a href="#system-mutations" class="headerlink" title="system.mutations"></a>system.mutations</h3><h3 id="处理方式"><a href="#处理方式" class="headerlink" title="处理方式"></a>处理方式</h3><p>+ </p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h3 id=&quot;背景介绍&quot;&gt;&lt;a href=&quot;#背景介绍&quot; class=&quot;headerlink&quot; title=&quot;背景介绍&quot;&gt;&lt;/a&gt;背景介绍&lt;/h3&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pr
-      
-    
-    </summary>
-    
-    
-      <category term="bigdata" scheme="http://yoursite.com/categories/bigdata/"/>
-    
-    
-      <category term="clickhouse" scheme="http://yoursite.com/tags/clickhouse/"/>
     
   </entry>
   
