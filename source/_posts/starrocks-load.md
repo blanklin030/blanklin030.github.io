@@ -1,6 +1,6 @@
 ---
 title: starrocks离线构建
-date: 2022-01-19 19:04:11
+date: 2022-11-19 19:04:11
 tags:
   - linux
   - cpp
@@ -95,7 +95,7 @@ public void run() {
         }
     }
 }
-``` 
+```  
 
 + submit提交连接的上下文给线程池
 ```
@@ -118,7 +118,7 @@ public boolean submit(ConnectContext context) {
     }
     return true;
 }
-```
+```  
 
 + LoopHandler.java (实现Runnable接口)
 ```
@@ -155,7 +155,7 @@ public void run() {
         context.cleanup();
     }
 }
-```
+```  
 
 + ConnectProcessor.java -> loop
 ```
@@ -171,7 +171,7 @@ public void loop() {
         }
     }
 }
-```
+```  
 
 + ConnectProcessor.java -> processOnce
 ```
@@ -203,7 +203,7 @@ public void processOnce() throws IOException {
 
     ctx.setCommand(MysqlCommand.COM_SLEEP);
 }
-```
+```  
 
 + ConnectProcessor.java -> dispatch
 ```
@@ -241,7 +241,8 @@ switch (command) {
         LOG.warn("Unsupported command(" + command + ")");
         break;
 }
-```
+```  
+
 + ConnectProcessor.java -> handleQuery
 ```
 ....
@@ -278,7 +279,7 @@ for (int i = 0; i < stmts.size(); ++i) {
 }
 ....
 
-```
+```  
 
 + ConnectProcessor.java -> analyze
 ```
@@ -312,7 +313,7 @@ private List<StatementBase> analyze(String originStmt) throws AnalysisException 
         }
     }
 }
-```
+```  
 
 + StmtExecutor.java -> execute
 ```
@@ -321,7 +322,7 @@ private List<StatementBase> analyze(String originStmt) throws AnalysisException 
     handleDdlStmt();
 } 
 ......
-```
+```  
 
 + StmtExecutor.java -> handleDdlStmt
 ```
@@ -344,7 +345,8 @@ private void handleDdlStmt() {
       context.getState().setError("Unexpected exception: " + e.getMessage());
   }
 }
-```
+```  
+
 + DdlExecutor.java -> execute
 ```
 ........
@@ -362,7 +364,7 @@ else if (ddlStmt instanceof LoadStmt) {
     catalog.getLoadManager().createLoadJobFromStmt(loadStmt);
 } 
 ........
-```
+```  
 
 + LoadManager.java -> createLoadJobFromStmt
 ```
@@ -392,7 +394,7 @@ public void createLoadJobFromStmt(LoadStmt stmt) throws DdlException {
   // It guarantee that load job has not been changed before edit log.
   loadJobScheduler.submitJob(loadJob);
 }
-```
+```  
 
 通过 `createLoadJobFromStmt` 创建load任务
 + LoadJobScheduler.java -> process
@@ -412,7 +414,8 @@ while (true) {
   try {
       loadJob.execute();
   } 
-```
+```  
+
 + LoadJob.java -> execute
 ```
 /**
@@ -433,8 +436,7 @@ public void execute() throws LabelAlreadyUsedException, BeginTransactionExceptio
         writeUnlock();
     }
 }
-```
-
+```  
 
 + SparkLoadJob.java -> unprotectedExecuteJob
 ```
@@ -446,15 +448,15 @@ protected void unprotectedExecuteJob() throws LoadException {
     idToTasks.put(task.getSignature(), task);
     submitTask(Catalog.getCurrentCatalog().getPendingLoadTaskScheduler(), task);
 }
-```
+```  
 
 + SparkLoadPendingTask.java -> init
-
  ```
 public void init() throws LoadException {
     createEtlJobConf();
 }
-```
+```  
+
 + LoadTask -> exec
 ```
 @Override
@@ -481,14 +483,15 @@ protected void exec() {
         }
     }
 }
-```
+```  
+
 + SparkLoadPendingTask.java -> executeTask
 ```
 void executeTask() throws LoadException {
     LOG.info("begin to execute spark pending task. load job id: {}", loadJobId);
     submitEtlJob();
 }
-```
+```  
 
 + SparkLoadPendingTask.java -> submitEtlJob
 ```
@@ -504,7 +507,7 @@ private void submitEtlJob() throws LoadException {
             sparkAttachment);
     LOG.info("submit spark etl job success. load job id: {}, attachment: {}", loadJobId, sparkAttachment);
 }
-```
+```  
 
 + SparkEtlJobHandler.java -> submitEtlJob
 ```
@@ -562,7 +565,7 @@ public void submitEtlJob(long loadJobId, String loadLabel, EtlJobConfig etlJobCo
   attachment.setAppId(appId);
   attachment.setHandle(handle);
 }
-```
+```  
 
 + SparkLoadJob.java -> onTaskFinished
 ```
