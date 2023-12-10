@@ -1262,7 +1262,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/nginx-install/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/php7.2-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1276,7 +1276,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/08/11/nginx-install/" class="post-title-link" itemprop="url">centos7源码安装nginx</a>
+            <a href="/2020/08/11/php7.2-install/" class="post-title-link" itemprop="url">centos7源码安装php7.2</a>
         </h2>
 
         <div class="post-meta">
@@ -1317,19 +1317,46 @@
 
       
           <h3 id="yum安装过程"><a href="#yum安装过程" class="headerlink" title="yum安装过程"></a>yum安装过程</h3><ul>
-<li>安装nginx最新源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall http:&#x2F;&#x2F;nginx.org&#x2F;packages&#x2F;centos&#x2F;7&#x2F;noarch&#x2F;RPMS&#x2F;nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure></li>
-<li>安装nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>启动nginx<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nginx</span><br></pre></td></tr></table></figure></li>
-<li>设置nginx开机启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line"># 检查是否成功</span><br><span class="line">systemctl list-dependencies | grep nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>通过 egrep 查询 nginx 服务器的用户和用户组</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep &#39;^(user|group)&#39; &#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
-<ul>
-<li>结果示例：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br></pre></td></tr></table></figure>
+<li>安装 EPEL 软件包<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release -y</span><br></pre></td></tr></table></figure></li>
+<li>安装 remi 源<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install http:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm</span><br></pre></td></tr></table></figure></li>
+<li>安装 yum 扩展包<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install yum-utils</span><br></pre></td></tr></table></figure></li>
+<li>启用 remi 仓库<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --enable remi-php72</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure></li>
+<li>安装php7.2<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache</span><br></pre></td></tr></table></figure></li>
+<li>设置开机自启<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable php72-php-fpm.service</span><br></pre></td></tr></table></figure>
+<h3 id="源码安装"><a href="#源码安装" class="headerlink" title="源码安装"></a>源码安装</h3></li>
+<li>安装系统依赖<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release -y</span><br><span class="line">yum install autoconf libtool re2c bison libxml2-devel bzip2-devel libcurl-devel libpng-devel libicu-devel gcc-c++ libmcrypt-devel libwebp-devel libjpeg-devel openssl-devel -y</span><br></pre></td></tr></table></figure></li>
+<li>下载源码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -O -L https:&#x2F;&#x2F;github.com&#x2F;php&#x2F;php-src&#x2F;archive&#x2F;php-7.2.3.tar.gz</span><br><span class="line">tar -zxvf php-7.2.3.tar.gz</span><br><span class="line">cd php-src-php-7.2.3</span><br></pre></td></tr></table></figure></li>
+<li>编译安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;buildconf --force</span><br><span class="line">.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;php --enable-fpm --disable-short-tags --with-openssl --with-pcre-regex --with-pcre-jit --with-zlib --enable-bcmath --with-bz2 --enable-calendar --with-curl --enable-exif --with-gd --enable-intl --enable-mbstring --with-mysqli --enable-pcntl --with-pdo-mysql --enable-soap --enable-sockets --with-xmlrpc --enable-zip --with-webp-dir --with-jpeg-dir --with-png-dir</span><br><span class="line">make clean</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>php-fpm setup<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf.default &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">cp php.ini-development &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br></pre></td></tr></table></figure></li>
+<li>修改配置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php.ini</span><br><span class="line">expose_php &#x3D; Off</span><br><span class="line">short_open_tag &#x3D; ON</span><br><span class="line">max_execution_time &#x3D; 300</span><br><span class="line">max_input_time &#x3D; 300</span><br><span class="line">memory_limit &#x3D; 128M</span><br><span class="line">post_max_size &#x3D; 32M</span><br><span class="line">date.timezone &#x3D; Asia&#x2F;Shanghai</span><br><span class="line">mbstring.func_overload&#x3D;2</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line">listen &#x3D; &#x2F;var&#x2F;run&#x2F;www&#x2F;php-cgi.sock</span><br><span class="line">listen.owner &#x3D; www</span><br><span class="line">listen.group &#x3D; www</span><br><span class="line">listen.mode &#x3D; 0660</span><br><span class="line">listen.allowed_clients &#x3D; 127.0.0.1</span><br><span class="line">pm &#x3D; dynamic</span><br><span class="line">listen.backlog &#x3D; -1</span><br><span class="line">pm.max_children &#x3D; 180</span><br><span class="line">pm.start_servers &#x3D; 50</span><br><span class="line">pm.min_spare_servers &#x3D; 50</span><br><span class="line">pm.max_spare_servers &#x3D; 180</span><br><span class="line">request_terminate_timeout &#x3D; 120</span><br><span class="line">request_slowlog_timeout &#x3D; 50</span><br><span class="line">slowlog &#x3D; var&#x2F;log&#x2F;slow.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;usr&#x2F;local&#x2F;php&#x2F;etc&#x2F;php-fpm.conf</span><br><span class="line">pid &#x3D; &#x2F;usr&#x2F;local&#x2F;php&#x2F;var&#x2F;run&#x2F;php-fpm.pid</span><br></pre></td></tr></table></figure>
+<ul>
+<li>php加入系统环境<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;bashrc</span><br><span class="line">export PHP_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;php</span><br><span class="line">export PATH&#x3D;$PHP_PATH&#x2F;bin:$PATH</span><br></pre></td></tr></table></figure></li>
+<li><p>启动php-fpm</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;usr&#x2F;local&#x2F;php&#x2F;sbin&#x2F;php-fpm</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>路径整理</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># nginx 配置文件</span><br><span class="line">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</span><br><span class="line"></span><br><span class="line"># nginx 默认项目路径</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</span><br></pre></td></tr></table></figure></li>
+<li><p>修改执行 php-fpm 的权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72&#x2F;php-fpm.d&#x2F;www.conf</span><br><span class="line"># 设置用户和用户组为 nginx</span><br><span class="line">user &#x3D; nginx</span><br><span class="line">group &#x3D; nginx</span><br></pre></td></tr></table></figure></li>
+<li>路径整理<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;etc&#x2F;opt&#x2F;remi&#x2F;php72</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>php 5.3.3 以后的php-fpm 不再支持 php-fpm 以前具有的 /usr/local/php/sbin/php-fpm (start|stop|reload)等命令，所以不要再看这种老掉牙的命令了</p>
+</blockquote>
+<ul>
+<li><p>使用信号控制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">INT, TERM 立刻终止</span><br><span class="line">QUIT 平滑终止</span><br><span class="line">USR1 重新打开日志文件</span><br><span class="line">USR2 平滑重载所有worker进程并重新载入配置和二进制模块</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看php-fpm的master进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep php-fpm | grep -v grep</span><br></pre></td></tr></table></figure>
+<p><img src="/images/php-fpm-process.png" alt="php-fpm-process"></p>
+<ul>
+<li>重启php-fpm<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 最后的一串数字就是master进程的id</span><br><span class="line">kill -USR2 44551</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
 </ul>
 
       
