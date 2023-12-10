@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="背景介绍  什么是StarRocksStarRocks是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容MySQL协议和MySQL生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。StarRocks致力于在全场景OLAP业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。    滴滴olap现状当前在滴滴内部,主要大数据">
+  <meta name="description" content="背景介绍 什么是StarRocksStarRocks是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容MySQL协议和MySQL生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。StarRocks致力于在全场景OLAP业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。 滴滴olap现状当前在滴滴内部,主要大数据olap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入浅出starrocks离线导入">
 <meta property="og:url" content="http://yoursite.com/2023/12/11/starrocks-load/index.html">
 <meta property="og:site_name" content="BlankLin">
-<meta property="og:description" content="背景介绍  什么是StarRocksStarRocks是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容MySQL协议和MySQL生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。StarRocks致力于在全场景OLAP业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。    滴滴olap现状当前在滴滴内部,主要大数据">
+<meta property="og:description" content="背景介绍 什么是StarRocksStarRocks是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容MySQL协议和MySQL生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。StarRocks致力于在全场景OLAP业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。 滴滴olap现状当前在滴滴内部,主要大数据olap">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/images/starrocks/hive2sr/structure.png">
 <meta property="article:published_time" content="2023-12-11T11:04:11.000Z">
-<meta property="article:modified_time" content="2023-12-10T16:41:11.019Z">
+<meta property="article:modified_time" content="2023-12-10T16:43:31.920Z">
 <meta property="article:author" content="Blank Lin">
 <meta property="article:tag" content="hive">
 <meta property="article:tag" content="starrocks">
@@ -180,7 +180,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-12-11 19:04:11 / 修改时间：00:41:11" itemprop="dateCreated datePublished" datetime="2023-12-11T19:04:11+08:00">2023-12-11</time>
+              <time title="创建时间：2023-12-11 19:04:11 / 修改时间：00:43:31" itemprop="dateCreated datePublished" datetime="2023-12-11T19:04:11+08:00">2023-12-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -204,22 +204,13 @@
 
       
         <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><ul>
-<li><ol>
 <li>什么是StarRocks<br>StarRocks是一款极速全场景MPP企业级数据库产品，具备水平在线扩缩容，金融级高可用，兼容MySQL协议和MySQL生态，提供全面向量化引擎与多种数据源联邦查询等重要特性。StarRocks致力于在全场景OLAP业务上为用户提供统一的解决方案，适用于对性能，实时性，并发能力和灵活性有较高要求的各类应用场景。</li>
-</ol>
-</li>
-<li><ol>
 <li>滴滴olap现状<br>当前在滴滴内部,主要大数据olap生态包括clickhouse/druid/starrocks等,而写入olap可以划分为两个方向,分布是实时和离线:<ul>
 <li>2.1 实时方向,包括网约车/金融等大部分业务侧均是使用kafka/ddmq作为source端,将数据通过flink实时攒批写入到大数据olap存储侧</li>
 <li>2.2 离线方向,包括网约车/金融等大部分业务侧则是将数据通过hive/mysql/hdfs这个source端,经过各项加工后流入到olap这个sink存储侧</li>
 </ul>
 </li>
-</ol>
-</li>
-<li><ol>
 <li>本文主题<br>本篇文章主要是介绍在starrocks这一侧,如果实现将hive数据进行加工后写入到starrock,涉及到starrokc的源码解析、组件介绍、及相关平台架构</li>
-</ol>
-</li>
 </ul>
 <h3 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h3><p>如下图,是当前滴滴内部hive2sr导入的实现架构图,用户主要是通过访问同步中心,配置hive表和sr表的字段映射及默认值,同步中心会将映射关系通过srm开放的http接口传给srm侧,srm进行相关处理后提交给sr的各个组件,组件之间通过thrift server进行rpc通信,而srm则通过http方式进行任务最终状态监听,当任务完成后返回给数梦的任务调度系统,最终完成整个全链路流程.<br><img src="/images/starrocks/hive2sr/structure.png" alt="架构图"></p>
 <h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><ol>
@@ -243,7 +234,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public boolean start() &#123;</span><br><span class="line">    ......</span><br><span class="line">    &#x2F;&#x2F; 打开fe的mysql协议的socket管道</span><br><span class="line">    &#x2F;&#x2F; 开启一个常驻线程用以监听mysql协议</span><br><span class="line">    listener &#x3D; ThreadPoolManager.newDaemonCacheThreadPool(1, &quot;MySQL-Protocol-Listener&quot;, true);</span><br><span class="line">    running &#x3D; true;</span><br><span class="line">    listenerFuture &#x3D; listener.submit(new Listener());</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>提交本次连接的上下文到连接调度器</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">........</span><br><span class="line">clientChannel &#x3D; serverChannel.accept();</span><br><span class="line">if (clientChannel &#x3D;&#x3D; null) &#123;</span><br><span class="line">    continue;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 初始化本次session的上下文信息到连接调度器</span><br><span class="line">&#x2F;&#x2F; submit this context to scheduler</span><br><span class="line">ConnectContext context &#x3D; new ConnectContext(clientChannel, sslContext);</span><br><span class="line">&#x2F;&#x2F; Set globalStateMgr here.</span><br><span class="line">context.setGlobalStateMgr(GlobalStateMgr.getCurrentState());</span><br><span class="line">if (!scheduler.submit(context)) &#123;</span><br><span class="line">    LOG.warn(&quot;Submit one connect request failed. Client&#x3D;&quot; + clientChannel.toString());</span><br><span class="line">    &#x2F;&#x2F; clear up context</span><br><span class="line">    context.cleanup();</span><br><span class="line">&#125;</span><br><span class="line">............</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">+ 提交本次连接的上下文给线程池</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">........</span><br><span class="line">clientChannel &#x3D; serverChannel.accept();</span><br><span class="line">if (clientChannel &#x3D;&#x3D; null) &#123;</span><br><span class="line">    continue;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 初始化本次session的上下文信息到连接调度器</span><br><span class="line">&#x2F;&#x2F; submit this context to scheduler</span><br><span class="line">ConnectContext context &#x3D; new ConnectContext(clientChannel, sslContext);</span><br><span class="line">&#x2F;&#x2F; Set globalStateMgr here.</span><br><span class="line">context.setGlobalStateMgr(GlobalStateMgr.getCurrentState());</span><br><span class="line">if (!scheduler.submit(context)) &#123;</span><br><span class="line">    LOG.warn(&quot;Submit one connect request failed. Client&#x3D;&quot; + clientChannel.toString());</span><br><span class="line">    &#x2F;&#x2F; clear up context</span><br><span class="line">    context.cleanup();</span><br><span class="line">&#125;</span><br><span class="line">............</span><br><span class="line">&#96;&#96;&#96;   </span><br><span class="line"></span><br><span class="line">+ 提交本次连接的上下文给线程池</span><br></pre></td></tr></table></figure>
 <p>public boolean submit(ConnectContext context) {<br>  if (context == null) {</p>
 <pre><code>  return false;
 </code></pre><p>  }</p>
